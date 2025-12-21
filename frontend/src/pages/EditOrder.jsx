@@ -40,8 +40,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '../lib/utils';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
 import { v4 as uuidv4 } from 'uuid';
 
 export default function EditOrder() {
