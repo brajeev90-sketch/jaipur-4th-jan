@@ -1,6 +1,7 @@
 import "@/App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
+import { LanguageProvider } from "./contexts/LanguageContext";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import OrdersList from "./pages/OrdersList";
@@ -14,24 +15,26 @@ import TemplateSettings from "./pages/TemplateSettings";
 
 function App() {
   return (
-    <div className="App" data-testid="app-root">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="orders" element={<OrdersList />} />
-            <Route path="orders/new" element={<CreateOrder />} />
-            <Route path="orders/:id" element={<OrderDetail />} />
-            <Route path="orders/:id/edit" element={<EditOrder />} />
-            <Route path="orders/:id/preview" element={<OrderPreview />} />
-            <Route path="leather-library" element={<LeatherLibrary />} />
-            <Route path="finish-library" element={<FinishLibrary />} />
-            <Route path="template-settings" element={<TemplateSettings />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-      <Toaster position="top-right" richColors />
-    </div>
+    <LanguageProvider>
+      <div className="App" data-testid="app-root">
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="orders" element={<OrdersList />} />
+              <Route path="orders/new" element={<CreateOrder />} />
+              <Route path="orders/:id" element={<OrderDetail />} />
+              <Route path="orders/:id/edit" element={<EditOrder />} />
+              <Route path="orders/:id/preview" element={<OrderPreview />} />
+              <Route path="leather-library" element={<LeatherLibrary />} />
+              <Route path="finish-library" element={<FinishLibrary />} />
+              <Route path="template-settings" element={<TemplateSettings />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+        <Toaster position="top-right" richColors />
+      </div>
+    </LanguageProvider>
   );
 }
 
