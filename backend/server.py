@@ -1,5 +1,5 @@
-from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Form
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi import FastAPI, APIRouter, HTTPException
+from fastapi.responses import StreamingResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -10,14 +10,19 @@ from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional
 import uuid
 from datetime import datetime, timezone
-import base64
 import io
-from weasyprint import HTML, CSS
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import mm
+from reportlab.pdfgen import canvas
+from reportlab.lib.colors import HexColor
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import Paragraph, Table, TableStyle
 from pptx import Presentation
 from pptx.util import Inches, Pt
-from pptx.dml.color import RgbColor
-import json
-import tempfile
+import re
+import base64
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -54,8 +59,8 @@ class OrderItem(BaseModel):
     color_notes: str = ""
     leg_color: str = ""
     wood_finish: str = ""
-    notes: str = ""  # Rich text HTML
-    images: List[str] = []  # Base64 encoded images
+    notes: str = ""
+    images: List[str] = []
     reference_images: List[str] = []
 
 class Order(BaseModel):
@@ -65,7 +70,7 @@ class Order(BaseModel):
     buyer_po_ref: str = ""
     buyer_name: str = ""
     entry_date: str = ""
-    status: str = "Draft"  # Draft, Submitted, In Production, Done
+    status: str = "Draft"
     factory: str = ""
     items: List[OrderItem] = []
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
@@ -96,7 +101,7 @@ class LeatherLibraryItem(BaseModel):
     name: str
     description: str = ""
     color: str = ""
-    image: str = ""  # Base64
+    image: str = ""
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 class FinishLibraryItem(BaseModel):
@@ -106,7 +111,7 @@ class FinishLibraryItem(BaseModel):
     name: str
     description: str = ""
     color: str = ""
-    image: str = ""  # Base64
+    image: str = ""
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 class TemplateSettings(BaseModel):
@@ -127,7 +132,7 @@ class ExportRecord(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     order_id: str
-    export_type: str  # pdf or ppt
+    export_type: str
     filename: str
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
@@ -167,7 +172,6 @@ async def update_order(order_id: str, order_data: OrderUpdate):
     update_data = {k: v for k, v in order_data.model_dump().items() if v is not None}
     update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
     
-    # Handle items serialization
     if "items" in update_data:
         update_data["items"] = [item.model_dump() if hasattr(item, 'model_dump') else item for item in update_data["items"]]
     
@@ -281,129 +285,190 @@ async def get_categories():
 
 # --- PDF EXPORT ---
 
-def generate_pdf_html(order: dict, settings: dict) -> str:
-    items_html = ""
+def strip_html(text):
+    """Remove HTML tags from text"""
+    clean = re.compile('<.*?>')
+    return re.sub(clean, '', text or '')
+
+def generate_pdf(order: dict, settings: dict) -> bytes:
+    buffer = io.BytesIO()
+    c = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
+    margin = settings.get('page_margin_mm', 15) * mm
+    
+    primary_color = HexColor(settings.get('primary_color', '#3d2c1e'))
     
     for idx, item in enumerate(order.get("items", [])):
-        # Get first image or placeholder
-        image_html = ""
-        if item.get("images") and len(item["images"]) > 0:
-            image_html = f'<img src="{item["images"][0]}" style="max-width:100%;max-height:250px;object-fit:contain;"/>'
-        else:
-            image_html = '<div style="width:100%;height:200px;background:#e0e0e0;display:flex;align-items:center;justify-content:center;color:#888;">No Image</div>'
+        # Header
+        c.setFillColor(primary_color)
+        c.setFont("Helvetica-Bold", 24)
+        c.drawString(margin, height - margin - 20, settings.get('logo_text', 'JAIPUR'))
         
-        # Calculate CBM if auto
-        cbm = item.get("cbm", 0)
-        if item.get("cbm_auto", True):
-            h = item.get("height_cm", 0) or 0
-            d = item.get("depth_cm", 0) or 0
-            w = item.get("width_cm", 0) or 0
+        c.setFillColor(HexColor('#666666'))
+        c.setFont("Helvetica", 9)
+        c.drawString(margin, height - margin - 35, settings.get('company_name', ''))
+        
+        # Date table on right
+        c.setFillColor(HexColor('#333333'))
+        c.setFont("Helvetica", 8)
+        right_x = width - margin - 120
+        y = height - margin - 15
+        
+        dates = [
+            ("Entry Date", order.get('entry_date', 'N/A')),
+            ("Factory", order.get('factory', 'N/A')),
+            ("Sales Ref", order.get('sales_order_ref', 'N/A')),
+            ("Buyer PO", order.get('buyer_po_ref', 'N/A')),
+        ]
+        
+        for label, value in dates:
+            c.setFont("Helvetica-Bold", 7)
+            c.drawString(right_x, y, label + ":")
+            c.setFont("Helvetica", 7)
+            c.drawString(right_x + 50, y, str(value))
+            y -= 12
+        
+        # Separator line
+        c.setStrokeColor(primary_color)
+        c.setLineWidth(2)
+        c.line(margin, height - margin - 55, width - margin, height - margin - 55)
+        
+        # Content area
+        content_y = height - margin - 80
+        
+        # Image placeholder
+        c.setStrokeColor(HexColor('#cccccc'))
+        c.setLineWidth(1)
+        c.rect(margin, content_y - 180, 200, 180)
+        
+        if item.get('images') and len(item['images']) > 0:
+            try:
+                img_data = item['images'][0]
+                if img_data.startswith('data:image'):
+                    img_data = img_data.split(',')[1]
+                    img_bytes = base64.b64decode(img_data)
+                    from reportlab.lib.utils import ImageReader
+                    img = ImageReader(io.BytesIO(img_bytes))
+                    c.drawImage(img, margin + 5, content_y - 175, width=190, height=170, preserveAspectRatio=True)
+            except Exception as e:
+                c.setFillColor(HexColor('#888888'))
+                c.setFont("Helvetica", 10)
+                c.drawCentredString(margin + 100, content_y - 90, "Image Error")
+        else:
+            c.setFillColor(HexColor('#888888'))
+            c.setFont("Helvetica", 10)
+            c.drawCentredString(margin + 100, content_y - 90, "No Image")
+        
+        # Notes section
+        notes_x = margin + 220
+        notes_width = width - margin - notes_x
+        
+        c.setStrokeColor(HexColor('#cccccc'))
+        c.rect(notes_x, content_y - 180, notes_width, 180)
+        
+        c.setFillColor(primary_color)
+        c.setFont("Helvetica-Bold", 9)
+        c.drawString(notes_x + 10, content_y - 15, "NOTES")
+        
+        c.setFillColor(HexColor('#333333'))
+        c.setFont("Helvetica", 8)
+        notes_text = strip_html(item.get('notes', 'No notes'))
+        
+        # Wrap notes text
+        notes_y = content_y - 30
+        max_width = notes_width - 20
+        words = notes_text.split()
+        line = ""
+        for word in words:
+            test_line = line + " " + word if line else word
+            if c.stringWidth(test_line, "Helvetica", 8) < max_width:
+                line = test_line
+            else:
+                c.drawString(notes_x + 10, notes_y, line)
+                notes_y -= 12
+                line = word
+                if notes_y < content_y - 100:
+                    break
+        if line:
+            c.drawString(notes_x + 10, notes_y, line)
+        
+        # Material info
+        material_y = content_y - 120
+        c.setFont("Helvetica-Bold", 7)
+        c.drawString(notes_x + 10, material_y, "Leather:")
+        c.setFont("Helvetica", 7)
+        c.drawString(notes_x + 60, material_y, item.get('leather_code', 'N/A'))
+        
+        material_y -= 12
+        c.setFont("Helvetica-Bold", 7)
+        c.drawString(notes_x + 10, material_y, "Finish:")
+        c.setFont("Helvetica", 7)
+        c.drawString(notes_x + 60, material_y, item.get('finish_code', 'N/A'))
+        
+        material_y -= 12
+        c.setFont("Helvetica-Bold", 7)
+        c.drawString(notes_x + 10, material_y, "Color Notes:")
+        c.setFont("Helvetica", 7)
+        c.drawString(notes_x + 60, material_y, item.get('color_notes', 'N/A'))
+        
+        material_y -= 12
+        c.setFont("Helvetica-Bold", 7)
+        c.drawString(notes_x + 10, material_y, "Wood Finish:")
+        c.setFont("Helvetica", 7)
+        c.drawString(notes_x + 60, material_y, item.get('wood_finish', 'N/A'))
+        
+        # Details table
+        table_y = content_y - 220
+        
+        # Table header
+        c.setFillColor(primary_color)
+        c.rect(margin, table_y, width - 2*margin, 20, fill=True)
+        
+        c.setFillColor(HexColor('#ffffff'))
+        c.setFont("Helvetica-Bold", 8)
+        
+        cols = [margin + 5, margin + 70, margin + 200, margin + 260, margin + 310, margin + 360, margin + 410]
+        headers = ["Item Code", "Description", "H (cm)", "D (cm)", "W (cm)", "CBM", "Qty"]
+        
+        for i, header in enumerate(headers):
+            c.drawString(cols[i], table_y + 6, header)
+        
+        # Table row
+        cbm = item.get('cbm', 0)
+        if item.get('cbm_auto', True):
+            h = item.get('height_cm', 0) or 0
+            d = item.get('depth_cm', 0) or 0
+            w = item.get('width_cm', 0) or 0
             cbm = round((h * d * w) / 1000000, 4)
         
-        notes_html = item.get("notes", "") or ""
+        row_y = table_y - 20
+        c.setStrokeColor(HexColor('#cccccc'))
+        c.rect(margin, row_y, width - 2*margin, 20)
         
-        items_html += f'''
-        <div class="item-page" style="page-break-after: always;">
-            <div class="header">
-                <div class="logo">
-                    <h1 style="font-family:{settings.get('font_family', 'serif')};color:{settings.get('primary_color', '#3d2c1e')};margin:0;font-size:28px;">
-                        {settings.get('logo_text', 'JAIPUR')}
-                    </h1>
-                    <p style="font-size:11px;margin:2px 0 0 0;color:#666;">{settings.get('company_name', '')}</p>
-                </div>
-                <div class="date-table">
-                    <table style="font-size:10px;border-collapse:collapse;">
-                        <tr><td style="padding:3px 8px;border:1px solid #ccc;background:#f5f5f5;">Entry Date</td><td style="padding:3px 8px;border:1px solid #ccc;">{order.get('entry_date', '')}</td></tr>
-                        <tr><td style="padding:3px 8px;border:1px solid #ccc;background:#f5f5f5;">Factory</td><td style="padding:3px 8px;border:1px solid #ccc;">{order.get('factory', '')}</td></tr>
-                        <tr><td style="padding:3px 8px;border:1px solid #ccc;background:#f5f5f5;">Sales Ref</td><td style="padding:3px 8px;border:1px solid #ccc;">{order.get('sales_order_ref', '')}</td></tr>
-                        <tr><td style="padding:3px 8px;border:1px solid #ccc;background:#f5f5f5;">Buyer PO</td><td style="padding:3px 8px;border:1px solid #ccc;">{order.get('buyer_po_ref', '')}</td></tr>
-                    </table>
-                </div>
-            </div>
-            
-            <div class="content-row" style="display:flex;gap:20px;margin-top:15px;">
-                <div class="image-section" style="flex:1;min-width:300px;">
-                    {image_html}
-                </div>
-                <div class="notes-section" style="flex:1;border:1px solid #ccc;padding:10px;min-height:200px;background:#fafafa;">
-                    <h4 style="margin:0 0 10px 0;color:{settings.get('primary_color', '#3d2c1e')};font-size:12px;">NOTES</h4>
-                    <div style="font-size:11px;line-height:1.5;">{notes_html}</div>
-                    <div style="font-size:10px;margin-top:10px;color:#666;">
-                        <p><strong>Leather:</strong> {item.get('leather_code', 'N/A')}</p>
-                        <p><strong>Finish:</strong> {item.get('finish_code', 'N/A')}</p>
-                        <p><strong>Color Notes:</strong> {item.get('color_notes', 'N/A')}</p>
-                        <p><strong>Wood Finish:</strong> {item.get('wood_finish', 'N/A')}</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="details-table" style="margin-top:20px;">
-                <table style="width:100%;border-collapse:collapse;font-size:11px;">
-                    <thead>
-                        <tr style="background:{settings.get('primary_color', '#3d2c1e')};color:white;">
-                            <th style="padding:8px;text-align:left;border:1px solid #ccc;">Item Code</th>
-                            <th style="padding:8px;text-align:left;border:1px solid #ccc;">Description</th>
-                            <th style="padding:8px;text-align:center;border:1px solid #ccc;">H (cm)</th>
-                            <th style="padding:8px;text-align:center;border:1px solid #ccc;">D (cm)</th>
-                            <th style="padding:8px;text-align:center;border:1px solid #ccc;">W (cm)</th>
-                            <th style="padding:8px;text-align:center;border:1px solid #ccc;">CBM</th>
-                            <th style="padding:8px;text-align:center;border:1px solid #ccc;">Qty</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="padding:8px;border:1px solid #ccc;font-family:monospace;">{item.get('product_code', '')}</td>
-                            <td style="padding:8px;border:1px solid #ccc;">{item.get('description', '')}</td>
-                            <td style="padding:8px;text-align:center;border:1px solid #ccc;">{item.get('height_cm', 0)}</td>
-                            <td style="padding:8px;text-align:center;border:1px solid #ccc;">{item.get('depth_cm', 0)}</td>
-                            <td style="padding:8px;text-align:center;border:1px solid #ccc;">{item.get('width_cm', 0)}</td>
-                            <td style="padding:8px;text-align:center;border:1px solid #ccc;">{cbm}</td>
-                            <td style="padding:8px;text-align:center;border:1px solid #ccc;">{item.get('quantity', 1)}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            
-            <div class="footer" style="margin-top:20px;padding-top:10px;border-top:1px solid #ddd;font-size:9px;color:#888;text-align:center;">
-                Buyer: {order.get('buyer_name', '')} | Page {idx + 1} of {len(order.get('items', []))}
-            </div>
-        </div>
-        '''
+        c.setFillColor(HexColor('#333333'))
+        c.setFont("Courier", 8)
+        c.drawString(cols[0], row_y + 6, str(item.get('product_code', '-')))
+        
+        c.setFont("Helvetica", 8)
+        desc = item.get('description', '-')[:30]
+        c.drawString(cols[1], row_y + 6, desc)
+        c.drawString(cols[2], row_y + 6, str(item.get('height_cm', 0)))
+        c.drawString(cols[3], row_y + 6, str(item.get('depth_cm', 0)))
+        c.drawString(cols[4], row_y + 6, str(item.get('width_cm', 0)))
+        c.drawString(cols[5], row_y + 6, str(cbm))
+        c.drawString(cols[6], row_y + 6, str(item.get('quantity', 1)))
+        
+        # Footer
+        c.setFillColor(HexColor('#888888'))
+        c.setFont("Helvetica", 8)
+        footer_text = f"Buyer: {order.get('buyer_name', 'N/A')} | Page {idx + 1} of {len(order.get('items', []))}"
+        c.drawCentredString(width / 2, margin, footer_text)
+        
+        c.showPage()
     
-    html = f'''
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <style>
-            @page {{
-                size: A4;
-                margin: {settings.get('page_margin_mm', 15)}mm;
-            }}
-            body {{
-                font-family: {settings.get('body_font', 'sans-serif')};
-                font-size: 12px;
-                line-height: 1.4;
-                color: #333;
-            }}
-            .header {{
-                display: flex;
-                justify-content: space-between;
-                align-items: flex-start;
-                padding-bottom: 15px;
-                border-bottom: 2px solid {settings.get('primary_color', '#3d2c1e')};
-            }}
-            .item-page {{
-                padding: 0;
-            }}
-        </style>
-    </head>
-    <body>
-        {items_html}
-    </body>
-    </html>
-    '''
-    return html
+    c.save()
+    buffer.seek(0)
+    return buffer.getvalue()
 
 @api_router.get("/orders/{order_id}/export/pdf")
 async def export_order_pdf(order_id: str):
@@ -415,12 +480,8 @@ async def export_order_pdf(order_id: str):
     if not settings:
         settings = TemplateSettings().model_dump()
     
-    html_content = generate_pdf_html(order, settings)
+    pdf_bytes = generate_pdf(order, settings)
     
-    # Generate PDF
-    pdf_bytes = HTML(string=html_content).write_pdf()
-    
-    # Save export record
     export_record = ExportRecord(
         order_id=order_id,
         export_type="pdf",
@@ -439,13 +500,7 @@ async def preview_order_html(order_id: str):
     order = await db.orders.find_one({"id": order_id}, {"_id": 0})
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
-    
-    settings = await db.template_settings.find_one({"id": "default"}, {"_id": 0})
-    if not settings:
-        settings = TemplateSettings().model_dump()
-    
-    html_content = generate_pdf_html(order, settings)
-    return {"html": html_content}
+    return {"html": "", "order": order}
 
 # --- PPT EXPORT ---
 
@@ -463,38 +518,25 @@ async def export_order_ppt(order_id: str):
     prs.slide_width = Inches(10)
     prs.slide_height = Inches(7.5)
     
-    # Title slide
-    title_slide_layout = prs.slide_layouts[6]  # Blank
+    title_slide_layout = prs.slide_layouts[6]
     slide = prs.slides.add_slide(title_slide_layout)
     
-    # Add title
-    left = Inches(0.5)
-    top = Inches(2.5)
-    width = Inches(9)
-    height = Inches(1.5)
-    txBox = slide.shapes.add_textbox(left, top, width, height)
+    txBox = slide.shapes.add_textbox(Inches(0.5), Inches(2.5), Inches(9), Inches(1.5))
     tf = txBox.text_frame
     p = tf.paragraphs[0]
     p.text = settings.get('logo_text', 'JAIPUR')
     p.font.size = Pt(48)
     p.font.bold = True
     
-    # Subtitle
-    left = Inches(0.5)
-    top = Inches(4)
-    width = Inches(9)
-    height = Inches(1)
-    txBox = slide.shapes.add_textbox(left, top, width, height)
+    txBox = slide.shapes.add_textbox(Inches(0.5), Inches(4), Inches(9), Inches(1))
     tf = txBox.text_frame
     p = tf.paragraphs[0]
     p.text = f"Production Sheet - {order.get('sales_order_ref', '')} | Buyer: {order.get('buyer_name', '')}"
     p.font.size = Pt(24)
     
-    # Item slides
     for item in order.get("items", []):
         slide = prs.slides.add_slide(title_slide_layout)
         
-        # Item code title
         txBox = slide.shapes.add_textbox(Inches(0.5), Inches(0.3), Inches(9), Inches(0.5))
         tf = txBox.text_frame
         p = tf.paragraphs[0]
@@ -502,15 +544,13 @@ async def export_order_ppt(order_id: str):
         p.font.size = Pt(24)
         p.font.bold = True
         
-        # Details table info
-        details_text = f"""
-Category: {item.get('category', 'N/A')}
+        details_text = f"""Category: {item.get('category', 'N/A')}
 Size: H {item.get('height_cm', 0)} × D {item.get('depth_cm', 0)} × W {item.get('width_cm', 0)} cm
 CBM: {item.get('cbm', 0)} | Quantity: {item.get('quantity', 1)} pcs
 Leather: {item.get('leather_code', 'N/A')} | Finish: {item.get('finish_code', 'N/A')}
 Color Notes: {item.get('color_notes', 'N/A')}
-Wood Finish: {item.get('wood_finish', 'N/A')}
-"""
+Wood Finish: {item.get('wood_finish', 'N/A')}"""
+        
         txBox = slide.shapes.add_textbox(Inches(5), Inches(1.2), Inches(4.5), Inches(3))
         tf = txBox.text_frame
         tf.word_wrap = True
@@ -518,33 +558,19 @@ Wood Finish: {item.get('wood_finish', 'N/A')}
         p.text = details_text
         p.font.size = Pt(14)
         
-        # Notes
         if item.get('notes'):
+            notes_plain = strip_html(item.get('notes', ''))
             txBox = slide.shapes.add_textbox(Inches(5), Inches(4.5), Inches(4.5), Inches(2.5))
             tf = txBox.text_frame
             tf.word_wrap = True
             p = tf.paragraphs[0]
-            # Strip HTML tags for PPT
-            import re
-            notes_plain = re.sub('<[^<]+?>', '', item.get('notes', ''))
             p.text = f"Notes:\n{notes_plain}"
             p.font.size = Pt(12)
-        
-        # Image placeholder text
-        if item.get('images') and len(item['images']) > 0:
-            txBox = slide.shapes.add_textbox(Inches(0.5), Inches(1.2), Inches(4), Inches(0.5))
-            tf = txBox.text_frame
-            p = tf.paragraphs[0]
-            p.text = "[Product Image]"
-            p.font.size = Pt(14)
-            p.font.italic = True
     
-    # Save to bytes
     ppt_bytes = io.BytesIO()
     prs.save(ppt_bytes)
     ppt_bytes.seek(0)
     
-    # Save export record
     export_record = ExportRecord(
         order_id=order_id,
         export_type="ppt",
@@ -579,7 +605,6 @@ async def get_dashboard_stats():
     in_production = await db.orders.count_documents({"status": "In Production"})
     completed = await db.orders.count_documents({"status": "Done"})
     
-    # Get recent orders
     recent_orders = await db.orders.find({}, {"_id": 0}).sort("created_at", -1).limit(5).to_list(5)
     
     return {
@@ -601,7 +626,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
