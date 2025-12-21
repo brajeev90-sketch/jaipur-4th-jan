@@ -55,7 +55,9 @@ class OrderItem(BaseModel):
     in_house_production: bool = True
     machine_hall: str = ""
     leather_code: str = ""
+    leather_image: str = ""
     finish_code: str = ""
+    finish_image: str = ""
     color_notes: str = ""
     leg_color: str = ""
     wood_finish: str = ""
