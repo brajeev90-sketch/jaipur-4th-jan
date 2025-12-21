@@ -85,6 +85,65 @@ a[href*="emergent.sh"] {
     visibility: hidden !important;
 }
 
+/* Mobile Responsive Styles */
+@media (max-width: 1024px) {
+    .page-title {
+        font-size: 1.5rem;
+    }
+    
+    .page-header {
+        margin-bottom: 1.5rem;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .preview-container {
+        padding: 1rem;
+    }
+    
+    .preview-paper {
+        width: 100%;
+        min-height: auto;
+        padding: 10mm;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 1.25rem;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-card {
+        padding: 1rem;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .form-section {
+        padding: 1rem;
+    }
+    
+    /* Stack buttons on mobile */
+    .button-group-mobile {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .button-group-mobile > * {
+        width: 100%;
+    }
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
     width: 8px;
