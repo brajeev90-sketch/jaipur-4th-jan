@@ -127,8 +127,10 @@ export default function EditOrder() {
   };
 
   const handleDateChange = (selectedDate) => {
-    setDate(selectedDate);
-    handleOrderChange('entry_date', format(selectedDate, 'yyyy-MM-dd'));
+    if (selectedDate) {
+      setDate(selectedDate);
+      handleOrderChange('entry_date', format(selectedDate, 'yyyy-MM-dd'));
+    }
   };
 
   const handleSave = async () => {
