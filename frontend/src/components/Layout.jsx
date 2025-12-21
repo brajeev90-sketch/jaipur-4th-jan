@@ -8,21 +8,24 @@ import {
   Settings,
   Layers,
   Menu,
-  X
+  X,
+  Globe
 } from 'lucide-react';
 import { Button } from './ui/button';
-
-const navItems = [
-  { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { path: '/orders', icon: FileText, label: 'Orders' },
-  { path: '/orders/new', icon: PlusCircle, label: 'New Order' },
-  { path: '/leather-library', icon: Palette, label: 'Leather Library' },
-  { path: '/finish-library', icon: Layers, label: 'Finish Library' },
-  { path: '/template-settings', icon: Settings, label: 'Template Settings' },
-];
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { language, toggleLanguage, t } = useLanguage();
+
+  const navItems = [
+    { path: '/', icon: LayoutDashboard, label: t('dashboard') },
+    { path: '/orders', icon: FileText, label: t('orders') },
+    { path: '/orders/new', icon: PlusCircle, label: t('newOrder') },
+    { path: '/leather-library', icon: Palette, label: t('leatherLibrary') },
+    { path: '/finish-library', icon: Layers, label: t('finishLibrary') },
+    { path: '/template-settings', icon: Settings, label: t('templateSettings') },
+  ];
 
   return (
     <div className="flex min-h-screen" data-testid="app-layout">
@@ -37,8 +40,20 @@ export const Layout = () => {
           >
             <Menu size={24} />
           </Button>
-          <h1 className="font-serif text-xl font-semibold text-primary">JAIPUR</h1>
+          <h1 className="font-serif text-xl font-semibold text-primary">
+            {language === 'hi' ? 'जयपुर' : 'JAIPUR'}
+          </h1>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={toggleLanguage}
+          className="gap-2"
+          data-testid="mobile-lang-switch"
+        >
+          <Globe size={16} />
+          {language === 'en' ? 'हिं' : 'EN'}
+        </Button>
       </div>
 
       {/* Mobile Sidebar Overlay */}
@@ -63,10 +78,10 @@ export const Layout = () => {
         <div className="p-6 border-b border-border flex items-center justify-between">
           <div>
             <h1 className="font-serif text-2xl font-semibold text-primary" data-testid="logo">
-              JAIPUR
+              {language === 'hi' ? 'जयपुर' : 'JAIPUR'}
             </h1>
             <p className="text-xs text-muted-foreground mt-1">
-              A fine wood furniture company
+              {t('tagline')}
             </p>
           </div>
           <Button 
@@ -76,6 +91,20 @@ export const Layout = () => {
             onClick={() => setSidebarOpen(false)}
           >
             <X size={20} />
+          </Button>
+        </div>
+        
+        {/* Language Switcher - Desktop */}
+        <div className="hidden lg:block px-4 py-3 border-b border-border">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleLanguage}
+            className="w-full gap-2 justify-center"
+            data-testid="desktop-lang-switch"
+          >
+            <Globe size={16} />
+            {language === 'en' ? 'हिंदी में देखें' : 'View in English'}
           </Button>
         </div>
         
@@ -100,7 +129,7 @@ export const Layout = () => {
         
         {/* Footer */}
         <div className="p-4 border-t border-border text-xs text-muted-foreground">
-          Production Sheet System v1.0
+          {t('version')}
         </div>
       </aside>
       
