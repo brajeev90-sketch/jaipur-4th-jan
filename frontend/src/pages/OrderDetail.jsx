@@ -20,7 +20,8 @@ import {
   FileText, 
   Eye,
   Download,
-  Share2
+  Share2,
+  Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -36,6 +37,7 @@ export default function OrderDetail() {
   const navigate = useNavigate();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [sharing, setSharing] = useState(false);
 
   useEffect(() => {
     loadOrder();
@@ -64,12 +66,37 @@ export default function OrderDetail() {
     toast.success('PPT download started');
   };
 
-  const handleWhatsAppShare = () => {
-    const pdfUrl = ordersApi.exportPdf(id);
-    const message = `JAIPUR Production Sheet\nOrder: ${order?.sales_order_ref || 'N/A'}\nBuyer: ${order?.buyer_name || 'N/A'}\nItems: ${order?.items?.length || 0}\n\nDownload PDF: ${pdfUrl}`;
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
-    toast.success('Opening WhatsApp...');
+  const handleWhatsAppShare = async () => {
+    setSharing(true);
+    try {
+      const pdfUrl = ordersApi.exportPdf(id);
+      
+      let message = `*JAIPUR Production Sheet*\n\n`;
+      message += `📋 *Order:* ${order?.sales_order_ref || 'N/A'}\n`;
+      message += `👤 *Buyer:* ${order?.buyer_name || 'N/A'}\n`;
+      message += `📅 *Date:* ${order?.entry_date || 'N/A'}\n`;
+      message += `📦 *Items:* ${order?.items?.length || 0}\n\n`;
+      
+      if (order?.items?.length > 0) {
+        message += `*Items:*\n`;
+        order.items.forEach((item, idx) => {
+          message += `${idx + 1}. ${item.product_code} - ${item.description || 'No desc'} (Qty: ${item.quantity})\n`;
+        });
+        message += `\n`;
+      }
+      
+      message += `📥 *Download PDF:*\n${pdfUrl}`;
+      
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+      
+      toast.success('Opening WhatsApp...');
+    } catch (error) {
+      console.error('Error sharing:', error);
+      toast.error('Failed to share');
+    } finally {
+      setSharing(false);
+    }
   };
 
   if (loading) {
@@ -103,61 +130,63 @@ export default function OrderDetail() {
           data-testid="back-btn"
         >
           <ArrowLeft size={18} />
-          Back to Orders
+          <span className="hidden sm:inline">Back to Orders</span>
         </Button>
         
-        <div className="flex justify-between items-start">
+        <div className="flex flex-col gap-4">
           <div>
-            <div className="flex items-center gap-3">
-              <h1 className="page-title font-mono" data-testid="order-ref">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <h1 className="page-title font-mono text-lg sm:text-2xl" data-testid="order-ref">
                 {order.sales_order_ref || 'Untitled Order'}
               </h1>
               <Badge className={statusColors[order.status] || 'bg-gray-100'}>
                 {order.status}
               </Badge>
             </div>
-            <p className="page-description">
+            <p className="page-description text-sm">
               Buyer: {order.buyer_name || 'N/A'} | PO: {order.buyer_po_ref || 'N/A'}
             </p>
           </div>
           
-          <div className="flex gap-2">
-            <Link to={`/orders/${id}/preview`}>
-              <Button variant="outline" className="gap-2" data-testid="preview-btn">
+          {/* Action Buttons - Responsive */}
+          <div className="flex flex-wrap gap-2">
+            <Link to={`/orders/${id}/preview`} className="flex-1 sm:flex-none">
+              <Button variant="outline" className="gap-2 w-full sm:w-auto" data-testid="preview-btn">
                 <Eye size={18} />
-                Preview
+                <span>Preview</span>
               </Button>
             </Link>
             <Button 
-              variant="outline" 
-              className="gap-2 bg-green-50 border-green-200 text-green-700 hover:bg-green-100 hover:text-green-800"
+              className="gap-2 bg-green-600 hover:bg-green-700 flex-1 sm:flex-none"
               onClick={handleWhatsAppShare}
+              disabled={sharing}
               data-testid="whatsapp-btn"
             >
-              <Share2 size={18} />
-              WhatsApp
+              {sharing ? <Loader2 size={18} className="animate-spin" /> : <Share2 size={18} />}
+              <span>WhatsApp</span>
             </Button>
             <Button 
-              className="gap-2"
+              variant="outline"
+              className="gap-2 flex-1 sm:flex-none"
               onClick={handleExportPdf}
               data-testid="export-pdf-btn"
             >
               <FileDown size={18} />
-              PDF
+              <span>PDF</span>
             </Button>
             <Button 
               variant="outline" 
-              className="gap-2"
+              className="gap-2 hidden sm:flex"
               onClick={handleExportPpt}
               data-testid="export-ppt-btn"
             >
               <Download size={18} />
-              PPT
+              <span>PPT</span>
             </Button>
-            <Link to={`/orders/${id}/edit`}>
-              <Button variant="secondary" className="gap-2" data-testid="edit-btn">
+            <Link to={`/orders/${id}/edit`} className="flex-1 sm:flex-none">
+              <Button variant="secondary" className="gap-2 w-full sm:w-auto" data-testid="edit-btn">
                 <Edit size={18} />
-                Edit
+                <span>Edit</span>
               </Button>
             </Link>
           </div>
