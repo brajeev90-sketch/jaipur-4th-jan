@@ -77,6 +77,14 @@
     }
 }
 
+/* Hide external badges */
+#emergent-badge,
+[id*="emergent"],
+a[href*="emergent.sh"] {
+    display: none !important;
+    visibility: hidden !important;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
     width: 8px;
