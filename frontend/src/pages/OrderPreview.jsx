@@ -8,7 +8,8 @@ import {
   Download,
   ChevronLeft,
   ChevronRight,
-  Share2
+  Share2,
+  Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -16,9 +17,9 @@ export default function OrderPreview() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [order, setOrder] = useState(null);
-  const [previewHtml, setPreviewHtml] = useState('');
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
+  const [sharing, setSharing] = useState(false);
 
   useEffect(() => {
     loadOrder();
@@ -26,12 +27,10 @@ export default function OrderPreview() {
 
   const loadOrder = async () => {
     try {
-      const [orderRes, previewRes] = await Promise.all([
+      const [orderRes] = await Promise.all([
         ordersApi.getById(id),
-        ordersApi.previewHtml(id),
       ]);
       setOrder(orderRes.data);
-      setPreviewHtml(previewRes.data.html);
     } catch (error) {
       console.error('Error loading preview:', error);
       toast.error('Failed to load preview');
@@ -51,12 +50,47 @@ export default function OrderPreview() {
     toast.success('PPT download started');
   };
 
-  const handleWhatsAppShare = () => {
-    const pdfUrl = ordersApi.exportPdf(id);
-    const message = `JAIPUR Production Sheet\nOrder: ${order?.sales_order_ref || 'N/A'}\nBuyer: ${order?.buyer_name || 'N/A'}\nItems: ${order?.items?.length || 0}\n\nDownload PDF: ${pdfUrl}`;
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
-    toast.success('Opening WhatsApp...');
+  const handleWhatsAppShare = async () => {
+    setSharing(true);
+    try {
+      // Generate PDF URL
+      const pdfUrl = ordersApi.exportPdf(id);
+      
+      // Create share message with order details
+      const orderRef = order?.sales_order_ref || 'N/A';
+      const buyerName = order?.buyer_name || 'N/A';
+      const itemCount = order?.items?.length || 0;
+      const entryDate = order?.entry_date || 'N/A';
+      
+      // Create detailed message
+      let message = `*JAIPUR Production Sheet*\n\n`;
+      message += `📋 *Order:* ${orderRef}\n`;
+      message += `👤 *Buyer:* ${buyerName}\n`;
+      message += `📅 *Date:* ${entryDate}\n`;
+      message += `📦 *Items:* ${itemCount}\n\n`;
+      
+      // Add item details
+      if (order?.items?.length > 0) {
+        message += `*Items:*\n`;
+        order.items.forEach((item, idx) => {
+          message += `${idx + 1}. ${item.product_code} - ${item.description || 'No desc'} (Qty: ${item.quantity})\n`;
+        });
+        message += `\n`;
+      }
+      
+      message += `📥 *Download PDF:*\n${pdfUrl}`;
+      
+      // Open WhatsApp with the message
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+      
+      toast.success('Opening WhatsApp...');
+    } catch (error) {
+      console.error('Error sharing:', error);
+      toast.error('Failed to share');
+    } finally {
+      setSharing(false);
+    }
   };
 
   if (loading) {
@@ -80,41 +114,43 @@ export default function OrderPreview() {
           data-testid="back-btn"
         >
           <ArrowLeft size={18} />
-          Back to Order
+          <span className="hidden sm:inline">Back to Order</span>
         </Button>
         
-        <div className="flex justify-between items-start">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
           <div>
-            <h1 className="page-title" data-testid="preview-title">Production Sheet Preview</h1>
-            <p className="page-description font-mono">{order?.sales_order_ref || 'Order'} • {order?.buyer_name || 'No Buyer'}</p>
+            <h1 className="page-title" data-testid="preview-title">Production Sheet</h1>
+            <p className="page-description font-mono text-sm">{order?.sales_order_ref || 'Order'} • {order?.buyer_name || 'No Buyer'}</p>
           </div>
           
-          <div className="flex gap-2">
+          {/* Action Buttons - Responsive */}
+          <div className="flex flex-wrap gap-2">
             <Button 
-              variant="outline" 
-              className="gap-2 bg-green-50 border-green-200 text-green-700 hover:bg-green-100 hover:text-green-800"
+              className="gap-2 bg-green-600 hover:bg-green-700 flex-1 sm:flex-none"
               onClick={handleWhatsAppShare}
+              disabled={sharing}
               data-testid="whatsapp-share-btn"
             >
-              <Share2 size={18} />
-              WhatsApp
+              {sharing ? <Loader2 size={18} className="animate-spin" /> : <Share2 size={18} />}
+              <span>WhatsApp</span>
             </Button>
             <Button 
-              className="gap-2"
+              variant="outline"
+              className="gap-2 flex-1 sm:flex-none"
               onClick={handleExportPdf}
               data-testid="export-pdf-btn"
             >
               <FileDown size={18} />
-              Download PDF
+              <span className="hidden sm:inline">Download</span> PDF
             </Button>
             <Button 
               variant="outline" 
-              className="gap-2"
+              className="gap-2 hidden sm:flex"
               onClick={handleExportPpt}
               data-testid="export-ppt-btn"
             >
               <Download size={18} />
-              Download PPT
+              PPT
             </Button>
           </div>
         </div>
@@ -122,7 +158,7 @@ export default function OrderPreview() {
 
       {/* Page Navigation */}
       {totalPages > 0 && (
-        <div className="flex items-center justify-center gap-4 mb-6" data-testid="page-navigation">
+        <div className="flex items-center justify-center gap-4 mb-4 sm:mb-6" data-testid="page-navigation">
           <Button 
             variant="outline" 
             size="icon"
@@ -148,7 +184,7 @@ export default function OrderPreview() {
       )}
 
       {/* Preview Container */}
-      <div className="preview-container rounded-sm" data-testid="preview-container">
+      <div className="preview-container rounded-sm overflow-x-auto" data-testid="preview-container">
         {totalPages === 0 ? (
           <div className="text-center py-20">
             <p className="text-muted-foreground mb-4">No items to preview</p>
@@ -158,7 +194,7 @@ export default function OrderPreview() {
           </div>
         ) : (
           <div 
-            className="preview-paper"
+            className="preview-paper mx-auto"
             data-testid="preview-paper"
           >
             <PreviewPage 
@@ -182,7 +218,7 @@ function PreviewPage({ order, item, pageNum, totalPages }) {
   return (
     <div className="h-full flex flex-col" style={{ fontFamily: 'Manrope, sans-serif', fontSize: '12px' }}>
       {/* Header with logo and date table */}
-      <div className="flex justify-between items-start pb-4 border-b-2 border-[#3d2c1e]">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 pb-4 border-b-2 border-[#3d2c1e]">
         {/* Logo */}
         <div className="flex items-center gap-3">
           <div className="text-[#3d2c1e]">
@@ -191,30 +227,30 @@ function PreviewPage({ order, item, pageNum, totalPages }) {
             </svg>
           </div>
           <div>
-            <h1 className="font-serif text-3xl font-bold text-[#3d2c1e] tracking-wide">JAIPUR</h1>
+            <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#3d2c1e] tracking-wide">JAIPUR</h1>
             <p className="text-xs text-[#666] italic">A fine wood furniture company</p>
           </div>
         </div>
         
         {/* Date Table */}
-        <div className="border border-[#3d2c1e]">
-          <table className="text-xs">
+        <div className="border border-[#3d2c1e] text-[10px] sm:text-xs">
+          <table>
             <tbody>
               <tr className="border-b border-[#3d2c1e]">
-                <td className="px-3 py-1.5 bg-[#f5f0eb] font-semibold border-r border-[#3d2c1e]">ENTRY DATE</td>
-                <td className="px-3 py-1.5 min-w-[100px]">{order.entry_date || '-'}</td>
+                <td className="px-2 sm:px-3 py-1 bg-[#f5f0eb] font-semibold border-r border-[#3d2c1e]">ENTRY DATE</td>
+                <td className="px-2 sm:px-3 py-1 min-w-[80px]">{order.entry_date || '-'}</td>
               </tr>
               <tr className="border-b border-[#3d2c1e]">
-                <td className="px-3 py-1.5 bg-[#f5f0eb] font-semibold border-r border-[#3d2c1e]">INFORMED TO FACTORY</td>
-                <td className="px-3 py-1.5">{order.factory || '-'}</td>
+                <td className="px-2 sm:px-3 py-1 bg-[#f5f0eb] font-semibold border-r border-[#3d2c1e]">FACTORY</td>
+                <td className="px-2 sm:px-3 py-1">{order.factory || '-'}</td>
               </tr>
               <tr className="border-b border-[#3d2c1e]">
-                <td className="px-3 py-1.5 bg-[#f5f0eb] font-semibold border-r border-[#3d2c1e]">TD RECEIVED</td>
-                <td className="px-3 py-1.5">-</td>
+                <td className="px-2 sm:px-3 py-1 bg-[#f5f0eb] font-semibold border-r border-[#3d2c1e]">SALES REF</td>
+                <td className="px-2 sm:px-3 py-1 font-mono">{order.sales_order_ref || '-'}</td>
               </tr>
               <tr>
-                <td className="px-3 py-1.5 bg-[#f5f0eb] font-semibold border-r border-[#3d2c1e]">SAMPLE READY DATE</td>
-                <td className="px-3 py-1.5 font-bold">ASAP</td>
+                <td className="px-2 sm:px-3 py-1 bg-[#f5f0eb] font-semibold border-r border-[#3d2c1e]">BUYER PO</td>
+                <td className="px-2 sm:px-3 py-1 font-mono">{order.buyer_po_ref || '-'}</td>
               </tr>
             </tbody>
           </table>
@@ -222,30 +258,30 @@ function PreviewPage({ order, item, pageNum, totalPages }) {
       </div>
 
       {/* Content Area: Image + Materials + Notes */}
-      <div className="flex gap-4 py-4 flex-1">
+      <div className="flex flex-col sm:flex-row gap-4 py-4 flex-1">
         {/* Product Image */}
-        <div className="w-1/3">
+        <div className="w-full sm:w-1/3">
           {item.images?.length > 0 ? (
             <img 
               src={item.images[0]} 
               alt={item.product_code}
-              className="w-full h-auto max-h-[280px] object-contain border border-[#ddd] rounded"
+              className="w-full h-auto max-h-[200px] sm:max-h-[280px] object-contain border border-[#ddd] rounded"
             />
           ) : (
-            <div className="w-full h-[200px] bg-[#f0f0f0] rounded flex items-center justify-center text-[#888] border border-[#ddd]">
+            <div className="w-full h-[150px] sm:h-[200px] bg-[#f0f0f0] rounded flex items-center justify-center text-[#888] border border-[#ddd]">
               No Image Available
             </div>
           )}
           
           {/* Additional images if any */}
           {item.images?.length > 1 && (
-            <div className="flex gap-2 mt-2">
+            <div className="flex gap-2 mt-2 overflow-x-auto">
               {item.images.slice(1, 4).map((img, idx) => (
                 <img 
                   key={idx}
                   src={img} 
                   alt={`${item.product_code}-${idx + 2}`}
-                  className="w-16 h-16 object-cover border border-[#ddd] rounded"
+                  className="w-12 h-12 sm:w-16 sm:h-16 object-cover border border-[#ddd] rounded flex-shrink-0"
                 />
               ))}
             </div>
@@ -253,39 +289,39 @@ function PreviewPage({ order, item, pageNum, totalPages }) {
         </div>
 
         {/* Material Swatches */}
-        <div className="w-1/3 space-y-3">
+        <div className="w-full sm:w-1/3 flex sm:flex-col gap-2 sm:gap-3">
           {/* Leather/Fabric Swatch */}
           {(item.leather_code || item.leather_image) && (
-            <div className="border border-[#ddd] rounded p-2 bg-[#fafafa]">
+            <div className="flex-1 border border-[#ddd] rounded p-2 bg-[#fafafa]">
               {item.leather_image ? (
                 <img 
                   src={item.leather_image} 
                   alt={item.leather_code || 'Leather'}
-                  className="w-full h-20 object-cover rounded mb-2"
+                  className="w-full h-16 sm:h-20 object-cover rounded mb-1 sm:mb-2"
                 />
               ) : (
-                <div className="w-full h-20 bg-gradient-to-br from-[#8B4513] to-[#A0522D] rounded mb-2"></div>
+                <div className="w-full h-16 sm:h-20 bg-gradient-to-br from-[#8B4513] to-[#A0522D] rounded mb-1 sm:mb-2"></div>
               )}
               <div className="text-center">
-                <p className="text-xs font-semibold">{item.leather_code || 'Leather'}</p>
+                <p className="text-[10px] sm:text-xs font-semibold">{item.leather_code || 'Leather'}</p>
               </div>
             </div>
           )}
           
           {/* Finish/Coating Swatch */}
           {(item.finish_code || item.finish_image) && (
-            <div className="border border-[#ddd] rounded p-2 bg-[#fafafa]">
+            <div className="flex-1 border border-[#ddd] rounded p-2 bg-[#fafafa]">
               {item.finish_image ? (
                 <img 
                   src={item.finish_image} 
                   alt={item.finish_code || 'Finish'}
-                  className="w-full h-20 object-cover rounded mb-2"
+                  className="w-full h-16 sm:h-20 object-cover rounded mb-1 sm:mb-2"
                 />
               ) : (
-                <div className="w-full h-20 bg-gradient-to-br from-[#D4A574] to-[#C4956A] rounded mb-2"></div>
+                <div className="w-full h-16 sm:h-20 bg-gradient-to-br from-[#D4A574] to-[#C4956A] rounded mb-1 sm:mb-2"></div>
               )}
               <div className="text-center">
-                <p className="text-xs font-semibold">{item.finish_code || 'Finish'}</p>
+                <p className="text-[10px] sm:text-xs font-semibold">{item.finish_code || 'Finish'}</p>
               </div>
             </div>
           )}
@@ -299,11 +335,11 @@ function PreviewPage({ order, item, pageNum, totalPages }) {
         </div>
 
         {/* Notes Section */}
-        <div className="w-1/3 border border-[#3d2c1e] rounded">
+        <div className="w-full sm:w-1/3 border border-[#3d2c1e] rounded">
           <div className="bg-[#3d2c1e] text-white px-3 py-1.5 font-semibold text-xs">
             Notes:
           </div>
-          <div className="p-3 text-xs space-y-1">
+          <div className="p-3 text-[10px] sm:text-xs space-y-1">
             {item.notes ? (
               <div dangerouslySetInnerHTML={{ __html: item.notes.replace(/\n/g, '<br/>') }} />
             ) : (
@@ -321,41 +357,41 @@ function PreviewPage({ order, item, pageNum, totalPages }) {
       </div>
 
       {/* Product Details Table */}
-      <div className="border-2 border-[#3d2c1e] mt-auto">
-        <table className="w-full text-xs">
+      <div className="border-2 border-[#3d2c1e] mt-auto overflow-x-auto">
+        <table className="w-full text-[10px] sm:text-xs min-w-[500px]">
           <thead>
             <tr className="bg-[#3d2c1e] text-white">
-              <th className="px-3 py-2 text-left border-r border-[#5a4a3a]" rowSpan={2}>ITEM CODE</th>
-              <th className="px-3 py-2 text-left border-r border-[#5a4a3a]" rowSpan={2}>DESCRIPTION</th>
-              <th className="px-3 py-2 text-center border-r border-[#5a4a3a]" colSpan={3}>SIZE (cm)</th>
-              <th className="px-3 py-2 text-center border-r border-[#5a4a3a]" rowSpan={2}>CBM</th>
-              <th className="px-3 py-2 text-center" rowSpan={2}>Qty</th>
+              <th className="px-2 sm:px-3 py-2 text-left border-r border-[#5a4a3a]" rowSpan={2}>ITEM CODE</th>
+              <th className="px-2 sm:px-3 py-2 text-left border-r border-[#5a4a3a]" rowSpan={2}>DESCRIPTION</th>
+              <th className="px-2 sm:px-3 py-2 text-center border-r border-[#5a4a3a]" colSpan={3}>SIZE (cm)</th>
+              <th className="px-2 sm:px-3 py-2 text-center border-r border-[#5a4a3a]" rowSpan={2}>CBM</th>
+              <th className="px-2 sm:px-3 py-2 text-center" rowSpan={2}>Qty</th>
             </tr>
             <tr className="bg-[#5a4a3a] text-white">
-              <th className="px-2 py-1 text-center border-r border-[#6a5a4a]">H</th>
-              <th className="px-2 py-1 text-center border-r border-[#6a5a4a]">D</th>
-              <th className="px-2 py-1 text-center border-r border-[#6a5a4a]">W</th>
+              <th className="px-1 sm:px-2 py-1 text-center border-r border-[#6a5a4a]">H</th>
+              <th className="px-1 sm:px-2 py-1 text-center border-r border-[#6a5a4a]">D</th>
+              <th className="px-1 sm:px-2 py-1 text-center border-r border-[#6a5a4a]">W</th>
             </tr>
           </thead>
           <tbody>
             <tr className="border-t border-[#3d2c1e]">
-              <td className="px-3 py-2 font-mono font-semibold border-r border-[#ddd]">{item.product_code || '-'}</td>
-              <td className="px-3 py-2 border-r border-[#ddd]">
+              <td className="px-2 sm:px-3 py-2 font-mono font-semibold border-r border-[#ddd]">{item.product_code || '-'}</td>
+              <td className="px-2 sm:px-3 py-2 border-r border-[#ddd]">
                 {item.description || '-'}
                 {item.color_notes && <span className="text-[#666]"> ({item.color_notes})</span>}
               </td>
-              <td className="px-3 py-2 text-center border-r border-[#ddd]">{item.height_cm || 0}</td>
-              <td className="px-3 py-2 text-center border-r border-[#ddd]">{item.depth_cm || 0}</td>
-              <td className="px-3 py-2 text-center border-r border-[#ddd]">{item.width_cm || 0}</td>
-              <td className="px-3 py-2 text-center font-mono border-r border-[#ddd]">{cbm}</td>
-              <td className="px-3 py-2 text-center font-bold">{item.quantity || 1}</td>
+              <td className="px-2 sm:px-3 py-2 text-center border-r border-[#ddd]">{item.height_cm || 0}</td>
+              <td className="px-2 sm:px-3 py-2 text-center border-r border-[#ddd]">{item.depth_cm || 0}</td>
+              <td className="px-2 sm:px-3 py-2 text-center border-r border-[#ddd]">{item.width_cm || 0}</td>
+              <td className="px-2 sm:px-3 py-2 text-center font-mono border-r border-[#ddd]">{cbm}</td>
+              <td className="px-2 sm:px-3 py-2 text-center font-bold">{item.quantity || 1}</td>
             </tr>
           </tbody>
         </table>
       </div>
 
       {/* Footer */}
-      <div className="mt-3 pt-2 border-t border-[#ddd] flex justify-between items-center text-xs text-[#888]">
+      <div className="mt-3 pt-2 border-t border-[#ddd] flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 text-[10px] sm:text-xs text-[#888]">
         <span>Buyer: {order.buyer_name || 'N/A'} • PO: {order.buyer_po_ref || 'N/A'}</span>
         <span>Page {pageNum} of {totalPages}</span>
       </div>
