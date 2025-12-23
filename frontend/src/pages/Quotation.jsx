@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { productsApi } from '../lib/api';
+import { productsApi, quotationsApi } from '../lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Badge } from '../components/ui/badge';
 import { Checkbox } from '../components/ui/checkbox';
+import { Textarea } from '../components/ui/textarea';
 import {
   Dialog,
   DialogContent,
@@ -28,7 +29,13 @@ import {
   Search,
   Send,
   Package,
-  Calculator
+  Calculator,
+  Copy,
+  Edit,
+  Eye,
+  History,
+  Save,
+  X
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -41,6 +48,9 @@ export default function Quotation() {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [quotationItems, setQuotationItems] = useState([]);
   const [productDialogOpen, setProductDialogOpen] = useState(false);
+  const [savedQuotations, setSavedQuotations] = useState([]);
+  const [showSavedQuotes, setShowSavedQuotes] = useState(false);
+  const [editingQuotationId, setEditingQuotationId] = useState(null);
   const [quotationDetails, setQuotationDetails] = useState({
     customer_name: '',
     customer_email: '',
@@ -52,6 +62,7 @@ export default function Quotation() {
 
   useEffect(() => {
     loadProducts();
+    loadSavedQuotations();
   }, []);
 
   const loadProducts = async () => {
@@ -60,62 +71,68 @@ export default function Quotation() {
       setProducts(response.data);
     } catch (error) {
       console.error('Error loading products:', error);
-      toast.error(t('failedToLoad'));
+      toast.error('Failed to load products');
     } finally {
       setLoading(false);
     }
   };
 
-  const addProductsToQuotation = () => {
-    const newItems = selectedProducts.map(productId => {
-      const product = products.find(p => p.id === productId);
-      return {
-        id: product.id,
-        product_code: product.product_code,
-        description: product.description,
-        size: product.size,
-        height_cm: product.height_cm,
-        width_cm: product.width_cm,
-        depth_cm: product.depth_cm,
-        cbm: product.cbm,
-        quantity: 1,
-        fob_price: product.fob_price_usd || 0,
-        total: product.fob_price_usd || 0
-      };
-    });
-    
-    // Filter out already added items
-    const existingIds = quotationItems.map(item => item.id);
-    const itemsToAdd = newItems.filter(item => !existingIds.includes(item.id));
-    
-    setQuotationItems([...quotationItems, ...itemsToAdd]);
-    setSelectedProducts([]);
-    setProductDialogOpen(false);
-    toast.success(t('itemsAdded'));
+  const loadSavedQuotations = async () => {
+    try {
+      const response = await quotationsApi.getAll();
+      setSavedQuotations(response.data);
+    } catch (error) {
+      console.error('Error loading quotations:', error);
+    }
   };
 
-  const updateItemQuantity = (itemId, quantity) => {
+  const addProductToQuotation = (product) => {
+    const existingItem = quotationItems.find(item => item.product_code === product.product_code);
+    if (existingItem) {
+      toast.info('Product already added to quotation');
+      return;
+    }
+
+    const newItem = {
+      id: product.id,
+      product_code: product.product_code,
+      description: product.description,
+      height_cm: product.height_cm,
+      depth_cm: product.depth_cm,
+      width_cm: product.width_cm,
+      cbm: product.cbm,
+      quantity: 1,
+      fob_price: quotationDetails.currency === 'USD' ? (product.fob_price_usd || 0) : (product.fob_price_gbp || 0),
+      total: quotationDetails.currency === 'USD' ? (product.fob_price_usd || 0) : (product.fob_price_gbp || 0)
+    };
+
+    setQuotationItems([...quotationItems, newItem]);
+    toast.success(`Added ${product.product_code} to quotation`);
+  };
+
+  const removeItem = (id) => {
+    setQuotationItems(quotationItems.filter(item => item.id !== id));
+    toast.success('Item removed');
+  };
+
+  const updateItemQuantity = (id, quantity) => {
     setQuotationItems(quotationItems.map(item => {
-      if (item.id === itemId) {
-        const qty = Math.max(1, parseInt(quantity) || 1);
-        return { ...item, quantity: qty, total: qty * item.fob_price };
+      if (item.id === id) {
+        const qty = parseInt(quantity) || 1;
+        return { ...item, quantity: qty, total: item.fob_price * qty };
       }
       return item;
     }));
   };
 
-  const updateItemPrice = (itemId, price) => {
+  const updateItemPrice = (id, price) => {
     setQuotationItems(quotationItems.map(item => {
-      if (item.id === itemId) {
-        const p = parseFloat(price) || 0;
-        return { ...item, fob_price: p, total: item.quantity * p };
+      if (item.id === id) {
+        const fobPrice = parseFloat(price) || 0;
+        return { ...item, fob_price: fobPrice, total: fobPrice * item.quantity };
       }
       return item;
     }));
-  };
-
-  const removeItem = (itemId) => {
-    setQuotationItems(quotationItems.filter(item => item.id !== itemId));
   };
 
   const calculateTotals = () => {
@@ -125,21 +142,101 @@ export default function Quotation() {
     return { totalItems, totalCBM: totalCBM.toFixed(2), totalValue: totalValue.toFixed(2) };
   };
 
-  const handleGenerateQuote = async () => {
-    // Validate inputs
+  const handleSaveQuotation = async () => {
     if (quotationItems.length === 0) {
       toast.error('Please add products to the quotation');
       return;
     }
 
+    const totals = calculateTotals();
+    const quotationData = {
+      ...quotationDetails,
+      items: quotationItems,
+      total_items: totals.totalItems,
+      total_cbm: parseFloat(totals.totalCBM),
+      total_value: parseFloat(totals.totalValue),
+      status: 'draft'
+    };
+
+    try {
+      if (editingQuotationId) {
+        await quotationsApi.update(editingQuotationId, quotationData);
+        toast.success('Quotation updated successfully!');
+      } else {
+        await quotationsApi.create(quotationData);
+        toast.success('Quotation saved successfully!');
+      }
+      loadSavedQuotations();
+    } catch (error) {
+      console.error('Error saving quotation:', error);
+      toast.error('Failed to save quotation');
+    }
+  };
+
+  const handleLoadQuotation = (quotation) => {
+    setQuotationDetails({
+      customer_name: quotation.customer_name || '',
+      customer_email: quotation.customer_email || '',
+      reference: quotation.reference || '',
+      date: quotation.date || new Date().toISOString().split('T')[0],
+      notes: quotation.notes || '',
+      currency: quotation.currency || 'USD'
+    });
+    setQuotationItems(quotation.items || []);
+    setEditingQuotationId(quotation.id);
+    setShowSavedQuotes(false);
+    toast.success(`Loaded quotation: ${quotation.reference}`);
+  };
+
+  const handleDuplicateQuotation = async (quotation) => {
+    try {
+      await quotationsApi.duplicate(quotation.id);
+      loadSavedQuotations();
+      toast.success('Quotation duplicated!');
+    } catch (error) {
+      toast.error('Failed to duplicate quotation');
+    }
+  };
+
+  const handleDeleteQuotation = async (quotation) => {
+    if (!window.confirm(`Delete quotation ${quotation.reference}?`)) return;
+    try {
+      await quotationsApi.delete(quotation.id);
+      loadSavedQuotations();
+      toast.success('Quotation deleted');
+    } catch (error) {
+      toast.error('Failed to delete quotation');
+    }
+  };
+
+  const handleNewQuotation = () => {
+    setQuotationDetails({
+      customer_name: '',
+      customer_email: '',
+      reference: `QT-${Date.now().toString().slice(-6)}`,
+      date: new Date().toISOString().split('T')[0],
+      notes: '',
+      currency: 'USD'
+    });
+    setQuotationItems([]);
+    setEditingQuotationId(null);
+    setShowSavedQuotes(false);
+  };
+
+  const handleGenerateQuote = async () => {
+    if (quotationItems.length === 0) {
+      toast.error('Please add products to the quotation');
+      return;
+    }
+
+    // Save the quotation first
+    await handleSaveQuotation();
+
     // Generate quotation PDF
     const totals = calculateTotals();
     const currencySymbol = quotationDetails.currency === 'USD' ? '$' : quotationDetails.currency === 'GBP' ? '£' : '₹';
-    
-    // Calculate container load (approx 76 CBM for 40' HQ)
     const containerCapacity = 76;
     
-    // Create professional quotation content matching the example design
     const quotationHTML = `
       <!DOCTYPE html>
       <html>
@@ -155,8 +252,6 @@ export default function Quotation() {
             background: white;
             color: #333;
           }
-          
-          /* Header Section */
           .header { 
             display: flex; 
             justify-content: space-between; 
@@ -167,246 +262,123 @@ export default function Quotation() {
           }
           .logo-section { display: flex; align-items: center; gap: 15px; }
           .logo-icon {
-            width: 60px;
-            height: 60px;
+            width: 60px; height: 60px;
             background: linear-gradient(135deg, #3d2c1e 0%, #5a4a3a 100%);
             border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
           }
           .logo-icon svg { width: 40px; height: 40px; fill: white; }
-          .logo-text { }
-          .company-name { 
-            font-size: 32px; 
-            font-weight: bold; 
-            color: #3d2c1e; 
-            letter-spacing: 2px;
-          }
-          .company-tagline { 
-            font-size: 11px; 
-            color: #666; 
-            font-style: italic; 
-            margin-top: 2px;
-          }
-          
+          .company-name { font-size: 32px; font-weight: bold; color: #3d2c1e; letter-spacing: 2px; }
+          .company-tagline { font-size: 11px; color: #666; font-style: italic; margin-top: 2px; }
           .quote-info {
-            text-align: right;
-            background: #f8f5f2;
-            padding: 15px 20px;
-            border-radius: 8px;
-            min-width: 200px;
+            text-align: right; background: #f8f5f2; padding: 15px 20px;
+            border-radius: 8px; min-width: 200px;
           }
-          .quote-title {
-            font-size: 22px;
-            font-weight: bold;
-            color: #3d2c1e;
-            margin-bottom: 8px;
-          }
+          .quote-title { font-size: 22px; font-weight: bold; color: #3d2c1e; margin-bottom: 8px; }
           .quote-detail { font-size: 12px; color: #555; margin: 4px 0; }
           .quote-detail strong { color: #3d2c1e; }
-          
-          /* Customer Section */
           .customer-section {
-            background: #fafafa;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #3d2c1e;
+            background: #fafafa; padding: 15px 20px; border-radius: 8px;
+            margin-bottom: 20px; border-left: 4px solid #3d2c1e;
           }
-          .customer-section h3 { 
-            font-size: 14px; 
-            color: #888; 
-            margin-bottom: 5px;
-            font-weight: normal;
-          }
+          .customer-section h3 { font-size: 14px; color: #888; margin-bottom: 5px; font-weight: normal; }
           .customer-name { font-size: 18px; font-weight: bold; color: #333; }
-          
-          /* Table */
-          .items-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-            font-size: 12px;
-          }
+          .items-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px; }
           .items-table thead tr:first-child th {
-            background: #3d2c1e;
-            color: white;
-            padding: 12px 10px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            background: #3d2c1e; color: white; padding: 12px 10px;
+            text-align: left; font-weight: 600; font-size: 11px;
+            text-transform: uppercase; letter-spacing: 0.5px;
           }
           .items-table thead tr:nth-child(2) th {
-            background: #5a4a3a;
-            color: white;
-            padding: 8px 10px;
-            text-align: center;
-            font-weight: 500;
-            font-size: 10px;
+            background: #5a4a3a; color: white; padding: 8px 10px;
+            text-align: center; font-weight: 500; font-size: 10px;
           }
           .items-table tbody td {
-            padding: 12px 10px;
-            border-bottom: 1px solid #e0e0e0;
-            vertical-align: middle;
+            padding: 12px 10px; border-bottom: 1px solid #e0e0e0; vertical-align: middle;
           }
           .items-table tbody tr:nth-child(even) { background: #fafafa; }
-          .items-table tbody tr:hover { background: #f5f0eb; }
-          
-          .item-code { 
-            font-family: 'Courier New', monospace; 
-            font-weight: bold; 
-            color: #3d2c1e;
-            font-size: 11px;
-          }
-          .item-desc { color: #555; }
+          .item-code { font-family: 'Courier New', monospace; font-weight: bold; color: #3d2c1e; font-size: 11px; }
           .size-cell { text-align: center; font-size: 11px; }
           .cbm-cell { text-align: center; font-weight: 500; }
-          .load-cell { 
-            text-align: center; 
-            background: #fff8e6 !important;
-            font-weight: 500;
-          }
-          .price-header {
-            background: #ffd700 !important;
-            color: #333 !important;
-            font-weight: bold !important;
-          }
-          .price-cell {
-            text-align: right;
-            font-weight: bold;
-            color: #2e7d32;
-            font-size: 13px;
-          }
+          .load-cell { text-align: center; background: #fff8e6 !important; font-weight: 500; }
+          .price-header { background: #ffd700 !important; color: #333 !important; font-weight: bold !important; }
+          .price-cell { text-align: right; font-weight: bold; color: #2e7d32; font-size: 13px; }
           .qty-cell { text-align: center; font-weight: bold; }
-          .total-cell { 
-            text-align: right; 
-            font-weight: bold; 
-            color: #1565c0;
-            font-size: 13px;
-          }
-          
-          /* Summary Section */
-          .summary-section {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
-          }
+          .total-cell { text-align: right; font-weight: bold; color: #1565c0; font-size: 13px; }
+          .summary-section { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
           .summary-box {
-            background: #f8f5f2;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            border: 1px solid #e0d5c8;
+            background: #f8f5f2; padding: 15px; border-radius: 8px;
+            text-align: center; border: 1px solid #e0d5c8;
           }
           .summary-box.highlight {
             background: linear-gradient(135deg, #3d2c1e 0%, #5a4a3a 100%);
-            color: white;
-            border: none;
+            color: white; border: none;
           }
           .summary-label { font-size: 11px; color: #888; margin-bottom: 5px; }
           .summary-box.highlight .summary-label { color: rgba(255,255,255,0.8); }
           .summary-value { font-size: 22px; font-weight: bold; color: #3d2c1e; }
           .summary-box.highlight .summary-value { color: white; }
-          
-          /* Container Info */
           .container-info {
-            background: #e8f5e9;
-            border: 1px solid #a5d6a7;
-            padding: 12px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: #e8f5e9; border: 1px solid #a5d6a7; padding: 12px 20px;
+            border-radius: 8px; margin-bottom: 20px;
+            display: flex; justify-content: space-between; align-items: center;
           }
           .container-label { font-size: 12px; color: #2e7d32; }
           .container-value { font-size: 16px; font-weight: bold; color: #1b5e20; }
-          
-          /* Notes */
           .notes-section {
-            background: #fff8e6;
-            border: 1px solid #ffe082;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            background: #fff8e6; border: 1px solid #ffe082; padding: 15px 20px;
+            border-radius: 8px; margin-bottom: 20px;
           }
           .notes-title { font-size: 12px; font-weight: bold; color: #f57c00; margin-bottom: 8px; }
           .notes-content { font-size: 12px; color: #555; line-height: 1.5; }
-          
-          /* Footer */
           .footer {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid #e0e0e0;
-            text-align: center;
+            margin-top: 30px; padding-top: 20px; border-top: 2px solid #e0e0e0; text-align: center;
           }
           .footer-text { font-size: 11px; color: #888; margin: 5px 0; }
           .footer-brand { font-size: 14px; font-weight: bold; color: #3d2c1e; margin-top: 10px; }
-          
           @media print { 
             body { padding: 15px; }
-            .summary-box.highlight { 
-              background: #3d2c1e !important; 
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-            }
+            .summary-box.highlight { background: #3d2c1e !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           }
         </style>
       </head>
       <body>
-        <!-- Header -->
         <div class="header">
           <div class="logo-section">
             <div class="logo-icon">
-              <svg viewBox="0 0 24 24">
-                <path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm0 2.5L18 8v8l-6 3.5L6 16V8l6-3.5z"/>
-                <path d="M12 7v10M7 9.5l5 3 5-3"/>
-              </svg>
+              <svg viewBox="0 0 24 24"><path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm0 2.5L18 8v8l-6 3.5L6 16V8l6-3.5z"/><path d="M12 7v10M7 9.5l5 3 5-3"/></svg>
             </div>
-            <div class="logo-text">
+            <div>
               <div class="company-name">JAIPUR</div>
               <div class="company-tagline">A fine wood furniture company</div>
             </div>
           </div>
           <div class="quote-info">
             <div class="quote-title">QUOTATION</div>
-            <div class="quote-detail"><strong>Ref:</strong> ${quotationDetails.reference || 'QT-' + Date.now()}</div>
+            <div class="quote-detail"><strong>Ref:</strong> ${quotationDetails.reference || 'N/A'}</div>
             <div class="quote-detail"><strong>Date:</strong> ${quotationDetails.date}</div>
             <div class="quote-detail"><strong>Currency:</strong> ${quotationDetails.currency}</div>
           </div>
         </div>
-        
-        <!-- Customer -->
         ${quotationDetails.customer_name ? `
         <div class="customer-section">
           <h3>Quotation For:</h3>
           <div class="customer-name">${quotationDetails.customer_name}</div>
           ${quotationDetails.customer_email ? `<div style="font-size: 12px; color: #666; margin-top: 3px;">${quotationDetails.customer_email}</div>` : ''}
-        </div>
-        ` : ''}
-        
-        <!-- Items Table -->
+        </div>` : ''}
         <table class="items-table">
           <thead>
             <tr>
-              <th rowspan="2" style="width: 12%">Item Code</th>
-              <th rowspan="2" style="width: 25%">Description</th>
-              <th colspan="3" style="text-align: center; width: 15%">Size (cm)</th>
-              <th rowspan="2" style="width: 8%; text-align: center">CBM</th>
-              <th rowspan="2" style="width: 10%; text-align: center">Load 40' HQ</th>
-              <th rowspan="2" style="width: 8%; text-align: center">Qty</th>
-              <th rowspan="2" class="price-header" style="width: 10%; text-align: center">FOB ${quotationDetails.currency}</th>
-              <th rowspan="2" class="price-header" style="width: 12%; text-align: center">Total</th>
+              <th rowspan="2">Item Code</th>
+              <th rowspan="2">Description</th>
+              <th colspan="3" style="text-align: center;">Size (cm)</th>
+              <th rowspan="2" style="text-align: center">CBM</th>
+              <th rowspan="2" style="text-align: center">Load 40' HQ</th>
+              <th rowspan="2" style="text-align: center">Qty</th>
+              <th rowspan="2" class="price-header" style="text-align: center">FOB ${quotationDetails.currency}</th>
+              <th rowspan="2" class="price-header" style="text-align: center">Total</th>
             </tr>
-            <tr>
-              <th>H</th>
-              <th>D</th>
-              <th>W</th>
-            </tr>
+            <tr><th>H</th><th>D</th><th>W</th></tr>
           </thead>
           <tbody>
             ${quotationItems.map(item => {
@@ -415,7 +387,7 @@ export default function Quotation() {
               return `
               <tr>
                 <td class="item-code">${item.product_code}</td>
-                <td class="item-desc">${item.description || '-'}</td>
+                <td>${item.description || '-'}</td>
                 <td class="size-cell">${item.height_cm || 0}</td>
                 <td class="size-cell">${item.depth_cm || 0}</td>
                 <td class="size-cell">${item.width_cm || 0}</td>
@@ -424,51 +396,21 @@ export default function Quotation() {
                 <td class="qty-cell">${item.quantity} Pcs</td>
                 <td class="price-cell">${currencySymbol}${item.fob_price.toFixed(2)}</td>
                 <td class="total-cell">${currencySymbol}${item.total.toFixed(2)}</td>
-              </tr>
-            `}).join('')}
+              </tr>`;
+            }).join('')}
           </tbody>
         </table>
-        
-        <!-- Summary -->
         <div class="summary-section">
-          <div class="summary-box">
-            <div class="summary-label">Total Items</div>
-            <div class="summary-value">${totals.totalItems} Pcs</div>
-          </div>
-          <div class="summary-box">
-            <div class="summary-label">Total CBM</div>
-            <div class="summary-value">${totals.totalCBM} m³</div>
-          </div>
-          <div class="summary-box">
-            <div class="summary-label">40' HQ Container</div>
-            <div class="summary-value">${(parseFloat(totals.totalCBM) / containerCapacity * 100).toFixed(0)}%</div>
-          </div>
-          <div class="summary-box highlight">
-            <div class="summary-label">Grand Total</div>
-            <div class="summary-value">${currencySymbol}${totals.totalValue}</div>
-          </div>
+          <div class="summary-box"><div class="summary-label">Total Items</div><div class="summary-value">${totals.totalItems} Pcs</div></div>
+          <div class="summary-box"><div class="summary-label">Total CBM</div><div class="summary-value">${totals.totalCBM} m³</div></div>
+          <div class="summary-box"><div class="summary-label">40' HQ Container</div><div class="summary-value">${(parseFloat(totals.totalCBM) / containerCapacity * 100).toFixed(0)}%</div></div>
+          <div class="summary-box highlight"><div class="summary-label">Grand Total</div><div class="summary-value">${currencySymbol}${totals.totalValue}</div></div>
         </div>
-        
-        <!-- Container Info -->
         <div class="container-info">
-          <div>
-            <div class="container-label">Container Load Estimate</div>
-            <div class="container-value">${totals.totalCBM} CBM / 76 CBM (40' HQ)</div>
-          </div>
-          <div style="text-align: right;">
-            <div class="container-label">Containers Required</div>
-            <div class="container-value">${Math.ceil(parseFloat(totals.totalCBM) / containerCapacity)} × 40' HQ</div>
-          </div>
+          <div><div class="container-label">Container Load Estimate</div><div class="container-value">${totals.totalCBM} CBM / 76 CBM (40' HQ)</div></div>
+          <div style="text-align: right;"><div class="container-label">Containers Required</div><div class="container-value">${Math.ceil(parseFloat(totals.totalCBM) / containerCapacity)} × 40' HQ</div></div>
         </div>
-        
-        ${quotationDetails.notes ? `
-        <div class="notes-section">
-          <div class="notes-title">📝 Special Notes:</div>
-          <div class="notes-content">${quotationDetails.notes}</div>
-        </div>
-        ` : ''}
-        
-        <!-- Footer -->
+        ${quotationDetails.notes ? `<div class="notes-section"><div class="notes-title">📝 Special Notes:</div><div class="notes-content">${quotationDetails.notes}</div></div>` : ''}
         <div class="footer">
           <div class="footer-text">This quotation is valid for 30 days from the date of issue.</div>
           <div class="footer-text">Prices are FOB India. Shipping and import duties not included.</div>
@@ -478,99 +420,108 @@ export default function Quotation() {
       </html>
     `;
     
-    // Open in new window for printing/saving as PDF
     const printWindow = window.open('', '_blank');
     printWindow.document.write(quotationHTML);
     printWindow.document.close();
     printWindow.focus();
-    
-    // Trigger print dialog after a short delay
-    setTimeout(() => {
-      printWindow.print();
-    }, 500);
-    
-    toast.success('Quotation generated! Use Print dialog to save as PDF.');
+    setTimeout(() => printWindow.print(), 500);
+    toast.success('Quotation generated and saved!');
   };
 
-  const filteredProducts = products.filter(product => 
-    !searchTerm || 
+  const addSelectedProducts = () => {
+    selectedProducts.forEach(productId => {
+      const product = products.find(p => p.id === productId);
+      if (product) addProductToQuotation(product);
+    });
+    setSelectedProducts([]);
+    setProductDialogOpen(false);
+    toast.success('Items added to quotation');
+  };
+
+  const toggleProductSelection = (productId) => {
+    setSelectedProducts(prev => 
+      prev.includes(productId) ? prev.filter(id => id !== productId) : [...prev, productId]
+    );
+  };
+
+  const filteredProducts = products.filter(product =>
     product.product_code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     product.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const toggleProductSelection = (productId) => {
-    setSelectedProducts(prev => 
-      prev.includes(productId) 
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId]
-    );
-  };
-
   const totals = calculateTotals();
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64" data-testid="quotation-loading">
-        <div className="loading-spinner"></div>
-      </div>
-    );
-  }
+  const currencySymbol = quotationDetails.currency === 'USD' ? '$' : quotationDetails.currency === 'GBP' ? '£' : '₹';
 
   return (
-    <div className="animate-fade-in" data-testid="quotation-page">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="page-header flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
         <div>
-          <h1 className="page-title flex items-center gap-3" data-testid="quotation-title">
-            <FileSpreadsheet size={28} />
-            {t('quotationTitle')}
+          <h1 className="page-title flex items-center gap-2">
+            <FileSpreadsheet className="text-amber-600" />
+            {t('quotation')}
           </h1>
           <p className="page-description">{t('quotationDesc')}</p>
         </div>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline"
-            className="gap-2" 
-            onClick={() => setProductDialogOpen(true)}
-            data-testid="add-products-btn"
-          >
+        <div className="flex gap-2 flex-wrap">
+          <Button variant="outline" className="gap-2" onClick={() => setShowSavedQuotes(true)}>
+            <History size={18} />
+            Saved Quotes ({savedQuotations.length})
+          </Button>
+          <Button variant="outline" className="gap-2" onClick={handleNewQuotation}>
+            <Plus size={18} />
+            New Quote
+          </Button>
+          <Button variant="outline" className="gap-2" onClick={() => setProductDialogOpen(true)} data-testid="add-products-btn">
             <Plus size={18} />
             {t('addProducts')}
           </Button>
-          <Button 
-            className="gap-2"
-            disabled={quotationItems.length === 0}
-            onClick={handleGenerateQuote}
-            data-testid="generate-quote-btn"
-          >
+          <Button variant="outline" className="gap-2" onClick={handleSaveQuotation} disabled={quotationItems.length === 0}>
+            <Save size={18} />
+            Save
+          </Button>
+          <Button className="gap-2" disabled={quotationItems.length === 0} onClick={handleGenerateQuote} data-testid="generate-quote-btn">
             <Download size={18} />
             {t('generateQuote')}
           </Button>
         </div>
       </div>
 
-      {/* Quotation Details */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="text-lg">{t('quotationDetails')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid md:grid-cols-3 gap-6">
+        {/* Quotation Details */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Send size={18} />
+              {t('quotationDetails')}
+              {editingQuotationId && <Badge variant="outline" className="ml-2">Editing</Badge>}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label>{t('customerName')}</Label>
               <Input
                 value={quotationDetails.customer_name}
                 onChange={(e) => setQuotationDetails({...quotationDetails, customer_name: e.target.value})}
-                placeholder={t('enterCustomerName')}
+                placeholder="Enter customer name"
                 data-testid="customer-name-input"
               />
             </div>
             <div className="space-y-2">
-              <Label>{t('reference')}</Label>
+              <Label>Email</Label>
+              <Input
+                type="email"
+                value={quotationDetails.customer_email}
+                onChange={(e) => setQuotationDetails({...quotationDetails, customer_email: e.target.value})}
+                placeholder="customer@email.com"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{t('quoteReference')}</Label>
               <Input
                 value={quotationDetails.reference}
                 onChange={(e) => setQuotationDetails({...quotationDetails, reference: e.target.value})}
-                placeholder="QT-2024-001"
+                placeholder="QT-001"
                 data-testid="quote-reference-input"
               />
             </div>
@@ -580,248 +531,249 @@ export default function Quotation() {
                 type="date"
                 value={quotationDetails.date}
                 onChange={(e) => setQuotationDetails({...quotationDetails, date: e.target.value})}
-                data-testid="quote-date-input"
               />
             </div>
             <div className="space-y-2">
               <Label>{t('currency')}</Label>
               <select
+                className="w-full border rounded-md p-2"
                 value={quotationDetails.currency}
                 onChange={(e) => setQuotationDetails({...quotationDetails, currency: e.target.value})}
-                className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-                data-testid="currency-select"
               >
                 <option value="USD">USD ($)</option>
                 <option value="GBP">GBP (£)</option>
-                <option value="EUR">EUR (€)</option>
+                <option value="INR">INR (₹)</option>
               </select>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Quotation Items Table */}
-      <Card className="mb-6">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg">{t('quotationItems')}</CardTitle>
-          {quotationItems.length > 0 && (
-            <Badge variant="secondary" className="text-sm">
-              {quotationItems.length} {t('items')}
-            </Badge>
-          )}
-        </CardHeader>
-        <CardContent>
-          {quotationItems.length === 0 ? (
-            <div className="text-center py-12">
-              <Package className="mx-auto text-muted-foreground mb-4" size={48} />
-              <p className="text-muted-foreground mb-4">{t('noItemsInQuotation')}</p>
-              <Button variant="outline" onClick={() => setProductDialogOpen(true)}>
-                <Plus size={16} className="mr-2" />
-                {t('addProducts')}
-              </Button>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-primary/5">
-                    <TableHead className="font-semibold">{t('itemCode')}</TableHead>
-                    <TableHead className="font-semibold">{t('description')}</TableHead>
-                    <TableHead className="font-semibold text-center">{t('sizeCm')}</TableHead>
-                    <TableHead className="font-semibold text-center">CBM</TableHead>
-                    <TableHead className="font-semibold text-center">{t('qty')}</TableHead>
-                    <TableHead className="font-semibold text-right">FOB {quotationDetails.currency}</TableHead>
-                    <TableHead className="font-semibold text-right">{t('total')}</TableHead>
-                    <TableHead className="w-10"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {quotationItems.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell className="font-mono text-sm">{item.product_code}</TableCell>
-                      <TableCell className="max-w-[200px]">
-                        <span className="line-clamp-2 text-sm">{item.description}</span>
-                      </TableCell>
-                      <TableCell className="text-center text-sm">
-                        {item.height_cm}×{item.width_cm}×{item.depth_cm}
-                      </TableCell>
-                      <TableCell className="text-center text-sm">{item.cbm}</TableCell>
-                      <TableCell className="text-center">
-                        <Input
-                          type="number"
-                          min="1"
-                          value={item.quantity}
-                          onChange={(e) => updateItemQuantity(item.id, e.target.value)}
-                          className="w-16 h-8 text-center mx-auto"
-                        />
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Input
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={item.fob_price}
-                          onChange={(e) => updateItemPrice(item.id, e.target.value)}
-                          className="w-24 h-8 text-right ml-auto"
-                        />
-                      </TableCell>
-                      <TableCell className="text-right font-medium">
-                        {quotationDetails.currency === 'USD' ? '$' : quotationDetails.currency === 'GBP' ? '£' : '€'}
-                        {item.total.toFixed(2)}
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-destructive hover:text-destructive"
-                          onClick={() => removeItem(item.id)}
-                        >
-                          <Trash2 size={16} />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Totals Summary */}
-      {quotationItems.length > 0 && (
-        <Card className="bg-primary/5 border-primary/20">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div className="flex gap-8">
-                <div>
-                  <p className="text-sm text-muted-foreground">{t('totalItems')}</p>
-                  <p className="text-2xl font-semibold">{totals.totalItems} {t('pcs')}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">{t('totalCBM')}</p>
-                  <p className="text-2xl font-semibold">{totals.totalCBM} m³</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-muted-foreground">{t('grandTotal')}</p>
-                <p className="text-3xl font-bold text-primary">
-                  {quotationDetails.currency === 'USD' ? '$' : quotationDetails.currency === 'GBP' ? '£' : '€'}
-                  {totals.totalValue}
-                </p>
-              </div>
+            <div className="space-y-2">
+              <Label>Notes</Label>
+              <Textarea
+                value={quotationDetails.notes}
+                onChange={(e) => setQuotationDetails({...quotationDetails, notes: e.target.value})}
+                placeholder="Special terms, conditions, or notes..."
+                rows={3}
+              />
             </div>
           </CardContent>
         </Card>
-      )}
 
-      {/* Container Load Estimation */}
-      {quotationItems.length > 0 && parseFloat(totals.totalCBM) > 0 && (
-        <Card className="mt-6">
+        {/* Quotation Items */}
+        <Card className="md:col-span-2">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Calculator size={20} />
-              {t('containerEstimate')}
+              <Package size={18} />
+              {t('quotationItems')} ({quotationItems.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 bg-muted rounded-lg text-center">
-                <p className="text-sm text-muted-foreground">20' Container (~28 CBM)</p>
-                <p className="text-xl font-semibold">
-                  {Math.ceil(parseFloat(totals.totalCBM) / 28)} {t('containers')}
-                </p>
+            {quotationItems.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <Package size={48} className="mx-auto mb-4 opacity-50" />
+                <p>{t('noItemsInQuotation')}</p>
+                <Button variant="outline" className="mt-4 gap-2" onClick={() => setProductDialogOpen(true)}>
+                  <Plus size={18} />
+                  {t('addProducts')}
+                </Button>
               </div>
-              <div className="p-4 bg-muted rounded-lg text-center">
-                <p className="text-sm text-muted-foreground">40' Container (~58 CBM)</p>
-                <p className="text-xl font-semibold">
-                  {Math.ceil(parseFloat(totals.totalCBM) / 58)} {t('containers')}
-                </p>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{t('productCode')}</TableHead>
+                      <TableHead>{t('description')}</TableHead>
+                      <TableHead className="text-center">CBM</TableHead>
+                      <TableHead className="text-center w-24">Qty</TableHead>
+                      <TableHead className="text-right w-28">Price</TableHead>
+                      <TableHead className="text-right">Total</TableHead>
+                      <TableHead className="w-10"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {quotationItems.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell className="font-mono font-semibold">{item.product_code}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">{item.description}</TableCell>
+                        <TableCell className="text-center">{item.cbm}</TableCell>
+                        <TableCell>
+                          <Input
+                            type="number"
+                            min="1"
+                            value={item.quantity}
+                            onChange={(e) => updateItemQuantity(item.id, e.target.value)}
+                            className="w-20 text-center"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={item.fob_price}
+                            onChange={(e) => updateItemPrice(item.id, e.target.value)}
+                            className="w-24 text-right"
+                          />
+                        </TableCell>
+                        <TableCell className="text-right font-semibold">
+                          {currencySymbol}{item.total.toFixed(2)}
+                        </TableCell>
+                        <TableCell>
+                          <Button variant="ghost" size="icon" onClick={() => removeItem(item.id)}>
+                            <Trash2 size={16} className="text-red-500" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
-              <div className="p-4 bg-muted rounded-lg text-center">
-                <p className="text-sm text-muted-foreground">40' HQ (~68 CBM)</p>
-                <p className="text-xl font-semibold">
-                  {Math.ceil(parseFloat(totals.totalCBM) / 68)} {t('containers')}
-                </p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Summary */}
+      {quotationItems.length > 0 && (
+        <Card className="bg-amber-50 border-amber-200">
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                <p className="text-sm text-muted-foreground">{t('totalItems')}</p>
+                <p className="text-2xl font-bold text-amber-700">{totals.totalItems} Pcs</p>
+              </div>
+              <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                <p className="text-sm text-muted-foreground">{t('totalCBM')}</p>
+                <p className="text-2xl font-bold text-amber-700">{totals.totalCBM} m³</p>
+              </div>
+              <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                <p className="text-sm text-muted-foreground">40' HQ Container</p>
+                <p className="text-2xl font-bold text-amber-700">{(parseFloat(totals.totalCBM) / 76 * 100).toFixed(0)}%</p>
+              </div>
+              <div className="text-center p-4 bg-amber-600 text-white rounded-lg shadow-sm">
+                <p className="text-sm opacity-90">{t('grandTotal')}</p>
+                <p className="text-2xl font-bold">{currencySymbol}{totals.totalValue}</p>
               </div>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Add Products Dialog */}
+      {/* Product Selection Dialog */}
       <Dialog open={productDialogOpen} onOpenChange={setProductDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="font-serif text-xl">{t('selectProducts')}</DialogTitle>
+            <DialogTitle>{t('selectProducts')}</DialogTitle>
           </DialogHeader>
-          
-          {/* Search */}
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-            <Input
-              placeholder={t('searchProducts')}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
+          <div className="space-y-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
+              <Input
+                placeholder={t('searchProducts')}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-10"></TableHead>
+                  <TableHead>{t('productCode')}</TableHead>
+                  <TableHead>{t('description')}</TableHead>
+                  <TableHead>Size (HxDxW)</TableHead>
+                  <TableHead>CBM</TableHead>
+                  <TableHead className="text-right">Price</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredProducts.map((product) => (
+                  <TableRow key={product.id} className="cursor-pointer" onClick={() => toggleProductSelection(product.id)}>
+                    <TableCell>
+                      <Checkbox checked={selectedProducts.includes(product.id)} />
+                    </TableCell>
+                    <TableCell className="font-mono font-semibold">{product.product_code}</TableCell>
+                    <TableCell>{product.description}</TableCell>
+                    <TableCell>{product.height_cm}×{product.depth_cm}×{product.width_cm}</TableCell>
+                    <TableCell>{product.cbm}</TableCell>
+                    <TableCell className="text-right">
+                      {quotationDetails.currency === 'USD' ? `$${product.fob_price_usd || 0}` : `£${product.fob_price_gbp || 0}`}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <div className="flex justify-between items-center pt-4 border-t">
+              <span className="text-sm text-muted-foreground">{selectedProducts.length} products selected</span>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setProductDialogOpen(false)}>Cancel</Button>
+                <Button onClick={addSelectedProducts} disabled={selectedProducts.length === 0}>Add Selected</Button>
+              </div>
+            </div>
           </div>
+        </DialogContent>
+      </Dialog>
 
-          {/* Products List */}
-          <div className="flex-1 overflow-y-auto border rounded-md">
-            {filteredProducts.length === 0 ? (
+      {/* Saved Quotations Dialog */}
+      <Dialog open={showSavedQuotes} onOpenChange={setShowSavedQuotes}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <History size={20} />
+              Saved Quotations
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {savedQuotations.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                {products.length === 0 ? t('noProductsYet') : t('noProductsFound')}
+                <FileSpreadsheet size={48} className="mx-auto mb-4 opacity-50" />
+                <p>No saved quotations yet</p>
               </div>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-10"></TableHead>
-                    <TableHead>{t('productCode')}</TableHead>
-                    <TableHead>{t('description')}</TableHead>
-                    <TableHead className="text-right">FOB $</TableHead>
+                    <TableHead>Reference</TableHead>
+                    <TableHead>Customer</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Items</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredProducts.map((product) => (
-                    <TableRow 
-                      key={product.id}
-                      className={`cursor-pointer ${selectedProducts.includes(product.id) ? 'bg-primary/10' : ''}`}
-                      onClick={() => toggleProductSelection(product.id)}
-                    >
-                      <TableCell>
-                        <Checkbox 
-                          checked={selectedProducts.includes(product.id)}
-                          onCheckedChange={() => toggleProductSelection(product.id)}
-                        />
+                  {savedQuotations.map((quote) => (
+                    <TableRow key={quote.id}>
+                      <TableCell className="font-mono font-semibold">{quote.reference || 'N/A'}</TableCell>
+                      <TableCell>{quote.customer_name || '-'}</TableCell>
+                      <TableCell>{quote.date || '-'}</TableCell>
+                      <TableCell>{quote.items?.length || 0} items</TableCell>
+                      <TableCell className="text-right font-semibold">
+                        {quote.currency === 'GBP' ? '£' : '$'}{quote.total_value?.toFixed(2) || '0.00'}
                       </TableCell>
-                      <TableCell className="font-mono text-sm">{product.product_code}</TableCell>
-                      <TableCell>{product.description}</TableCell>
-                      <TableCell className="text-right">${product.fob_price_usd || 0}</TableCell>
+                      <TableCell>
+                        <Badge variant={quote.status === 'sent' ? 'default' : 'outline'}>
+                          {quote.status || 'draft'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-1 justify-end">
+                          <Button variant="ghost" size="icon" title="Load & Edit" onClick={() => handleLoadQuotation(quote)}>
+                            <Edit size={16} />
+                          </Button>
+                          <Button variant="ghost" size="icon" title="Duplicate" onClick={() => handleDuplicateQuotation(quote)}>
+                            <Copy size={16} />
+                          </Button>
+                          <Button variant="ghost" size="icon" title="Delete" onClick={() => handleDeleteQuotation(quote)}>
+                            <Trash2 size={16} className="text-red-500" />
+                          </Button>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             )}
-          </div>
-
-          {/* Selected Count & Actions */}
-          <div className="flex justify-between items-center pt-4 border-t mt-4">
-            <span className="text-sm text-muted-foreground">
-              {selectedProducts.length} {t('productsSelected')}
-            </span>
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={() => setProductDialogOpen(false)}>
-                {t('cancel')}
-              </Button>
-              <Button 
-                onClick={addProductsToQuotation}
-                disabled={selectedProducts.length === 0}
-              >
-                {t('addSelected')}
-              </Button>
-            </div>
           </div>
         </DialogContent>
       </Dialog>
