@@ -677,6 +677,57 @@ async def get_order_exports(order_id: str):
     exports = await db.exports.find({"order_id": order_id}, {"_id": 0}).to_list(100)
     return exports
 
+# --- PRODUCTS ---
+
+@api_router.get("/products", response_model=List[Product])
+async def get_products():
+    products = await db.products.find({}, {"_id": 0}).to_list(1000)
+    return products
+
+@api_router.get("/products/{product_id}", response_model=Product)
+async def get_product(product_id: str):
+    product = await db.products.find_one({"id": product_id}, {"_id": 0})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return product
+
+@api_router.post("/products", response_model=Product)
+async def create_product(product_data: ProductCreate):
+    product = Product(**product_data.model_dump())
+    doc = product.model_dump()
+    await db.products.insert_one(doc)
+    return product
+
+@api_router.put("/products/{product_id}", response_model=Product)
+async def update_product(product_id: str, product_data: ProductUpdate):
+    existing = await db.products.find_one({"id": product_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    update_data = {k: v for k, v in product_data.model_dump().items() if v is not None}
+    update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    await db.products.update_one({"id": product_id}, {"$set": update_data})
+    updated = await db.products.find_one({"id": product_id}, {"_id": 0})
+    return updated
+
+@api_router.delete("/products/{product_id}")
+async def delete_product(product_id: str):
+    result = await db.products.delete_one({"id": product_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return {"message": "Product deleted"}
+
+@api_router.post("/products/bulk")
+async def bulk_create_products(products: List[ProductCreate]):
+    created = []
+    for product_data in products:
+        product = Product(**product_data.model_dump())
+        doc = product.model_dump()
+        await db.products.insert_one(doc)
+        created.append(product)
+    return {"message": f"{len(created)} products created", "products": created}
+
 # --- DASHBOARD STATS ---
 
 @api_router.get("/dashboard/stats")
