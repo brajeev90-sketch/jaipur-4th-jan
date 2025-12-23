@@ -975,6 +975,18 @@ async def upload_products_excel(file: UploadFile = File(...)):
         contents = await file.read()
         df = pd.read_excel(io.BytesIO(contents))
         
+        # Check if first row contains actual headers (e.g., "Product Code", "Description")
+        # This handles Excel files with merged header cells or wrong header detection
+        first_row_values = df.iloc[0].astype(str).str.lower().tolist()
+        header_keywords = ['product code', 'description', 'cbm', 'photo link', 'h', 'd', 'w']
+        has_header_in_first_row = any(keyword in ' '.join(first_row_values) for keyword in header_keywords)
+        
+        if has_header_in_first_row or any('unnamed' in str(col).lower() for col in df.columns):
+            # First row contains actual headers - use it and skip
+            new_headers = df.iloc[0].astype(str).tolist()
+            df = df.iloc[1:].reset_index(drop=True)
+            df.columns = new_headers
+        
         # Normalize column names (handle various formats)
         column_mapping = {
             'product code': 'product_code',
