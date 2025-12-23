@@ -303,48 +303,48 @@ function PreviewPage({ order, item, pageNum, totalPages }) {
         </div>
 
         {/* Material Swatches - 25% width */}
-        <div className="w-1/4 flex flex-col gap-2">
+        <div className="w-1/4 flex flex-col gap-1">
           {/* Leather/Fabric Swatch */}
           {(item.leather_code || item.leather_image) && (
-            <div className="border border-[#ddd] rounded p-2 bg-[#fafafa]">
+            <div className="border border-[#ddd] rounded p-1.5 bg-[#fafafa]">
               {item.leather_image ? (
                 <img 
                   src={item.leather_image} 
                   alt={item.leather_code || 'Leather'}
-                  className="w-full h-20 object-cover rounded mb-2"
+                  className="w-full h-14 object-cover rounded mb-1"
                 />
               ) : (
-                <div className="w-full h-20 bg-gradient-to-br from-[#8B4513] to-[#A0522D] rounded mb-2"></div>
+                <div className="w-full h-14 bg-gradient-to-br from-[#8B4513] to-[#A0522D] rounded mb-1"></div>
               )}
               <div className="text-center">
-                <p className="text-[9px] text-[#666] uppercase">Leather</p>
-                <p className="text-[10px] font-semibold">{item.leather_code || '-'}</p>
+                <p className="text-[8px] text-[#666] uppercase">Leather</p>
+                <p className="text-[9px] font-semibold">{item.leather_code || '-'}</p>
               </div>
             </div>
           )}
           
           {/* Finish/Coating Swatch */}
           {(item.finish_code || item.finish_image) && (
-            <div className="border border-[#ddd] rounded p-2 bg-[#fafafa]">
+            <div className="border border-[#ddd] rounded p-1.5 bg-[#fafafa]">
               {item.finish_image ? (
                 <img 
                   src={item.finish_image} 
                   alt={item.finish_code || 'Finish'}
-                  className="w-full h-20 object-cover rounded mb-2"
+                  className="w-full h-14 object-cover rounded mb-1"
                 />
               ) : (
-                <div className="w-full h-20 bg-gradient-to-br from-[#D4A574] to-[#C4956A] rounded mb-2"></div>
+                <div className="w-full h-14 bg-gradient-to-br from-[#D4A574] to-[#C4956A] rounded mb-1"></div>
               )}
               <div className="text-center">
-                <p className="text-[9px] text-[#666] uppercase">Finish</p>
-                <p className="text-[10px] font-semibold">{item.finish_code || '-'}</p>
+                <p className="text-[8px] text-[#666] uppercase">Finish</p>
+                <p className="text-[9px] font-semibold">{item.finish_code || '-'}</p>
               </div>
             </div>
           )}
 
           {/* Show placeholder if no materials */}
           {!item.leather_code && !item.leather_image && !item.finish_code && !item.finish_image && (
-            <div className="border border-dashed border-[#ccc] rounded p-4 text-center text-[#888] text-[10px] h-full flex items-center justify-center">
+            <div className="border border-dashed border-[#ccc] rounded p-2 text-center text-[#888] text-[9px] h-full flex items-center justify-center">
               No material swatches
             </div>
           )}
@@ -352,18 +352,18 @@ function PreviewPage({ order, item, pageNum, totalPages }) {
       </div>
 
       {/* Notes Section - 100% width */}
-      <div className="w-full border border-[#3d2c1e] rounded mb-4">
-        <div className="bg-[#3d2c1e] text-white px-3 py-1.5 font-semibold text-xs">
+      <div className="w-full border border-[#3d2c1e] rounded mb-2">
+        <div className="bg-[#3d2c1e] text-white px-2 py-1 font-semibold text-[10px]">
           Notes:
         </div>
-        <div className="p-3 text-[11px] min-h-[60px]">
+        <div className="p-2 text-[10px] min-h-[40px]">
           {item.notes ? (
             <div 
               className="prose prose-sm max-w-none"
               dangerouslySetInnerHTML={{ __html: item.notes }} 
             />
           ) : (
-            <div className="text-[#888] space-y-1">
+            <div className="text-[#888] space-y-0.5">
               {item.category && <p>• Category: {item.category}</p>}
               {item.leather_code && <p>• Leather: {item.leather_code}</p>}
               {item.finish_code && <p>• Finish: {item.finish_code}</p>}
