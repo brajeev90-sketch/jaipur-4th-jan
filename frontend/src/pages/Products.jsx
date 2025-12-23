@@ -35,6 +35,7 @@ import {
   Edit, 
   Search,
   Upload,
+  Download,
   Image as ImageIcon,
   X,
   FileSpreadsheet
