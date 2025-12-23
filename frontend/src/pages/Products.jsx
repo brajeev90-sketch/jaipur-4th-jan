@@ -255,14 +255,25 @@ export default function Products() {
           </h1>
           <p className="page-description">{t('productsDesc')}</p>
         </div>
-        <Button 
-          className="gap-2 w-full sm:w-auto" 
-          onClick={() => openDialog()}
-          data-testid="add-product-btn"
-        >
-          <Plus size={18} />
-          {t('addProduct')}
-        </Button>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Button 
+            variant="outline"
+            className="gap-2 flex-1 sm:flex-none" 
+            onClick={() => setUploadDialogOpen(true)}
+            data-testid="bulk-upload-btn"
+          >
+            <FileSpreadsheet size={18} />
+            {t('bulkUpload')}
+          </Button>
+          <Button 
+            className="gap-2 flex-1 sm:flex-none" 
+            onClick={() => openDialog()}
+            data-testid="add-product-btn"
+          >
+            <Plus size={18} />
+            {t('addProduct')}
+          </Button>
+        </div>
       </div>
 
       {/* Search and Filter */}
