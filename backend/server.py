@@ -823,6 +823,96 @@ async def get_order_exports(order_id: str):
     exports = await db.exports.find({"order_id": order_id}, {"_id": 0}).to_list(100)
     return exports
 
+# --- SAMPLE EXCEL TEMPLATES ---
+
+@api_router.get("/templates/products-sample")
+async def download_products_sample():
+    """Download sample Excel template for products"""
+    df = pd.DataFrame({
+        'Product Code': ['IDR-8-180CM', 'KRL-2-180CM-LIGHT', 'BNC-4-90CM'],
+        'Description': ['Induse Dining Table', 'Kerela Spider Leg Table', 'Branch Coffee Table'],
+        'Size ( in Cm )': ['180*90 cm', '180 cm', '90*90 cm'],
+        'H': [76, 76, 45],
+        'D': [90, 90, 90],
+        'W': [180, 180, 90],
+        'CBM': [1.23, 1.23, 0.36],
+        'FOB India Price $': [100, 120, 80],
+        'FOB India Price £': [75, 90, 60],
+        'Warehouse Price £700': [150, 180, 120],
+        'Warehouse Price £2000': [180, 220, 150],
+        'Photo Link': ['https://example.com/image1.jpg', 'https://example.com/image2.jpg', '']
+    })
+    
+    buffer = io.BytesIO()
+    df.to_excel(buffer, index=False, sheet_name='Products')
+    buffer.seek(0)
+    
+    return StreamingResponse(
+        buffer,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": "attachment; filename=products_sample.xlsx"}
+    )
+
+@api_router.get("/templates/leather-sample")
+async def download_leather_sample():
+    """Download sample Excel template for leather library"""
+    df = pd.DataFrame({
+        'Code': ['LTH-001', 'LTH-002', 'LTH-003'],
+        'Name': ['Full Grain Tan', 'Nappa Black', 'Suede Brown'],
+        'Description': ['Premium full grain leather', 'Soft nappa finish', 'Brushed suede texture'],
+        'Color': ['#8B4513', '#000000', '#654321'],
+        'Image Link': ['https://example.com/leather1.jpg', '', '']
+    })
+    
+    buffer = io.BytesIO()
+    df.to_excel(buffer, index=False, sheet_name='Leather')
+    buffer.seek(0)
+    
+    return StreamingResponse(
+        buffer,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": "attachment; filename=leather_sample.xlsx"}
+    )
+
+@api_router.get("/templates/finish-sample")
+async def download_finish_sample():
+    """Download sample Excel template for finish library"""
+    df = pd.DataFrame({
+        'Code': ['FIN-001', 'FIN-002', 'FIN-003'],
+        'Name': ['Antique Brass', 'Matte Black', 'Polished Chrome'],
+        'Description': ['Vintage brass finish', 'Modern matte finish', 'Shiny chrome plating'],
+        'Color': ['#CD7F32', '#1C1C1C', '#C0C0C0'],
+        'Image Link': ['https://example.com/finish1.jpg', '', '']
+    })
+    
+    buffer = io.BytesIO()
+    df.to_excel(buffer, index=False, sheet_name='Finish')
+    buffer.seek(0)
+    
+    return StreamingResponse(
+        buffer,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": "attachment; filename=finish_sample.xlsx"}
+    )
+
+@api_router.get("/templates/factories-sample")
+async def download_factories_sample():
+    """Download sample Excel template for factories"""
+    df = pd.DataFrame({
+        'Code': ['SAE', 'CAC', 'GAE', 'JFW'],
+        'Name': ['Shekhawati Art Exports', 'Country Art & Crafts', 'Global Art Exports', 'Jaipur Fine Wood']
+    })
+    
+    buffer = io.BytesIO()
+    df.to_excel(buffer, index=False, sheet_name='Factories')
+    buffer.seek(0)
+    
+    return StreamingResponse(
+        buffer,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": "attachment; filename=factories_sample.xlsx"}
+    )
+
 # --- PRODUCTS ---
 
 @api_router.get("/products", response_model=List[Product])
