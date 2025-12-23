@@ -151,6 +151,24 @@ JAIPUR - A fine wood furniture company`);
           {/* Action Buttons - Responsive */}
           <div className="flex flex-wrap gap-2">
             <Button 
+              variant="outline"
+              className="gap-2 flex-1 sm:flex-none"
+              onClick={handlePrint}
+              data-testid="print-btn"
+            >
+              <Printer size={18} />
+              <span>Print</span>
+            </Button>
+            <Button 
+              variant="outline"
+              className="gap-2 flex-1 sm:flex-none"
+              onClick={handleEmail}
+              data-testid="email-btn"
+            >
+              <Mail size={18} />
+              <span>Email</span>
+            </Button>
+            <Button 
               className="gap-2 bg-green-600 hover:bg-green-700 flex-1 sm:flex-none"
               onClick={handleWhatsAppShare}
               disabled={sharing}
