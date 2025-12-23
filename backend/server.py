@@ -836,54 +836,122 @@ async def export_order_ppt(order_id: str):
     prs.slide_width = Inches(10)
     prs.slide_height = Inches(7.5)
     
-    title_slide_layout = prs.slide_layouts[6]
+    # Title slide
+    title_slide_layout = prs.slide_layouts[6]  # Blank layout
     slide = prs.slides.add_slide(title_slide_layout)
     
-    txBox = slide.shapes.add_textbox(Inches(0.5), Inches(2.5), Inches(9), Inches(1.5))
+    # Add logo image to title slide
+    try:
+        logo_bytes = await fetch_image_bytes(JAIPUR_LOGO_URL)
+        if logo_bytes:
+            logo_stream = io.BytesIO(logo_bytes)
+            slide.shapes.add_picture(logo_stream, Inches(3.5), Inches(2), width=Inches(3))
+    except:
+        pass
+    
+    # Title text
+    txBox = slide.shapes.add_textbox(Inches(0.5), Inches(4.5), Inches(9), Inches(1))
     tf = txBox.text_frame
     p = tf.paragraphs[0]
-    p.text = settings.get('logo_text', 'JAIPUR')
-    p.font.size = Pt(48)
+    p.text = f"Production Sheet - {order.get('sales_order_ref', '')}"
+    p.font.size = Pt(32)
     p.font.bold = True
     
-    txBox = slide.shapes.add_textbox(Inches(0.5), Inches(4), Inches(9), Inches(1))
+    # Subtitle
+    txBox = slide.shapes.add_textbox(Inches(0.5), Inches(5.5), Inches(9), Inches(0.5))
     tf = txBox.text_frame
     p = tf.paragraphs[0]
-    p.text = f"Production Sheet - {order.get('sales_order_ref', '')} | Buyer: {order.get('buyer_name', '')}"
-    p.font.size = Pt(24)
+    p.text = f"Buyer: {order.get('buyer_name', 'N/A')} | Date: {order.get('entry_date', 'N/A')}"
+    p.font.size = Pt(18)
     
+    # Create slide for each item
     for item in order.get("items", []):
         slide = prs.slides.add_slide(title_slide_layout)
         
-        txBox = slide.shapes.add_textbox(Inches(0.5), Inches(0.3), Inches(9), Inches(0.5))
+        # Header with product code
+        txBox = slide.shapes.add_textbox(Inches(0.3), Inches(0.2), Inches(6), Inches(0.5))
         tf = txBox.text_frame
         p = tf.paragraphs[0]
         p.text = f"{item.get('product_code', 'N/A')} - {item.get('description', '')}"
-        p.font.size = Pt(24)
+        p.font.size = Pt(20)
         p.font.bold = True
         
-        details_text = f"""Category: {item.get('category', 'N/A')}
-Size: H {item.get('height_cm', 0)} × D {item.get('depth_cm', 0)} × W {item.get('width_cm', 0)} cm
-CBM: {item.get('cbm', 0)} | Quantity: {item.get('quantity', 1)} pcs
-Leather: {item.get('leather_code', 'N/A')} | Finish: {item.get('finish_code', 'N/A')}
-Color Notes: {item.get('color_notes', 'N/A')}
-Wood Finish: {item.get('wood_finish', 'N/A')}"""
+        # Info table on right
+        info_text = f"""Entry Date: {order.get('entry_date', 'N/A')}
+Factory: {order.get('factory', 'N/A')}
+Sales Ref: {order.get('sales_order_ref', 'N/A')}
+Buyer PO: {order.get('buyer_po_ref', 'N/A')}"""
         
-        txBox = slide.shapes.add_textbox(Inches(5), Inches(1.2), Inches(4.5), Inches(3))
+        txBox = slide.shapes.add_textbox(Inches(7), Inches(0.2), Inches(2.8), Inches(1))
         tf = txBox.text_frame
         tf.word_wrap = True
         p = tf.paragraphs[0]
-        p.text = details_text
-        p.font.size = Pt(14)
+        p.text = info_text
+        p.font.size = Pt(10)
         
-        if item.get('notes'):
-            notes_plain = strip_html(item.get('notes', ''))
-            txBox = slide.shapes.add_textbox(Inches(5), Inches(4.5), Inches(4.5), Inches(2.5))
+        # Product image (left side, 70%)
+        product_image = item.get('product_image') or (item.get('images', [None])[0] if item.get('images') else None)
+        if product_image and product_image.startswith('data:image'):
+            try:
+                img_data = product_image.split(',')[1]
+                img_bytes = base64.b64decode(img_data)
+                img_stream = io.BytesIO(img_bytes)
+                slide.shapes.add_picture(img_stream, Inches(0.3), Inches(1), width=Inches(6), height=Inches(4))
+            except:
+                # Add placeholder text
+                txBox = slide.shapes.add_textbox(Inches(0.3), Inches(2.5), Inches(6), Inches(1))
+                tf = txBox.text_frame
+                p = tf.paragraphs[0]
+                p.text = "No Image Available"
+                p.font.size = Pt(14)
+        else:
+            txBox = slide.shapes.add_textbox(Inches(0.3), Inches(2.5), Inches(6), Inches(1))
+            tf = txBox.text_frame
+            p = tf.paragraphs[0]
+            p.text = "No Image Available"
+            p.font.size = Pt(14)
+        
+        # Materials section (right side)
+        materials_text = f"""MATERIALS:
+
+Leather: {item.get('leather_code', 'N/A')}
+Finish: {item.get('finish_code', 'N/A')}
+Color Notes: {item.get('color_notes', 'N/A')}
+Wood Finish: {item.get('wood_finish', 'N/A')}"""
+        
+        txBox = slide.shapes.add_textbox(Inches(6.5), Inches(1.2), Inches(3.3), Inches(2.5))
+        tf = txBox.text_frame
+        tf.word_wrap = True
+        p = tf.paragraphs[0]
+        p.text = materials_text
+        p.font.size = Pt(11)
+        
+        # Notes section (below image)
+        notes_plain = strip_html(item.get('notes', ''))
+        if notes_plain:
+            txBox = slide.shapes.add_textbox(Inches(0.3), Inches(5.2), Inches(9.4), Inches(1))
             tf = txBox.text_frame
             tf.word_wrap = True
             p = tf.paragraphs[0]
-            p.text = f"Notes:\n{notes_plain}"
-            p.font.size = Pt(12)
+            p.text = f"Notes: {notes_plain}"
+            p.font.size = Pt(10)
+        
+        # Details table at bottom
+        cbm = item.get('cbm', 0)
+        if item.get('cbm_auto', True):
+            h = item.get('height_cm', 0) or 0
+            d = item.get('depth_cm', 0) or 0
+            w = item.get('width_cm', 0) or 0
+            cbm = round((h * d * w) / 1000000, 4)
+        
+        table_text = f"""ITEM CODE: {item.get('product_code', '-')}  |  SIZE: {item.get('height_cm', 0)} × {item.get('depth_cm', 0)} × {item.get('width_cm', 0)} cm  |  CBM: {cbm}  |  QTY: {item.get('quantity', 1)} Pcs"""
+        
+        txBox = slide.shapes.add_textbox(Inches(0.3), Inches(6.5), Inches(9.4), Inches(0.4))
+        tf = txBox.text_frame
+        p = tf.paragraphs[0]
+        p.text = table_text
+        p.font.size = Pt(11)
+        p.font.bold = True
     
     ppt_bytes = io.BytesIO()
     prs.save(ppt_bytes)
