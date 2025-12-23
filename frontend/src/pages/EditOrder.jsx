@@ -100,12 +100,13 @@ export default function EditOrder() {
 
   const loadData = async () => {
     try {
-      const [orderRes, factoriesRes, categoriesRes, leatherRes, finishRes] = await Promise.all([
+      const [orderRes, factoriesRes, categoriesRes, leatherRes, finishRes, productsRes] = await Promise.all([
         ordersApi.getById(id),
         factoriesApi.getAll(),
         categoriesApi.getAll(),
         leatherApi.getAll(),
         finishApi.getAll(),
+        productsApi.getAll(),
       ]);
       
       setOrder(orderRes.data);
@@ -113,6 +114,7 @@ export default function EditOrder() {
       setCategories(categoriesRes.data);
       setLeatherLibrary(leatherRes.data);
       setFinishLibrary(finishRes.data);
+      setProducts(productsRes.data);
       
       if (orderRes.data.entry_date) {
         setDate(new Date(orderRes.data.entry_date));
@@ -124,6 +126,29 @@ export default function EditOrder() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Filter products based on search
+  const filteredProducts = products.filter(p => 
+    p.product_code?.toLowerCase().includes(productSearch.toLowerCase()) ||
+    p.description?.toLowerCase().includes(productSearch.toLowerCase())
+  );
+
+  // Handle product selection from suggestions
+  const handleProductSelect = (product) => {
+    setCurrentItem(prev => ({
+      ...prev,
+      product_code: product.product_code,
+      description: product.description || '',
+      category: product.category || '',
+      height_cm: product.height_cm || 0,
+      depth_cm: product.depth_cm || 0,
+      width_cm: product.width_cm || 0,
+      cbm: product.cbm || 0,
+      dimensions: product.size || '',
+    }));
+    setProductSearch(product.product_code);
+    setShowProductSuggestions(false);
   };
 
   const handleOrderChange = (field, value) => {
