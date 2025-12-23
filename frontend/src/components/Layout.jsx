@@ -84,14 +84,14 @@ export const Layout = () => {
         data-testid="sidebar"
       >
         {/* Logo */}
-        <div className="p-6 border-b border-border flex items-center justify-between">
-          <div>
-            <h1 className="font-serif text-2xl font-semibold text-primary" data-testid="logo">
-              {language === 'hi' ? 'जयपुर' : 'JAIPUR'}
-            </h1>
-            <p className="text-xs text-muted-foreground mt-1">
-              {t('tagline')}
-            </p>
+        <div className="p-4 border-b border-border flex items-center justify-between">
+          <div className="flex-1">
+            <img 
+              src={logoUrl} 
+              alt="JAIPUR - A fine wood furniture company" 
+              className="h-16 w-auto object-contain"
+              data-testid="logo"
+            />
           </div>
           <Button 
             variant="ghost" 
