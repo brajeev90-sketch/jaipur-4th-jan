@@ -1373,6 +1373,67 @@ async def get_dashboard_stats():
         "recent_orders": recent_orders
     }
 
+# --- QUOTATIONS ---
+
+@api_router.get("/quotations", response_model=List[Quotation])
+async def get_quotations():
+    quotations = await db.quotations.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    return quotations
+
+@api_router.get("/quotations/{quotation_id}", response_model=Quotation)
+async def get_quotation(quotation_id: str):
+    quotation = await db.quotations.find_one({"id": quotation_id}, {"_id": 0})
+    if not quotation:
+        raise HTTPException(status_code=404, detail="Quotation not found")
+    return quotation
+
+@api_router.post("/quotations", response_model=Quotation)
+async def create_quotation(quotation: QuotationCreate):
+    doc = Quotation(**quotation.model_dump()).model_dump()
+    await db.quotations.insert_one(doc)
+    return doc
+
+@api_router.put("/quotations/{quotation_id}", response_model=Quotation)
+async def update_quotation(quotation_id: str, quotation: QuotationUpdate):
+    existing = await db.quotations.find_one({"id": quotation_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Quotation not found")
+    
+    update_data = {k: v for k, v in quotation.model_dump().items() if v is not None}
+    update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    await db.quotations.update_one({"id": quotation_id}, {"$set": update_data})
+    updated = await db.quotations.find_one({"id": quotation_id}, {"_id": 0})
+    return updated
+
+@api_router.delete("/quotations/{quotation_id}")
+async def delete_quotation(quotation_id: str):
+    result = await db.quotations.delete_one({"id": quotation_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Quotation not found")
+    return {"message": "Quotation deleted successfully"}
+
+@api_router.post("/quotations/{quotation_id}/duplicate", response_model=Quotation)
+async def duplicate_quotation(quotation_id: str):
+    """Duplicate an existing quotation for reuse"""
+    existing = await db.quotations.find_one({"id": quotation_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Quotation not found")
+    
+    # Create new quotation based on existing one
+    new_quotation = {
+        **existing,
+        "id": str(uuid.uuid4()),
+        "reference": f"{existing.get('reference', 'QT')}-COPY",
+        "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+        "status": "draft",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.quotations.insert_one(new_quotation)
+    return new_quotation
+
 # Include the router in the main app
 app.include_router(api_router)
 
