@@ -186,15 +186,6 @@ JAIPUR - A fine wood furniture company`);
               <FileDown size={18} />
               <span className="hidden sm:inline">Download</span> PDF
             </Button>
-            <Button 
-              variant="outline" 
-              className="gap-2 hidden sm:flex"
-              onClick={handleExportPpt}
-              data-testid="export-ppt-btn"
-            >
-              <Download size={18} />
-              PPT
-            </Button>
           </div>
         </div>
       </div>
