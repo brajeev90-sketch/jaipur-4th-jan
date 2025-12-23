@@ -630,6 +630,124 @@ export default function Products() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Bulk Upload Dialog */}
+      <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-xl flex items-center gap-2">
+              <FileSpreadsheet size={24} />
+              {t('bulkUploadProducts')}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="p-4 bg-muted rounded-lg space-y-2">
+              <h4 className="font-medium text-sm">{t('excelFormat')}</h4>
+              <p className="text-xs text-muted-foreground">{t('excelFormatDesc')}</p>
+              <div className="text-xs text-muted-foreground mt-2">
+                <p className="font-medium mb-1">{t('supportedColumns')}:</p>
+                <ul className="list-disc list-inside space-y-0.5">
+                  <li>Product Code / Item Code</li>
+                  <li>Description</li>
+                  <li>Size</li>
+                  <li>H (Height), D (Depth), W (Width)</li>
+                  <li>CBM</li>
+                  <li>FOB India Price $ / FOB India Price £</li>
+                  <li>Warehouse Price £700 / £2000</li>
+                  <li>Photo Link ({t('imageUrlNote')})</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Upload Area */}
+            <div 
+              className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+                uploading ? 'bg-muted border-muted-foreground/30' : 'hover:bg-muted/50 hover:border-primary/50'
+              }`}
+              onClick={() => !uploading && excelInputRef.current?.click()}
+            >
+              {uploading ? (
+                <div className="flex flex-col items-center">
+                  <div className="loading-spinner mb-2"></div>
+                  <p className="text-sm text-muted-foreground">{t('uploadingProducts')}</p>
+                </div>
+              ) : (
+                <>
+                  <Upload size={40} className="mx-auto text-muted-foreground mb-3" />
+                  <p className="text-sm font-medium mb-1">{t('clickToUpload')}</p>
+                  <p className="text-xs text-muted-foreground">{t('supportedFormat')}: .xlsx, .xls</p>
+                </>
+              )}
+            </div>
+            
+            <input
+              ref={excelInputRef}
+              type="file"
+              accept=".xlsx,.xls"
+              className="hidden"
+              onChange={handleExcelUpload}
+            />
+
+            {/* Upload Result */}
+            {uploadResult && !uploadResult.error && (
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <h4 className="font-medium text-green-800 mb-2">{t('uploadSuccess')}</h4>
+                <div className="text-sm text-green-700 space-y-1">
+                  <p>✓ {uploadResult.created} {t('productsCreated')}</p>
+                  {uploadResult.skipped > 0 && (
+                    <p>⊘ {uploadResult.skipped} {t('rowsSkipped')}</p>
+                  )}
+                </div>
+                {uploadResult.products && uploadResult.products.length > 0 && (
+                  <div className="mt-3 pt-3 border-t border-green-200">
+                    <p className="text-xs text-green-600 mb-2">{t('importedProducts')}:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {uploadResult.products.slice(0, 10).map((p, idx) => (
+                        <Badge key={idx} variant="secondary" className="text-xs">
+                          {p.product_code}
+                        </Badge>
+                      ))}
+                      {uploadResult.products.length > 10 && (
+                        <Badge variant="outline" className="text-xs">
+                          +{uploadResult.products.length - 10} {t('more')}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {uploadResult?.error && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                <h4 className="font-medium text-red-800 mb-1">{t('uploadError')}</h4>
+                <p className="text-sm text-red-700">{uploadResult.error}</p>
+              </div>
+            )}
+
+            {uploadResult?.errors && uploadResult.errors.length > 0 && (
+              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <h4 className="font-medium text-yellow-800 mb-1">{t('warnings')}</h4>
+                <ul className="text-xs text-yellow-700 space-y-1">
+                  {uploadResult.errors.slice(0, 5).map((err, idx) => (
+                    <li key={idx}>• {err}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-3 pt-4 border-t">
+              <Button variant="outline" onClick={() => {
+                setUploadDialogOpen(false);
+                setUploadResult(null);
+              }}>
+                {t('close')}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
