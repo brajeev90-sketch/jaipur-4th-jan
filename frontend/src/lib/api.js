@@ -68,6 +68,13 @@ export const factoriesApi = {
   getAll: () => api.get('/factories'),
   create: (data) => api.post('/factories', data),
   delete: (id) => api.delete(`/factories/${id}`),
+  uploadExcel: (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post('/factories/upload-excel', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
 };
 
 // Products API
