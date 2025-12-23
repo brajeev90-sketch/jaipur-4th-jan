@@ -895,29 +895,101 @@ export default function EditOrder() {
 
             <Separator />
 
-            {/* Images */}
+            {/* Product Image & Additional Images */}
             <div>
               <h4 className="font-medium mb-3">Product Images</h4>
-              <div className="space-y-4">
-                <label className="image-upload-zone block cursor-pointer">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleImageUpload}
-                    className="hidden"
-                    data-testid="item-image-upload"
-                  />
-                  <Upload className="mx-auto mb-2 text-muted-foreground" size={32} />
-                  <p className="text-sm text-muted-foreground">
-                    Click to upload images or drag and drop
-                  </p>
-                </label>
+              
+              {/* Main Product Image (Auto-filled from catalog) */}
+              <div className="mb-4">
+                <Label className="text-sm mb-2 block">Main Product Image {currentItem.product_image && <span className="text-green-600 text-xs">(Auto-filled from catalog)</span>}</Label>
+                <div className="flex gap-4">
+                  {currentItem.product_image ? (
+                    <div className="relative group w-40 h-40">
+                      <img 
+                        src={currentItem.product_image} 
+                        alt="Product"
+                        className="w-full h-full object-cover rounded-sm border-2 border-primary/50"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleItemChange('product_image', '')}
+                        className="absolute top-1 right-1 bg-destructive text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X size={14} />
+                      </button>
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-1 text-center">
+                        Main Image
+                      </div>
+                    </div>
+                  ) : (
+                    <label className="w-40 h-40 border-2 border-dashed rounded-sm flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (ev) => handleItemChange('product_image', ev.target.result);
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                        className="hidden"
+                      />
+                      <Upload className="mb-2 text-muted-foreground" size={24} />
+                      <p className="text-xs text-muted-foreground text-center px-2">Upload main image</p>
+                    </label>
+                  )}
+                </div>
+              </div>
+
+              {/* Additional Product Images */}
+              <div className="border-t pt-4">
+                <Label className="text-sm mb-2 block">Additional Product Information Images</Label>
+                <p className="text-xs text-muted-foreground mb-3">Upload reference images, angle shots, or detail photos</p>
                 
-                {currentItem.images.length > 0 && (
-                  <div className="flex flex-wrap gap-3" data-testid="item-images-preview">
-                    {currentItem.images.map((img, idx) => (
-                      <div key={idx} className="relative group">
+                <div className="space-y-4">
+                  <label className="image-upload-zone block cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      data-testid="item-image-upload"
+                    />
+                    <Upload className="mx-auto mb-2 text-muted-foreground" size={32} />
+                    <p className="text-sm text-muted-foreground">
+                      Click to upload additional images or drag and drop
+                    </p>
+                  </label>
+                  
+                  {currentItem.images.length > 0 && (
+                    <div className="flex flex-wrap gap-3" data-testid="item-images-preview">
+                      {currentItem.images.map((img, idx) => (
+                        <div key={idx} className="relative group">
+                          <img 
+                            src={img} 
+                            alt={`Product ${idx + 1}`}
+                            className="w-24 h-24 object-cover rounded-sm border"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImage(idx)}
+                            className="absolute -top-2 -right-2 bg-destructive text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X size={12} />
+                          </button>
+                          <span className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-0.5 text-center">
+                            #{idx + 1}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
                         <img 
                           src={img} 
                           alt={`Product ${idx + 1}`}
