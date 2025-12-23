@@ -345,13 +345,9 @@ export default function Quotation() {
       <body>
         <div class="header">
           <div class="logo-section">
-            <div class="logo-icon">
-              <svg viewBox="0 0 24 24"><path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm0 2.5L18 8v8l-6 3.5L6 16V8l6-3.5z"/><path d="M12 7v10M7 9.5l5 3 5-3"/></svg>
-            </div>
-            <div>
-              <div class="company-name">JAIPUR</div>
-              <div class="company-tagline">A fine wood furniture company</div>
-            </div>
+            <img src="https://customer-assets.emergentagent.com/job_furnipdf-maker/artifacts/mdh71t2g_WhatsApp%20Image%202025-12-22%20at%202.24.36%20PM.jpeg" 
+                 alt="JAIPUR" 
+                 style="height: 70px; width: auto; object-fit: contain;" />
           </div>
           <div class="quote-info">
             <div class="quote-title">QUOTATION</div>
