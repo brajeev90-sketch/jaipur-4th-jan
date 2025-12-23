@@ -52,6 +52,9 @@ export default function EditOrder() {
   const [categories, setCategories] = useState([]);
   const [leatherLibrary, setLeatherLibrary] = useState([]);
   const [finishLibrary, setFinishLibrary] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [productSearch, setProductSearch] = useState('');
+  const [showProductSuggestions, setShowProductSuggestions] = useState(false);
   const [date, setDate] = useState(new Date());
   const [editingItemIndex, setEditingItemIndex] = useState(null);
   const [itemDialogOpen, setItemDialogOpen] = useState(false);
