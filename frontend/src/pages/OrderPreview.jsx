@@ -95,6 +95,29 @@ export default function OrderPreview() {
     }
   };
 
+  const handlePrint = () => {
+    window.print();
+    toast.success('Print dialog opened');
+  };
+
+  const handleEmail = () => {
+    const pdfUrl = ordersApi.exportPdf(id);
+    const orderRef = order?.sales_order_ref || 'N/A';
+    const buyerName = order?.buyer_name || 'N/A';
+    const subject = encodeURIComponent(`JAIPUR Production Sheet - Order ${orderRef}`);
+    const body = encodeURIComponent(`Dear Team,
+
+Please find the production sheet for Order ${orderRef} for buyer ${buyerName}.
+
+Download PDF: ${pdfUrl}
+
+Best regards,
+JAIPUR - A fine wood furniture company`);
+    
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    toast.success('Opening email client...');
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64" data-testid="preview-loading">
