@@ -278,6 +278,19 @@ export default function FinishLibrary() {
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle className="font-serif text-xl flex items-center gap-2"><FileSpreadsheet size={24} />{t('bulkUploadFinish')}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
+            {/* Download Sample */}
+            <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div>
+                <p className="text-sm font-medium text-blue-800">{t('downloadSampleFirst')}</p>
+                <p className="text-xs text-blue-600">{t('downloadSampleDesc')}</p>
+              </div>
+              <a href={templatesApi.finishSample()} download>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Download size={16} />
+                  {t('downloadSample')}
+                </Button>
+              </a>
+            </div>
             <div className="p-4 bg-muted rounded-lg space-y-2">
               <h4 className="font-medium text-sm">{t('excelFormat')}</h4>
               <p className="text-xs text-muted-foreground">{t('excelFormatDescLibrary')}</p>
