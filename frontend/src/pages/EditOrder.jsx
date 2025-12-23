@@ -178,6 +178,7 @@ export default function EditOrder() {
   const openItemDialog = (index = null) => {
     if (index !== null) {
       setCurrentItem({ ...order.items[index] });
+      setProductSearch(order.items[index].product_code || '');
       setEditingItemIndex(index);
     } else {
       setCurrentItem({
@@ -204,8 +205,10 @@ export default function EditOrder() {
         images: [],
         reference_images: [],
       });
+      setProductSearch('');
       setEditingItemIndex(null);
     }
+    setShowProductSuggestions(false);
     setItemDialogOpen(true);
   };
 
