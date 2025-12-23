@@ -84,6 +84,9 @@ const translations = {
     uploadFailed: 'Failed to upload file',
     invalidFileType: 'Please upload an Excel file (.xlsx or .xls)',
     close: 'Close',
+    downloadSample: 'Download Sample',
+    downloadSampleFirst: 'Download sample first',
+    downloadSampleDesc: 'Use this template to format your data correctly',
     
     // Quotation
     quotationTitle: 'Quotation',
