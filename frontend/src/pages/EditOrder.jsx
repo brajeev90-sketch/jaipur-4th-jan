@@ -136,6 +136,10 @@ export default function EditOrder() {
 
   // Handle product selection from suggestions
   const handleProductSelect = (product) => {
+    // Get product images - main image and additional images
+    const productImage = product.image || '';
+    const productImages = product.images || [];
+    
     setCurrentItem(prev => ({
       ...prev,
       product_code: product.product_code,
@@ -146,6 +150,10 @@ export default function EditOrder() {
       width_cm: product.width_cm || 0,
       cbm: product.cbm || 0,
       dimensions: product.size || '',
+      // Auto-fill product image
+      product_image: productImage,
+      // Keep existing images and add product images
+      images: productImage ? [productImage, ...productImages] : productImages,
     }));
     setProductSearch(product.product_code);
     setShowProductSuggestions(false);
