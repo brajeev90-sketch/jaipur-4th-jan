@@ -121,9 +121,9 @@ export default function FactoryManagement() {
         <div>
           <h1 className="page-title flex items-center gap-3" data-testid="factory-title">
             <Building2 size={28} />
-            Factory / Unit
+            {t('factoryManagementTitle')}
           </h1>
-          <p className="page-description">Manage your factories and production units</p>
+          <p className="page-description">{t('factoryManagementDesc')}</p>
         </div>
         <Button 
           className="gap-2 w-full sm:w-auto" 
@@ -131,7 +131,7 @@ export default function FactoryManagement() {
           data-testid="add-factory-btn"
         >
           <Plus size={18} />
-          Add Factory
+          {t('addFactory')}
         </Button>
       </div>
 
@@ -140,9 +140,9 @@ export default function FactoryManagement() {
         <Card data-testid="empty-factories">
           <CardContent className="py-12 text-center">
             <Building2 className="mx-auto text-muted-foreground mb-4" size={48} />
-            <p className="text-muted-foreground mb-4">No factories added yet</p>
+            <p className="text-muted-foreground mb-4">{t('noFactoriesYet')}</p>
             <Button variant="outline" onClick={() => openDialog()}>
-              Add First Factory
+              {t('addFirstFactory')}
             </Button>
           </CardContent>
         </Card>
@@ -201,12 +201,12 @@ export default function FactoryManagement() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="font-serif text-xl">
-              {editingFactory ? 'Edit Factory' : 'Add New Factory'}
+              {editingFactory ? t('editFactory') : t('addNewFactory')}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Code *</Label>
+              <Label>{t('factoryCode')}</Label>
               <Input
                 value={formData.code}
                 onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
@@ -215,10 +215,10 @@ export default function FactoryManagement() {
                 maxLength={5}
                 data-testid="factory-code-input"
               />
-              <p className="text-xs text-muted-foreground">Short code (max 5 characters)</p>
+              <p className="text-xs text-muted-foreground">{t('factoryCodeDesc')}</p>
             </div>
             <div className="space-y-2">
-              <Label>Name *</Label>
+              <Label>{t('factoryName')}</Label>
               <Input
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -231,10 +231,10 @@ export default function FactoryManagement() {
                 variant="outline" 
                 onClick={() => setDialogOpen(false)}
               >
-                Cancel
+                {t('cancel')}
               </Button>
               <Button onClick={handleSubmit} data-testid="save-factory-btn">
-                {editingFactory ? 'Update' : 'Add'} Factory
+                {editingFactory ? t('update') : t('add')} {t('factory')}
               </Button>
             </div>
           </div>
@@ -245,19 +245,19 @@ export default function FactoryManagement() {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Factory</AlertDialogTitle>
+            <AlertDialogTitle>{t('deleteFactory')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{factoryToDelete?.code} - {factoryToDelete?.name}"? 
-              This action cannot be undone.
+              {t('deleteFactoryConfirm')} "{factoryToDelete?.code} - {factoryToDelete?.name}"? 
+              {t('cannotUndo')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              {t('delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
