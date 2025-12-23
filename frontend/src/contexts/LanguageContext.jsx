@@ -63,6 +63,28 @@ const translations = {
     size: 'Size',
     noProductsFound: 'No products found',
     
+    // Bulk Upload
+    bulkUpload: 'Bulk Upload',
+    bulkUploadProducts: 'Bulk Upload Products',
+    excelFormat: 'Excel File Format',
+    excelFormatDesc: 'Upload an Excel file (.xlsx/.xls) with product data. Images will be fetched from URL links.',
+    supportedColumns: 'Supported columns',
+    imageUrlNote: 'URL to product image',
+    uploadingProducts: 'Uploading products...',
+    clickToUpload: 'Click to upload Excel file',
+    supportedFormat: 'Supported format',
+    uploadSuccess: 'Upload Successful!',
+    productsCreated: 'products created',
+    rowsSkipped: 'rows skipped (empty/invalid)',
+    importedProducts: 'Imported products',
+    more: 'more',
+    uploadError: 'Upload Failed',
+    warnings: 'Warnings',
+    productsImported: 'products imported successfully',
+    uploadFailed: 'Failed to upload file',
+    invalidFileType: 'Please upload an Excel file (.xlsx or .xls)',
+    close: 'Close',
+    
     // Quotation
     quotationTitle: 'Quotation',
     quotationDesc: 'Create and manage price quotations',
