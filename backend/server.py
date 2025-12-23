@@ -349,6 +349,60 @@ async def delete_finish_item(item_id: str):
         raise HTTPException(status_code=404, detail="Item not found")
     return {"message": "Item deleted"}
 
+@api_router.post("/finish-library/upload-excel")
+async def upload_finish_excel(file: UploadFile = File(...)):
+    """Upload finish items from Excel file"""
+    if not file.filename.endswith(('.xlsx', '.xls')):
+        raise HTTPException(status_code=400, detail="File must be an Excel file")
+    
+    try:
+        contents = await file.read()
+        df = pd.read_excel(io.BytesIO(contents))
+        df.columns = df.columns.str.lower().str.strip()
+        
+        column_mapping = {
+            'code': 'code', 'finish code': 'code', 'item code': 'code',
+            'name': 'name', 'finish name': 'name',
+            'description': 'description', 'desc': 'description',
+            'color': 'color',
+            'image': 'image_url', 'image link': 'image_url', 'photo': 'image_url', 'photo link': 'image_url'
+        }
+        df = df.rename(columns=column_mapping)
+        
+        created = []
+        for idx, row in df.iterrows():
+            code = str(row.get('code', '')).strip()
+            if not code or code == 'nan':
+                continue
+                
+            item_data = {
+                'id': str(uuid.uuid4()),
+                'code': code.upper(),
+                'name': str(row.get('name', '')).strip() if pd.notna(row.get('name')) else '',
+                'description': str(row.get('description', '')).strip() if pd.notna(row.get('description')) else '',
+                'color': str(row.get('color', '')).strip() if pd.notna(row.get('color')) else '',
+                'image': '',
+                'created_at': datetime.now(timezone.utc).isoformat()
+            }
+            
+            # Fetch image from URL if provided
+            image_url = str(row.get('image_url', '')).strip() if pd.notna(row.get('image_url')) else ''
+            if image_url and image_url.startswith('http'):
+                try:
+                    async with httpx.AsyncClient(timeout=10.0) as client:
+                        response = await client.get(image_url)
+                        if response.status_code == 200 and 'image' in response.headers.get('content-type', ''):
+                            item_data['image'] = f"data:{response.headers['content-type']};base64,{base64.b64encode(response.content).decode()}"
+                except:
+                    pass
+            
+            await db.finish_library.insert_one(item_data)
+            created.append({'code': item_data['code'], 'name': item_data['name']})
+        
+        return {"message": f"{len(created)} items imported", "created": len(created), "items": created[:20]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # --- TEMPLATE SETTINGS ---
 
 @api_router.get("/template-settings", response_model=TemplateSettings)
