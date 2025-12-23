@@ -501,8 +501,14 @@ export default function EditOrder() {
       </Card>
 
       {/* Item Editor Dialog */}
-      <Dialog open={itemDialogOpen} onOpenChange={setItemDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <Dialog open={itemDialogOpen} onOpenChange={(open) => {
+        setItemDialogOpen(open);
+        if (!open) {
+          setShowProductSuggestions(false);
+          setProductSearch('');
+        }
+      }}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" onClick={() => setShowProductSuggestions(false)}>
           <DialogHeader>
             <DialogTitle className="font-serif text-xl">
               {editingItemIndex !== null ? 'Edit Item' : 'Add New Item'}
