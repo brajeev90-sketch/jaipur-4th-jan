@@ -395,6 +395,28 @@ const translations = {
     size: 'साइज',
     noProductsFound: 'कोई प्रोडक्ट नहीं मिला',
     
+    // Bulk Upload
+    bulkUpload: 'बल्क अपलोड',
+    bulkUploadProducts: 'बल्क प्रोडक्ट अपलोड',
+    excelFormat: 'एक्सेल फाइल फॉर्मेट',
+    excelFormatDesc: 'प्रोडक्ट डेटा के साथ एक्सेल फाइल (.xlsx/.xls) अपलोड करें। इमेज URL लिंक से फेच की जाएंगी।',
+    supportedColumns: 'सपोर्टेड कॉलम',
+    imageUrlNote: 'प्रोडक्ट इमेज का URL',
+    uploadingProducts: 'प्रोडक्ट्स अपलोड हो रहे हैं...',
+    clickToUpload: 'एक्सेल फाइल अपलोड करने के लिए क्लिक करें',
+    supportedFormat: 'सपोर्टेड फॉर्मेट',
+    uploadSuccess: 'अपलोड सफल!',
+    productsCreated: 'प्रोडक्ट्स बनाए गए',
+    rowsSkipped: 'रो स्किप किए गए (खाली/अमान्य)',
+    importedProducts: 'इम्पोर्ट किए गए प्रोडक्ट्स',
+    more: 'और',
+    uploadError: 'अपलोड विफल',
+    warnings: 'चेतावनियां',
+    productsImported: 'प्रोडक्ट्स सफलतापूर्वक इम्पोर्ट किए गए',
+    uploadFailed: 'फाइल अपलोड करने में विफल',
+    invalidFileType: 'कृपया एक्सेल फाइल (.xlsx या .xls) अपलोड करें',
+    close: 'बंद करें',
+    
     // Quotation
     quotationTitle: 'कोटेशन',
     quotationDesc: 'मूल्य कोटेशन बनाएं और प्रबंधित करें',
