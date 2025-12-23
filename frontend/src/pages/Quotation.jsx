@@ -310,6 +310,7 @@ export default function Quotation() {
           <Button 
             className="gap-2"
             disabled={quotationItems.length === 0}
+            onClick={handleGenerateQuote}
             data-testid="generate-quote-btn"
           >
             <Download size={18} />
