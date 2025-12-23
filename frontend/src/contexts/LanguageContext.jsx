@@ -128,6 +128,45 @@ const translations = {
     factoryDeleted: 'Factory deleted successfully',
     failedToAddFactory: 'Failed to add factory',
     failedToUpdateFactory: 'Failed to update factory',
+    bulkUploadFactories: 'Bulk Upload Factories',
+    excelFormatDescFactory: 'Upload an Excel file (.xlsx/.xls) with factory data.',
+    factoriesImported: 'factories imported successfully',
+    factoriesCreated: 'factories created',
+    
+    // Leather Library
+    leatherLibraryDesc: 'Manage your leather codes and materials',
+    addLeather: 'Add Leather',
+    editLeather: 'Edit Leather',
+    addNewLeather: 'Add New Leather',
+    noLeatherYet: 'No leather items yet',
+    addFirstLeather: 'Add First Leather',
+    bulkUploadLeather: 'Bulk Upload Leather',
+    
+    // Finish Library
+    finishLibraryDesc: 'Manage your finish codes and materials',
+    addFinish: 'Add Finish',
+    editFinish: 'Edit Finish',
+    addNewFinish: 'Add New Finish',
+    noFinishYet: 'No finish items yet',
+    addFirstFinish: 'Add First Finish',
+    bulkUploadFinish: 'Bulk Upload Finish',
+    
+    // Common Library
+    excelFormatDescLibrary: 'Upload an Excel file (.xlsx/.xls) with item data. Images will be fetched from URL links.',
+    itemsImported: 'items imported successfully',
+    itemsCreated: 'items created',
+    uploadingItems: 'Uploading items...',
+    codeNameRequired: 'Code and Name are required',
+    itemCreated: 'Item created successfully',
+    itemUpdated: 'Item updated successfully',
+    itemDeleted: 'Item deleted successfully',
+    deleteItem: 'Delete Item',
+    deleteItemConfirm: 'Are you sure you want to delete',
+    code: 'Code',
+    name: 'Name',
+    color: 'Color',
+    image: 'Image',
+    create: 'Create',
     failedToDeleteFactory: 'Failed to delete factory',
     
     // Dashboard
