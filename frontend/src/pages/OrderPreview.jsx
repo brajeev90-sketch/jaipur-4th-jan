@@ -215,11 +215,14 @@ function PreviewPage({ order, item, pageNum, totalPages }) {
     ? ((item.height_cm || 0) * (item.depth_cm || 0) * (item.width_cm || 0) / 1000000).toFixed(2)
     : item.cbm;
 
+  // Get the product image (from product_image field or images array)
+  const productImage = item.product_image || (item.images?.length > 0 ? item.images[0] : null);
+
   return (
     <div className="h-full flex flex-col" style={{ fontFamily: 'Manrope, sans-serif', fontSize: '12px' }}>
-      {/* Header with logo and date table */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 pb-4 border-b-2 border-[#3d2c1e]">
-        {/* Logo */}
+      {/* Header: Logo LEFT, Info Table RIGHT */}
+      <div className="flex justify-between items-start pb-4 border-b-2 border-[#3d2c1e]">
+        {/* Logo - Left Side */}
         <div className="flex items-center gap-3">
           <div className="text-[#3d2c1e]">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
@@ -232,13 +235,17 @@ function PreviewPage({ order, item, pageNum, totalPages }) {
           </div>
         </div>
         
-        {/* Date Table */}
+        {/* Info Table - Right Side (with Factory Inform Date) */}
         <div className="border border-[#3d2c1e] text-[10px] sm:text-xs">
           <table>
             <tbody>
               <tr className="border-b border-[#3d2c1e]">
                 <td className="px-2 sm:px-3 py-1 bg-[#f5f0eb] font-semibold border-r border-[#3d2c1e]">ENTRY DATE</td>
-                <td className="px-2 sm:px-3 py-1 min-w-[80px]">{order.entry_date || '-'}</td>
+                <td className="px-2 sm:px-3 py-1 min-w-[120px]">{order.entry_date || '-'}</td>
+              </tr>
+              <tr className="border-b border-[#3d2c1e]">
+                <td className="px-2 sm:px-3 py-1 bg-[#f5f0eb] font-semibold border-r border-[#3d2c1e]">FACTORY INFORM</td>
+                <td className="px-2 sm:px-3 py-1">{order.factory_inform_date || order.entry_date || '-'}</td>
               </tr>
               <tr className="border-b border-[#3d2c1e]">
                 <td className="px-2 sm:px-3 py-1 bg-[#f5f0eb] font-semibold border-r border-[#3d2c1e]">FACTORY</td>
@@ -257,106 +264,121 @@ function PreviewPage({ order, item, pageNum, totalPages }) {
         </div>
       </div>
 
-      {/* Content Area: Image + Materials + Notes */}
-      <div className="flex flex-col sm:flex-row gap-4 py-4 flex-1">
-        {/* Product Image */}
-        <div className="w-full sm:w-1/3">
-          {item.images?.length > 0 ? (
-            <img 
-              src={item.images[0]} 
-              alt={item.product_code}
-              className="w-full h-auto max-h-[200px] sm:max-h-[280px] object-contain border border-[#ddd] rounded"
-            />
+      {/* Image Section: 75% Product Image + 25% Material Swatches */}
+      <div className="flex gap-3 py-4">
+        {/* Product Image - 75% width */}
+        <div className="w-3/4">
+          {productImage ? (
+            <div className="border border-[#ddd] rounded p-2 bg-white h-full flex items-center justify-center">
+              <img 
+                src={productImage} 
+                alt={item.product_code}
+                className="max-w-full max-h-[250px] object-contain"
+              />
+            </div>
           ) : (
-            <div className="w-full h-[150px] sm:h-[200px] bg-[#f0f0f0] rounded flex items-center justify-center text-[#888] border border-[#ddd]">
-              No Image Available
+            <div className="w-full h-[250px] bg-[#f8f8f8] rounded flex items-center justify-center text-[#888] border border-[#ddd]">
+              <div className="text-center">
+                <svg className="w-16 h-16 mx-auto mb-2 text-[#ccc]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span className="text-sm">No Image Available</span>
+              </div>
             </div>
           )}
           
-          {/* Additional images if any */}
-          {item.images?.length > 1 && (
+          {/* Additional reference images if any */}
+          {item.reference_images?.length > 0 && (
             <div className="flex gap-2 mt-2 overflow-x-auto">
-              {item.images.slice(1, 4).map((img, idx) => (
+              {item.reference_images.slice(0, 4).map((img, idx) => (
                 <img 
                   key={idx}
                   src={img} 
-                  alt={`${item.product_code}-${idx + 2}`}
-                  className="w-12 h-12 sm:w-16 sm:h-16 object-cover border border-[#ddd] rounded flex-shrink-0"
+                  alt={`Reference ${idx + 1}`}
+                  className="w-14 h-14 object-cover border border-[#ddd] rounded flex-shrink-0"
                 />
               ))}
             </div>
           )}
         </div>
 
-        {/* Material Swatches */}
-        <div className="w-full sm:w-1/3 flex sm:flex-col gap-2 sm:gap-3">
+        {/* Material Swatches - 25% width */}
+        <div className="w-1/4 flex flex-col gap-2">
           {/* Leather/Fabric Swatch */}
           {(item.leather_code || item.leather_image) && (
-            <div className="flex-1 border border-[#ddd] rounded p-2 bg-[#fafafa]">
+            <div className="border border-[#ddd] rounded p-2 bg-[#fafafa]">
               {item.leather_image ? (
                 <img 
                   src={item.leather_image} 
                   alt={item.leather_code || 'Leather'}
-                  className="w-full h-16 sm:h-20 object-cover rounded mb-1 sm:mb-2"
+                  className="w-full h-20 object-cover rounded mb-2"
                 />
               ) : (
-                <div className="w-full h-16 sm:h-20 bg-gradient-to-br from-[#8B4513] to-[#A0522D] rounded mb-1 sm:mb-2"></div>
+                <div className="w-full h-20 bg-gradient-to-br from-[#8B4513] to-[#A0522D] rounded mb-2"></div>
               )}
               <div className="text-center">
-                <p className="text-[10px] sm:text-xs font-semibold">{item.leather_code || 'Leather'}</p>
+                <p className="text-[9px] text-[#666] uppercase">Leather</p>
+                <p className="text-[10px] font-semibold">{item.leather_code || '-'}</p>
               </div>
             </div>
           )}
           
           {/* Finish/Coating Swatch */}
           {(item.finish_code || item.finish_image) && (
-            <div className="flex-1 border border-[#ddd] rounded p-2 bg-[#fafafa]">
+            <div className="border border-[#ddd] rounded p-2 bg-[#fafafa]">
               {item.finish_image ? (
                 <img 
                   src={item.finish_image} 
                   alt={item.finish_code || 'Finish'}
-                  className="w-full h-16 sm:h-20 object-cover rounded mb-1 sm:mb-2"
+                  className="w-full h-20 object-cover rounded mb-2"
                 />
               ) : (
-                <div className="w-full h-16 sm:h-20 bg-gradient-to-br from-[#D4A574] to-[#C4956A] rounded mb-1 sm:mb-2"></div>
+                <div className="w-full h-20 bg-gradient-to-br from-[#D4A574] to-[#C4956A] rounded mb-2"></div>
               )}
               <div className="text-center">
-                <p className="text-[10px] sm:text-xs font-semibold">{item.finish_code || 'Finish'}</p>
+                <p className="text-[9px] text-[#666] uppercase">Finish</p>
+                <p className="text-[10px] font-semibold">{item.finish_code || '-'}</p>
               </div>
             </div>
           )}
 
           {/* Show placeholder if no materials */}
           {!item.leather_code && !item.leather_image && !item.finish_code && !item.finish_image && (
-            <div className="border border-dashed border-[#ccc] rounded p-4 text-center text-[#888] text-xs">
+            <div className="border border-dashed border-[#ccc] rounded p-4 text-center text-[#888] text-[10px] h-full flex items-center justify-center">
               No material swatches
             </div>
           )}
         </div>
+      </div>
 
-        {/* Notes Section */}
-        <div className="w-full sm:w-1/3 border border-[#3d2c1e] rounded">
-          <div className="bg-[#3d2c1e] text-white px-3 py-1.5 font-semibold text-xs">
-            Notes:
-          </div>
-          <div className="p-3 text-[10px] sm:text-xs space-y-1">
-            {item.notes ? (
-              <div dangerouslySetInnerHTML={{ __html: item.notes.replace(/\n/g, '<br/>') }} />
-            ) : (
-              <ul className="list-disc pl-4 space-y-1">
-                {item.category && <li>{item.category}</li>}
-                {item.leather_code && <li>Leather: {item.leather_code}</li>}
-                {item.finish_code && <li>Finish: {item.finish_code}</li>}
-                {item.color_notes && <li>Color: {item.color_notes}</li>}
-                {item.wood_finish && <li>Wood: {item.wood_finish}</li>}
-                {item.machine_hall && <li>Workshop: {item.machine_hall}</li>}
-              </ul>
-            )}
-          </div>
+      {/* Notes Section - 100% width */}
+      <div className="w-full border border-[#3d2c1e] rounded mb-4">
+        <div className="bg-[#3d2c1e] text-white px-3 py-1.5 font-semibold text-xs">
+          Notes:
+        </div>
+        <div className="p-3 text-[11px] min-h-[60px]">
+          {item.notes ? (
+            <div 
+              className="prose prose-sm max-w-none"
+              dangerouslySetInnerHTML={{ __html: item.notes }} 
+            />
+          ) : (
+            <div className="text-[#888] space-y-1">
+              {item.category && <p>• Category: {item.category}</p>}
+              {item.leather_code && <p>• Leather: {item.leather_code}</p>}
+              {item.finish_code && <p>• Finish: {item.finish_code}</p>}
+              {item.color_notes && <p>• Color Notes: {item.color_notes}</p>}
+              {item.wood_finish && <p>• Wood Finish: {item.wood_finish}</p>}
+              {item.machine_hall && <p>• Workshop: {item.machine_hall}</p>}
+              {!item.category && !item.leather_code && !item.finish_code && !item.color_notes && !item.wood_finish && !item.machine_hall && (
+                <p className="italic">No notes added</p>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Product Details Table */}
+      {/* Product Details Table - Bottom */}
       <div className="border-2 border-[#3d2c1e] mt-auto overflow-x-auto">
         <table className="w-full text-[10px] sm:text-xs min-w-[500px]">
           <thead>
@@ -391,7 +413,7 @@ function PreviewPage({ order, item, pageNum, totalPages }) {
       </div>
 
       {/* Footer */}
-      <div className="mt-3 pt-2 border-t border-[#ddd] flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 text-[10px] sm:text-xs text-[#888]">
+      <div className="mt-3 pt-2 border-t border-[#ddd] flex justify-between items-center text-[10px] text-[#888]">
         <span>Buyer: {order.buyer_name || 'N/A'} • PO: {order.buyer_po_ref || 'N/A'}</span>
         <span>Page {pageNum} of {totalPages}</span>
       </div>
