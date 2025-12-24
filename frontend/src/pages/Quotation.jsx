@@ -293,15 +293,6 @@ export default function Quotation() {
             border-bottom: 3px solid #3d2c1e;
           }
           .logo-section { display: flex; align-items: center; gap: 15px; }
-          .logo-icon {
-            width: 60px; height: 60px;
-            background: linear-gradient(135deg, #3d2c1e 0%, #5a4a3a 100%);
-            border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-          }
-          .logo-icon svg { width: 40px; height: 40px; fill: white; }
-          .company-name { font-size: 32px; font-weight: bold; color: #3d2c1e; letter-spacing: 2px; }
-          .company-tagline { font-size: 11px; color: #666; font-style: italic; margin-top: 2px; }
           .quote-info {
             text-align: right; background: #f8f5f2; padding: 15px 20px;
             border-radius: 8px; min-width: 200px;
@@ -309,12 +300,17 @@ export default function Quotation() {
           .quote-title { font-size: 22px; font-weight: bold; color: #3d2c1e; margin-bottom: 8px; }
           .quote-detail { font-size: 12px; color: #555; margin: 4px 0; }
           .quote-detail strong { color: #3d2c1e; }
-          .customer-section {
-            background: #fafafa; padding: 15px 20px; border-radius: 8px;
-            margin-bottom: 20px; border-left: 4px solid #3d2c1e;
+          .customer-date-section {
+            display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(135deg, #3d2c1e 0%, #5a4a3a 100%);
+            color: white; padding: 20px 25px; border-radius: 8px;
+            margin-bottom: 25px;
           }
-          .customer-section h3 { font-size: 14px; color: #888; margin-bottom: 5px; font-weight: normal; }
-          .customer-name { font-size: 18px; font-weight: bold; color: #333; }
+          .customer-info h2 { font-size: 24px; margin-bottom: 5px; }
+          .customer-info p { font-size: 14px; opacity: 0.9; }
+          .date-info { text-align: right; }
+          .date-info .date-label { font-size: 12px; opacity: 0.8; }
+          .date-info .date-value { font-size: 20px; font-weight: bold; }
           .items-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px; }
           .items-table thead tr:first-child th {
             background: #3d2c1e; color: white; padding: 12px 10px;
@@ -330,6 +326,7 @@ export default function Quotation() {
           }
           .items-table tbody tr:nth-child(even) { background: #fafafa; }
           .item-code { font-family: 'Courier New', monospace; font-weight: bold; color: #3d2c1e; font-size: 11px; }
+          .item-image { width: 80px; height: 60px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; }
           .size-cell { text-align: center; font-size: 11px; }
           .cbm-cell { text-align: center; font-weight: 500; }
           .load-cell { text-align: center; background: #fff8e6 !important; font-weight: 500; }
@@ -337,7 +334,7 @@ export default function Quotation() {
           .price-cell { text-align: right; font-weight: bold; color: #2e7d32; font-size: 13px; }
           .qty-cell { text-align: center; font-weight: bold; }
           .total-cell { text-align: right; font-weight: bold; color: #1565c0; font-size: 13px; }
-          .summary-section { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
+          .summary-section { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
           .summary-box {
             background: #f8f5f2; padding: 15px; border-radius: 8px;
             text-align: center; border: 1px solid #e0d5c8;
@@ -350,13 +347,6 @@ export default function Quotation() {
           .summary-box.highlight .summary-label { color: rgba(255,255,255,0.8); }
           .summary-value { font-size: 22px; font-weight: bold; color: #3d2c1e; }
           .summary-box.highlight .summary-value { color: white; }
-          .container-info {
-            background: #e8f5e9; border: 1px solid #a5d6a7; padding: 12px 20px;
-            border-radius: 8px; margin-bottom: 20px;
-            display: flex; justify-content: space-between; align-items: center;
-          }
-          .container-label { font-size: 12px; color: #2e7d32; }
-          .container-value { font-size: 16px; font-weight: bold; color: #1b5e20; }
           .notes-section {
             background: #fff8e6; border: 1px solid #ffe082; padding: 15px 20px;
             border-radius: 8px; margin-bottom: 20px;
@@ -368,9 +358,10 @@ export default function Quotation() {
           }
           .footer-text { font-size: 11px; color: #888; margin: 5px 0; }
           .footer-brand { font-size: 14px; font-weight: bold; color: #3d2c1e; margin-top: 10px; }
+          .no-image { width: 80px; height: 60px; background: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #888; }
           @media print { 
             body { padding: 15px; }
-            .summary-box.highlight { background: #3d2c1e !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .summary-box.highlight, .customer-date-section { background: #3d2c1e !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           }
         </style>
       </head>
@@ -384,26 +375,32 @@ export default function Quotation() {
           <div class="quote-info">
             <div class="quote-title">QUOTATION</div>
             <div class="quote-detail"><strong>Ref:</strong> ${quotationDetails.reference || 'N/A'}</div>
-            <div class="quote-detail"><strong>Date:</strong> ${quotationDetails.date}</div>
-            <div class="quote-detail"><strong>Currency:</strong> ${quotationDetails.currency}</div>
+            <div class="quote-detail"><strong>Price Type:</strong> ${priceLabel}</div>
           </div>
         </div>
-        ${quotationDetails.customer_name ? `
-        <div class="customer-section">
-          <h3>Quotation For:</h3>
-          <div class="customer-name">${quotationDetails.customer_name}</div>
-          ${quotationDetails.customer_email ? `<div style="font-size: 12px; color: #666; margin-top: 3px;">${quotationDetails.customer_email}</div>` : ''}
-        </div>` : ''}
+        
+        <div class="customer-date-section">
+          <div class="customer-info">
+            <h2>${quotationDetails.customer_name || 'Customer'}</h2>
+            ${quotationDetails.customer_email ? `<p>${quotationDetails.customer_email}</p>` : ''}
+          </div>
+          <div class="date-info">
+            <div class="date-label">Quotation Date</div>
+            <div class="date-value">${quotationDetails.date}</div>
+          </div>
+        </div>
+        
         <table class="items-table">
           <thead>
             <tr>
+              <th rowspan="2" style="width: 100px">Image</th>
               <th rowspan="2">Item Code</th>
               <th rowspan="2">Description</th>
               <th colspan="3" style="text-align: center;">Size (cm)</th>
               <th rowspan="2" style="text-align: center">CBM</th>
               <th rowspan="2" style="text-align: center">Load 40' HQ</th>
               <th rowspan="2" style="text-align: center">Qty</th>
-              <th rowspan="2" class="price-header" style="text-align: center">FOB ${quotationDetails.currency}</th>
+              <th rowspan="2" class="price-header" style="text-align: center">${priceLabel}</th>
               <th rowspan="2" class="price-header" style="text-align: center">Total</th>
             </tr>
             <tr><th>H</th><th>D</th><th>W</th></tr>
@@ -411,9 +408,11 @@ export default function Quotation() {
           <tbody>
             ${quotationItems.map(item => {
               const itemCBM = item.cbm || 0;
+              const containerCapacity = 76;
               const loadCapacity = itemCBM > 0 ? Math.floor(containerCapacity / itemCBM) : 0;
               return `
               <tr>
+                <td>${item.image ? `<img src="${item.image}" class="item-image" alt="${item.product_code}"/>` : '<div class="no-image">No Image</div>'}</td>
                 <td class="item-code">${item.product_code}</td>
                 <td>${item.description || '-'}</td>
                 <td class="size-cell">${item.height_cm || 0}</td>
