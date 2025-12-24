@@ -366,8 +366,14 @@ class JaipurAPITester:
             self.test_leather_library_crud()
             self.test_finish_library_crud()
             
+            # Products management
+            self.test_products_crud()
+            
             # Orders management
             self.test_orders_crud()
+            
+            # Quotations management
+            self.test_quotations_crud()
             
             # Export functionality
             self.test_export_endpoints()
