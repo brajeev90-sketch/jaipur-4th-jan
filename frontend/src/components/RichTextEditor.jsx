@@ -5,7 +5,7 @@ import Highlight from '@tiptap/extension-highlight';
 import BulletList from '@tiptap/extension-bullet-list';
 import OrderedList from '@tiptap/extension-ordered-list';
 import ListItem from '@tiptap/extension-list-item';
-import { useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 import { cn } from '../lib/utils';
 import {
   Bold,
@@ -15,6 +15,26 @@ import {
   List,
   ListOrdered,
 } from 'lucide-react';
+
+// Custom styles for the editor - ensure lists show bullets/numbers
+const editorStyles = `
+  .ProseMirror ul {
+    list-style-type: disc !important;
+    padding-left: 1.5rem !important;
+    margin: 0.5rem 0 !important;
+  }
+  .ProseMirror ol {
+    list-style-type: decimal !important;
+    padding-left: 1.5rem !important;
+    margin: 0.5rem 0 !important;
+  }
+  .ProseMirror li {
+    margin: 0.25rem 0 !important;
+  }
+  .ProseMirror li p {
+    margin: 0 !important;
+  }
+`;
 
 const MenuButton = ({ onClick, isActive, children, title }) => (
   <button
