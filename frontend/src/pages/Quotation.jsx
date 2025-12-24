@@ -451,13 +451,58 @@ export default function Quotation() {
   };
 
   const addSelectedProducts = () => {
+    const newItems = [];
     selectedProducts.forEach(productId => {
       const product = products.find(p => p.id === productId);
-      if (product) addProductToQuotation(product);
+      if (product) {
+        // Check if already exists
+        const exists = quotationItems.some(item => item.product_code === product.product_code);
+        if (!exists) {
+          // Get price based on selected price type
+          let fobPrice = 0;
+          switch(quotationDetails.currency) {
+            case 'FOB_USD':
+              fobPrice = product.fob_price_usd || 0;
+              break;
+            case 'FOB_GBP':
+              fobPrice = product.fob_price_gbp || 0;
+              break;
+            case 'WH_700':
+              fobPrice = product.warehouse_price_1 || product.warehouse_price_700 || 0;
+              break;
+            case 'WH_2000':
+              fobPrice = product.warehouse_price_2 || product.warehouse_price_2000 || 0;
+              break;
+            default:
+              fobPrice = product.fob_price_usd || 0;
+          }
+
+          newItems.push({
+            id: product.id,
+            product_code: product.product_code,
+            description: product.description,
+            height_cm: product.height_cm,
+            depth_cm: product.depth_cm,
+            width_cm: product.width_cm,
+            cbm: product.cbm,
+            quantity: 1,
+            fob_price: fobPrice,
+            total: fobPrice,
+            image: product.image || ''
+          });
+        }
+      }
     });
+    
+    if (newItems.length > 0) {
+      setQuotationItems([...quotationItems, ...newItems]);
+      toast.success(`Added ${newItems.length} item(s) to quotation`);
+    } else {
+      toast.info('Selected items already in quotation');
+    }
+    
     setSelectedProducts([]);
     setProductDialogOpen(false);
-    toast.success('Items added to quotation');
   };
 
   const toggleProductSelection = (productId) => {
