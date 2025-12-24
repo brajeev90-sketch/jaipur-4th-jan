@@ -472,7 +472,8 @@ export default function Quotation() {
   );
 
   const totals = calculateTotals();
-  const currencySymbol = quotationDetails.currency === 'USD' ? '$' : quotationDetails.currency === 'GBP' ? '£' : '₹';
+  const currencyInfo = getCurrencyInfo(quotationDetails.currency);
+  const currencySymbol = currencyInfo.symbol;
 
   return (
     <div className="space-y-6">
