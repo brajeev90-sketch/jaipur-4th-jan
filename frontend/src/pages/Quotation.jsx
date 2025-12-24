@@ -57,7 +57,7 @@ export default function Quotation() {
     reference: '',
     date: new Date().toISOString().split('T')[0],
     notes: '',
-    currency: 'USD'
+    currency: 'FOB_USD'
   });
 
   useEffect(() => {
