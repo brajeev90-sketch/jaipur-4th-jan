@@ -628,11 +628,15 @@ export default function Quotation() {
 
         {/* Quotation Items */}
         <Card className="md:col-span-2">
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
               <Package size={18} />
               {t('quotationItems')} ({quotationItems.length})
             </CardTitle>
+            <Button variant="outline" size="sm" className="gap-1" onClick={() => setProductDialogOpen(true)}>
+              <Plus size={16} />
+              Add Item
+            </Button>
           </CardHeader>
           <CardContent>
             {quotationItems.length === 0 ? (
