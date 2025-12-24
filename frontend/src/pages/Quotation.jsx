@@ -557,15 +557,16 @@ export default function Quotation() {
               />
             </div>
             <div className="space-y-2">
-              <Label>{t('currency')}</Label>
+              <Label>Price Type</Label>
               <select
                 className="w-full border rounded-md p-2"
                 value={quotationDetails.currency}
                 onChange={(e) => setQuotationDetails({...quotationDetails, currency: e.target.value})}
               >
-                <option value="USD">USD ($)</option>
-                <option value="GBP">GBP (£)</option>
-                <option value="INR">INR (₹)</option>
+                <option value="FOB_USD">FOB India Price $</option>
+                <option value="FOB_GBP">FOB India Price £</option>
+                <option value="WH_700">Warehouse Price £700</option>
+                <option value="WH_2000">Warehouse Price £2000</option>
               </select>
             </div>
             <div className="space-y-2">
