@@ -341,6 +341,10 @@ class JaipurAPITester:
         """Clean up test data"""
         if self.created_order_id:
             self.run_test("Cleanup Order", "DELETE", f"api/orders/{self.created_order_id}", 200)
+        if self.created_quotation_id:
+            self.run_test("Cleanup Quotation", "DELETE", f"api/quotations/{self.created_quotation_id}", 200)
+        if self.created_product_id:
+            self.run_test("Cleanup Product", "DELETE", f"api/products/{self.created_product_id}", 200)
 
     def run_all_tests(self):
         """Run all API tests"""
