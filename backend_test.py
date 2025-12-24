@@ -239,6 +239,104 @@ class JaipurAPITester:
 
         return True
 
+    def test_products_crud(self):
+        """Test products CRUD operations"""
+        # Get all products
+        success, _ = self.run_test("Get All Products", "GET", "api/products", 200)
+        if not success:
+            return False
+
+        # Create product
+        product_data = {
+            "id": str(uuid.uuid4()),
+            "product_code": f"TEST-PRD-{datetime.now().strftime('%H%M%S')}",
+            "description": "Test Product for Quotation",
+            "category": "Chair",
+            "size": "180x90 cm",
+            "height_cm": 80,
+            "depth_cm": 60,
+            "width_cm": 50,
+            "cbm": 0.24,
+            "fob_price_usd": 150.00,
+            "fob_price_gbp": 120.00,
+            "warehouse_price_1": 200.00,
+            "warehouse_price_2": 250.00,
+            "image": "https://example.com/test-product.jpg",
+            "images": []
+        }
+        success, response = self.run_test("Create Product", "POST", "api/products", 200, product_data)
+        if success:
+            self.created_product_id = product_data["id"]
+
+        # Update product
+        if self.created_product_id:
+            product_data["description"] = "Updated Test Product"
+            success, _ = self.run_test("Update Product", "PUT", f"api/products/{self.created_product_id}", 200, product_data)
+
+        # Get specific product
+        if self.created_product_id:
+            success, _ = self.run_test("Get Specific Product", "GET", f"api/products/{self.created_product_id}", 200)
+
+        return True
+
+    def test_quotations_crud(self):
+        """Test quotations CRUD operations"""
+        # Get all quotations
+        success, _ = self.run_test("Get All Quotations", "GET", "api/quotations", 200)
+        if not success:
+            return False
+
+        # Create quotation
+        quotation_data = {
+            "reference": f"TEST-QT-{datetime.now().strftime('%Y%m%d%H%M%S')}",
+            "customer_name": "Test Customer",
+            "customer_email": "test@customer.com",
+            "date": datetime.now().strftime('%Y-%m-%d'),
+            "currency": "FOB_USD",
+            "notes": "Test quotation notes",
+            "items": [
+                {
+                    "id": str(uuid.uuid4()),
+                    "product_id": self.created_product_id or str(uuid.uuid4()),
+                    "product_code": "TEST-PRD-001",
+                    "description": "Test Product for Quotation",
+                    "height_cm": 80,
+                    "depth_cm": 60,
+                    "width_cm": 50,
+                    "cbm": 0.24,
+                    "quantity": 2,
+                    "fob_price": 150.00,
+                    "total": 300.00,
+                    "image": "https://example.com/test-product.jpg"
+                }
+            ],
+            "total_items": 2,
+            "total_cbm": 0.48,
+            "total_value": 300.00,
+            "status": "draft"
+        }
+        success, response = self.run_test("Create Quotation", "POST", "api/quotations", 200, quotation_data)
+        if success and 'id' in response:
+            self.created_quotation_id = response['id']
+
+        # Get specific quotation
+        if self.created_quotation_id:
+            success, _ = self.run_test("Get Specific Quotation", "GET", f"api/quotations/{self.created_quotation_id}", 200)
+
+        # Update quotation
+        if self.created_quotation_id:
+            update_data = {
+                "customer_name": "Updated Test Customer",
+                "status": "sent"
+            }
+            success, _ = self.run_test("Update Quotation", "PUT", f"api/quotations/{self.created_quotation_id}", 200, update_data)
+
+        # Duplicate quotation
+        if self.created_quotation_id:
+            success, _ = self.run_test("Duplicate Quotation", "POST", f"api/quotations/{self.created_quotation_id}/duplicate", 200)
+
+        return True
+
     def cleanup(self):
         """Clean up test data"""
         if self.created_order_id:
