@@ -236,11 +236,22 @@ export default function Quotation() {
       reference: `QT-${Date.now().toString().slice(-6)}`,
       date: new Date().toISOString().split('T')[0],
       notes: '',
-      currency: 'USD'
+      currency: 'FOB_USD'
     });
     setQuotationItems([]);
     setEditingQuotationId(null);
     setShowSavedQuotes(false);
+  };
+
+  // Get currency symbol and label
+  const getCurrencyInfo = (currency) => {
+    switch(currency) {
+      case 'FOB_USD': return { symbol: '$', label: 'FOB India $' };
+      case 'FOB_GBP': return { symbol: '£', label: 'FOB India £' };
+      case 'WH_700': return { symbol: '£', label: 'Warehouse £700' };
+      case 'WH_2000': return { symbol: '£', label: 'Warehouse £2000' };
+      default: return { symbol: '$', label: 'FOB India $' };
+    }
   };
 
   const handleGenerateQuote = async () => {
@@ -254,8 +265,9 @@ export default function Quotation() {
 
     // Generate quotation PDF
     const totals = calculateTotals();
-    const currencySymbol = quotationDetails.currency === 'USD' ? '$' : quotationDetails.currency === 'GBP' ? '£' : '₹';
-    const containerCapacity = 76;
+    const currencyInfo = getCurrencyInfo(quotationDetails.currency);
+    const currencySymbol = currencyInfo.symbol;
+    const priceLabel = currencyInfo.label;
     
     const quotationHTML = `
       <!DOCTYPE html>
