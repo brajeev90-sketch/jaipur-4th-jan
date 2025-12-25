@@ -911,18 +911,45 @@ export default function EditOrder() {
 
             <Separator />
 
-            {/* Notes */}
+            {/* Notes with Auto-text Options */}
             <div className="space-y-2">
-              <Label>Notes</Label>
+              <div className="flex justify-between items-center">
+                <Label>Notes</Label>
+                <Select 
+                  onValueChange={(value) => {
+                    if (value && value !== "none") {
+                      // Append selected template to existing notes
+                      const currentNotes = currentItem.notes || '';
+                      const separator = currentNotes ? '<br/>' : '';
+                      handleItemChange('notes', currentNotes + separator + value);
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-[200px] h-8 text-xs">
+                    <SelectValue placeholder="+ Add auto text" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Select template...</SelectItem>
+                    <SelectItem value="<ul><li>Make as Last Time</li></ul>">Make as Last Time</SelectItem>
+                    <SelectItem value="<ul><li>No Yellow Woods</li></ul>">No Yellow Woods</SelectItem>
+                    <SelectItem value="<ul><li>Cancellation not done 45 Days</li></ul>">Cancellation 45 Days</SelectItem>
+                    <SelectItem value="<ul><li>Handle with Care - Fragile</li></ul>">Handle with Care</SelectItem>
+                    <SelectItem value="<ul><li>Rush Order - Priority</li></ul>">Rush Order Priority</SelectItem>
+                    <SelectItem value="<ul><li>Check Quality Before Packing</li></ul>">Check Quality</SelectItem>
+                    <SelectItem value="<ul><li>Customer Special Request</li></ul>">Customer Special Request</SelectItem>
+                    <SelectItem value="<ul><li>Same as Sample Approved</li></ul>">Same as Sample</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <RichTextEditor
                 value={currentItem.notes}
                 onChange={(value) => handleItemChange('notes', value)}
-                placeholder="Enter notes with formatting..."
+                placeholder="Enter notes with formatting or select auto-text above..."
                 minHeight="120px"
                 data-testid="item-notes"
               />
               <p className="text-xs text-muted-foreground">
-                Use toolbar to format: Bold, Italic, Underline, Highlight, Lists
+                Select auto-text templates above or type custom notes. Use toolbar to format.
               </p>
             </div>
 
