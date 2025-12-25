@@ -15,6 +15,21 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+// Helper function to format date as DD-MM-YYYY
+const formatDateDDMMYYYY = (dateStr) => {
+  if (!dateStr) return '-';
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return dateStr;
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  } catch {
+    return dateStr;
+  }
+};
+
 export default function OrderPreview() {
   const { id } = useParams();
   const navigate = useNavigate();
