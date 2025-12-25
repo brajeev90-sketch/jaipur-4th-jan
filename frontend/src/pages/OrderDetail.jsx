@@ -174,15 +174,6 @@ export default function OrderDetail() {
               <FileDown size={18} />
               <span>PDF</span>
             </Button>
-            <Button 
-              variant="outline" 
-              className="gap-2 hidden sm:flex"
-              onClick={handleExportPpt}
-              data-testid="export-ppt-btn"
-            >
-              <Download size={18} />
-              <span>PPT</span>
-            </Button>
             <Link to={`/orders/${id}/edit`} className="flex-1 sm:flex-none">
               <Button variant="secondary" className="gap-2 w-full sm:w-auto" data-testid="edit-btn">
                 <Edit size={18} />
