@@ -463,7 +463,6 @@ export default function Quotation() {
             <div class="header">
               <div class="logo-section">
                 <img src="https://customer-assets.emergentagent.com/job_furnipdf-maker/artifacts/mdh71t2g_WhatsApp%20Image%202025-12-22%20at%202.24.36%20PM.jpeg" alt="JAIPUR" />
-                <div class="company-name">FINE WOOD FURNITURE COMPANY</div>
               </div>
             </div>
             
