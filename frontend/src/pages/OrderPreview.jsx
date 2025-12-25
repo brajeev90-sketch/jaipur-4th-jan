@@ -336,10 +336,10 @@ function PreviewPage({ order, item, pageNum, totalPages }) {
       <div className="flex gap-3 py-2">
         {/* Product Image - 75% width - LARGER (additional 30% height increase) */}
         <div className="w-3/4">
-          {productImage ? (
+          {mainProductImage ? (
             <div className="border border-[#ddd] rounded p-2 bg-white flex items-center justify-center min-h-[486px]">
               <img 
-                src={productImage} 
+                src={mainProductImage} 
                 alt={item.product_code}
                 className="max-w-full max-h-[520px] object-contain"
               />
@@ -356,9 +356,9 @@ function PreviewPage({ order, item, pageNum, totalPages }) {
           )}
           
           {/* Additional product images if any */}
-          {item.images?.length > 0 && (
+          {additionalImages.length > 0 && (
             <div className="flex gap-2 mt-2 overflow-x-auto">
-              {item.images.slice(0, 4).map((img, idx) => (
+              {additionalImages.slice(0, 4).map((img, idx) => (
                 <img 
                   key={idx}
                   src={img} 
@@ -366,9 +366,9 @@ function PreviewPage({ order, item, pageNum, totalPages }) {
                   className="w-16 h-16 object-cover border border-[#ddd] rounded flex-shrink-0"
                 />
               ))}
-              {item.images.length > 4 && (
+              {additionalImages.length > 4 && (
                 <div className="w-16 h-16 border border-[#ddd] rounded flex items-center justify-center text-xs text-[#666] flex-shrink-0">
-                  +{item.images.length - 4} more
+                  +{additionalImages.length - 4} more
                 </div>
               )}
             </div>
