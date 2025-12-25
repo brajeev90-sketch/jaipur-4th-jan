@@ -353,18 +353,18 @@ function PreviewPage({ order, item, pageNum, totalPages }) {
 
       {/* Image Section: 75% Product Image + 25% Material Swatches */}
       <div className="flex gap-3 py-2">
-        {/* Product Image - 75% width - LARGER (additional 30% height increase) */}
+        {/* Product Image - 75% width - Reduced height by 30% */}
         <div className="w-3/4">
           {mainProductImage ? (
-            <div className="border border-[#ddd] rounded p-2 bg-white flex items-center justify-center min-h-[486px]">
+            <div className="border border-[#ddd] rounded p-2 bg-white flex items-center justify-center min-h-[340px]">
               <img 
                 src={mainProductImage} 
                 alt={item.product_code}
-                className="max-w-full max-h-[520px] object-contain"
+                className="max-w-full max-h-[360px] object-contain"
               />
             </div>
           ) : (
-            <div className="w-full h-[486px] bg-[#f8f8f8] rounded flex items-center justify-center text-[#888] border border-[#ddd]">
+            <div className="w-full h-[340px] bg-[#f8f8f8] rounded flex items-center justify-center text-[#888] border border-[#ddd]">
               <div className="text-center">
                 <svg className="w-16 h-16 mx-auto mb-2 text-[#ccc]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
