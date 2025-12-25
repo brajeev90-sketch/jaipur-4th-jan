@@ -204,7 +204,7 @@ export default function OrdersList() {
                       <TableCell className="font-mono text-sm hidden sm:table-cell">
                         {order.buyer_po_ref || '-'}
                       </TableCell>
-                      <TableCell className="hidden md:table-cell">{order.entry_date || '-'}</TableCell>
+                      <TableCell className="hidden md:table-cell">{formatDateDDMMYYYY(order.entry_date)}</TableCell>
                       <TableCell>{order.items?.length || 0}</TableCell>
                       <TableCell>
                         <Badge className={statusColors[order.status] || 'bg-gray-100'}>
