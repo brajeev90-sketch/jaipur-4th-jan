@@ -771,9 +771,10 @@ export default function Quotation() {
                           <Input
                             type="number"
                             min="1"
+                            max="99999"
                             value={item.quantity}
                             onChange={(e) => updateItemQuantity(item.id, e.target.value)}
-                            className="w-20 text-center"
+                            className="w-24 text-center"
                           />
                         </TableCell>
                         <TableCell>
