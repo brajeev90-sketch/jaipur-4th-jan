@@ -1,5 +1,6 @@
-from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File
+from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Depends
 from fastapi.responses import StreamingResponse
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -9,7 +10,7 @@ from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import io
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
@@ -25,9 +26,34 @@ import re
 import base64
 import pandas as pd
 import httpx
+import jwt
+import hashlib
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+
+# JWT Configuration
+JWT_SECRET = os.environ.get('JWT_SECRET', 'jaipur-furniture-secret-key-2024')
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRATION_HOURS = 24
+
+# Admin credentials (hardcoded for simple auth)
+ADMIN_USERNAME = "admin"
+ADMIN_PASSWORD_HASH = hashlib.sha256("admin123".encode()).hexdigest()
+
+# Security
+security = HTTPBearer()
+
+def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Verify JWT token"""
+    try:
+        token = credentials.credentials
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
