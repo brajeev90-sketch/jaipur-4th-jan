@@ -70,16 +70,31 @@ export default function OrderPreview() {
   const handleWhatsAppShare = async () => {
     setSharing(true);
     try {
-      // Generate PDF URL
+      // Generate PDF URL for direct download
       const pdfUrl = ordersApi.exportPdf(id);
       
       // Create share message with order details
       const orderRef = order?.sales_order_ref || 'N/A';
       const buyerName = order?.buyer_name || 'N/A';
       const itemCount = order?.items?.length || 0;
-      const entryDate = order?.entry_date || 'N/A';
+      const entryDate = formatDateDDMMYYYY(order?.entry_date);
       
-      // Create detailed message
+      // First, download the PDF
+      toast.info('Downloading PDF...');
+      
+      // Create a link to download the PDF
+      const downloadLink = document.createElement('a');
+      downloadLink.href = pdfUrl;
+      downloadLink.download = `JAIPUR_Order_${orderRef}.pdf`;
+      downloadLink.target = '_blank';
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      
+      // Wait a moment for download to start
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Create detailed message for WhatsApp (user will attach PDF manually)
       let message = `*JAIPUR Production Sheet*\n\n`;
       message += `📋 *Order:* ${orderRef}\n`;
       message += `👤 *Buyer:* ${buyerName}\n`;
@@ -95,13 +110,13 @@ export default function OrderPreview() {
         message += `\n`;
       }
       
-      message += `📥 *Download PDF:*\n${pdfUrl}`;
+      message += `📎 *PDF downloaded - Please attach to this message*`;
       
       // Open WhatsApp with the message
       const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
       window.open(whatsappUrl, '_blank');
       
-      toast.success('Opening WhatsApp...');
+      toast.success('PDF downloaded! Attach it in WhatsApp');
     } catch (error) {
       console.error('Error sharing:', error);
       toast.error('Failed to share');
