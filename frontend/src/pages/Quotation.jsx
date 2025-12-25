@@ -533,12 +533,14 @@ export default function Quotation() {
               ` : ''}
               
               <div class="footer">
-                <div style="margin-bottom: 10px; font-size: 11px;">
-                  <strong>Delivery Options:</strong> UK WAREHOUSE • FACTORY DIRECT CONTAINERS • SHARED CONTAINERS • TAILORED DESIGNS
+                <div style="margin-bottom: 5px; font-size: 11px;">
+                  <strong>Delivery Options:</strong>
                 </div>
                 <div>This quotation is valid for 30 days from the date of issue.</div>
                 <div>Prices are ${priceLabel}. Shipping and import duties not included.</div>
-                <div class="footer-brand">JAIPUR - A fine wood furniture company</div>
+                <div style="margin-top: 10px; font-weight: bold; font-size: 11px;">
+                  UK WAREHOUSE • FACTORY DIRECT CONTAINERS • SHARED CONTAINERS • TAILORED DESIGNS
+                </div>
               </div>
             ` : ''}
           </div>
