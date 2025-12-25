@@ -258,7 +258,7 @@ JAIPUR - A fine wood furniture company`);
         </div>
       )}
 
-      {/* Preview Container */}
+      {/* Preview Container - ALL items on ONE page (scrollable) */}
       <div className="preview-container rounded-sm overflow-x-auto" data-testid="preview-container">
         {totalPages === 0 ? (
           <div className="text-center py-20">
@@ -268,16 +268,21 @@ JAIPUR - A fine wood furniture company`);
             </Link>
           </div>
         ) : (
-          <div 
-            className="preview-paper mx-auto"
-            data-testid="preview-paper"
-          >
-            <PreviewPage 
-              order={order} 
-              item={order.items[currentPage]} 
-              pageNum={currentPage + 1}
-              totalPages={totalPages}
-            />
+          <div className="space-y-8">
+            {order.items.map((item, index) => (
+              <div 
+                key={item.id || index}
+                className="preview-paper mx-auto"
+                data-testid={`preview-paper-${index}`}
+              >
+                <PreviewPage 
+                  order={order} 
+                  item={item} 
+                  pageNum={index + 1}
+                  totalPages={totalPages}
+                />
+              </div>
+            ))}
           </div>
         )}
       </div>
