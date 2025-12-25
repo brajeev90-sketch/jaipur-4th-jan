@@ -335,42 +335,42 @@ function PreviewPage({ order, item, pageNum, totalPages }) {
           )}
         </div>
 
-        {/* Material Swatches - 25% width */}
-        <div className="w-1/4 flex flex-col gap-1">
+        {/* Material Swatches - 25% width - LARGER */}
+        <div className="w-1/4 flex flex-col gap-2">
           {/* Leather/Fabric Swatch */}
           {(item.leather_code || item.leather_image) && (
-            <div className="border border-[#ddd] rounded p-1.5 bg-[#fafafa]">
+            <div className="border border-[#ddd] rounded p-2 bg-[#fafafa]">
               {item.leather_image ? (
                 <img 
                   src={item.leather_image} 
                   alt={item.leather_code || 'Leather'}
-                  className="w-full h-14 object-cover rounded mb-1"
+                  className="w-full h-20 object-cover rounded mb-1"
                 />
               ) : (
-                <div className="w-full h-14 bg-gradient-to-br from-[#8B4513] to-[#A0522D] rounded mb-1"></div>
+                <div className="w-full h-20 bg-gradient-to-br from-[#8B4513] to-[#A0522D] rounded mb-1"></div>
               )}
               <div className="text-center">
-                <p className="text-[8px] text-[#666] uppercase">Leather</p>
-                <p className="text-[9px] font-semibold">{item.leather_code || '-'}</p>
+                <p className="text-[9px] text-[#666] uppercase">Leather</p>
+                <p className="text-[10px] font-semibold">{item.leather_code || '-'}</p>
               </div>
             </div>
           )}
           
           {/* Finish/Coating Swatch */}
           {(item.finish_code || item.finish_image) && (
-            <div className="border border-[#ddd] rounded p-1.5 bg-[#fafafa]">
+            <div className="border border-[#ddd] rounded p-2 bg-[#fafafa]">
               {item.finish_image ? (
                 <img 
                   src={item.finish_image} 
                   alt={item.finish_code || 'Finish'}
-                  className="w-full h-14 object-cover rounded mb-1"
+                  className="w-full h-20 object-cover rounded mb-1"
                 />
               ) : (
-                <div className="w-full h-14 bg-gradient-to-br from-[#D4A574] to-[#C4956A] rounded mb-1"></div>
+                <div className="w-full h-20 bg-gradient-to-br from-[#D4A574] to-[#C4956A] rounded mb-1"></div>
               )}
               <div className="text-center">
-                <p className="text-[8px] text-[#666] uppercase">Finish</p>
-                <p className="text-[9px] font-semibold">{item.finish_code || '-'}</p>
+                <p className="text-[9px] text-[#666] uppercase">Finish</p>
+                <p className="text-[10px] font-semibold">{item.finish_code || '-'}</p>
               </div>
             </div>
           )}
