@@ -169,7 +169,7 @@ export default function CreateOrder() {
                       data-testid="entry-date-btn"
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {entryDate ? format(entryDate, "PPP") : "Pick a date"}
+                      {entryDate ? format(entryDate, "dd-MM-yyyy") : "Pick a date"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
