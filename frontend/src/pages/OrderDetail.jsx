@@ -19,7 +19,6 @@ import {
   FileDown, 
   FileText, 
   Eye,
-  Download,
   Share2,
   Loader2
 } from 'lucide-react';
