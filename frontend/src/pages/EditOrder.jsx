@@ -583,23 +583,44 @@ export default function EditOrder() {
                 )}
               </div>
               <div className="space-y-2">
-                <Label>Category</Label>
-                <Select 
-                  value={currentItem.category || "none"} 
-                  onValueChange={(value) => handleItemChange('category', value === "none" ? "" : value)}
-                >
-                  <SelectTrigger data-testid="item-category">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Select category</SelectItem>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.name}>
-                        {cat.name}
+                <Label>Category <span className="text-xs text-muted-foreground">(+ Add new)</span></Label>
+                <div className="flex gap-2">
+                  <Select 
+                    value={currentItem.category || "none"} 
+                    onValueChange={async (value) => {
+                      if (value === "add-new") {
+                        const newCategory = prompt("Enter new category name:");
+                        if (newCategory && newCategory.trim()) {
+                          try {
+                            const response = await categoriesApi.create({ name: newCategory.trim() });
+                            setCategories(prev => [...prev, response.data]);
+                            handleItemChange('category', newCategory.trim());
+                            toast.success(`Category "${newCategory.trim()}" added!`);
+                          } catch (err) {
+                            toast.error("Failed to add category");
+                          }
+                        }
+                      } else {
+                        handleItemChange('category', value === "none" ? "" : value);
+                      }
+                    }}
+                  >
+                    <SelectTrigger data-testid="item-category">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Select category</SelectItem>
+                      {categories.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.name}>
+                          {cat.name}
+                        </SelectItem>
+                      ))}
+                      <SelectItem value="add-new" className="text-primary font-medium">
+                        + Add New Category
                       </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               <div className="space-y-2">
                 <Label>Quantity</Label>
