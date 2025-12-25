@@ -951,6 +951,19 @@ export default function Quotation() {
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-1 justify-end">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            title="View / Print" 
+                            onClick={() => {
+                              handleLoadQuotation(quote);
+                              setShowSavedQuotes(false);
+                              // After a small delay, trigger generate quote to show preview
+                              setTimeout(() => handleGenerateQuote(), 500);
+                            }}
+                          >
+                            <Eye size={16} />
+                          </Button>
                           <Button variant="ghost" size="icon" title="Load & Edit" onClick={() => handleLoadQuotation(quote)}>
                             <Edit size={16} />
                           </Button>
