@@ -367,7 +367,7 @@ export default function EditOrder() {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label>Entry Date</Label>
               <Popover>
@@ -381,7 +381,7 @@ export default function EditOrder() {
                     data-testid="entry-date-btn"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, "PPP") : "Pick a date"}
+                    {date ? format(date, "dd-MM-yyyy") : "Pick a date"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
@@ -393,6 +393,15 @@ export default function EditOrder() {
                   />
                 </PopoverContent>
               </Popover>
+            </div>
+            <div className="space-y-2">
+              <Label>Factory Inform Date</Label>
+              <Input
+                type="date"
+                value={order.factory_inform_date || ''}
+                onChange={(e) => handleOrderChange('factory_inform_date', e.target.value)}
+                data-testid="factory-inform-date"
+              />
             </div>
             <div className="space-y-2">
               <Label>Factory / Unit</Label>
