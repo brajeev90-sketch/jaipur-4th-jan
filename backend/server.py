@@ -732,8 +732,8 @@ def generate_pdf(order: dict, settings: dict, logo_bytes: bytes = None) -> bytes
         material_section_width = content_width * 0.25
         material_x = margin + img_section_width + 8
         
-        # LARGE Product Image Area - increased height significantly
-        img_height = 220  # Much larger image area
+        # LARGE Product Image Area - 70% height increase (220 * 1.7 = 374)
+        img_height = 374  # Much larger image area - 70% increase
         c.setStrokeColor(HexColor('#dddddd'))
         c.setLineWidth(0.5)
         c.rect(margin, content_y - img_height, img_section_width, img_height)
