@@ -357,7 +357,7 @@ export default function Quotation() {
             background: #f0f0f0;
             color: #333;
             padding: 8px 10px;
-            text-align: left;
+            text-align: center;
             font-weight: bold;
             border: 1px solid #ccc;
             font-size: 10px;
@@ -367,14 +367,16 @@ export default function Quotation() {
             padding: 8px 10px;
             border: 1px solid #ccc;
             vertical-align: middle;
+            text-align: center;
           }
           .details-table .code-cell {
             font-family: Arial, sans-serif;
             font-weight: bold;
+            text-align: center;
           }
           .details-table .price-cell {
             font-weight: bold;
-            text-align: right;
+            text-align: center;
           }
           .details-table .dimension-cell {
             text-align: center;
