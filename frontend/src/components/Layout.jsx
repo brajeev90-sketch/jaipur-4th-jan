@@ -205,10 +205,19 @@ export const Layout = () => {
         </nav>
         
         {/* Footer with Logout */}
-        <div className="p-4 border-t border-border space-y-3">
+        <div className="p-4 border-t border-border space-y-2">
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>👤 {user?.username || 'Admin'}</span>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPasswordDialogOpen(true)}
+            className="w-full gap-2"
+          >
+            <Key size={16} />
+            Change Password
+          </Button>
           <Button
             variant="outline"
             size="sm"
@@ -223,6 +232,62 @@ export const Layout = () => {
           </div>
         </div>
       </aside>
+      
+      {/* Change Password Dialog */}
+      <Dialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Change Password</DialogTitle>
+            <DialogDescription>
+              Enter your current password and a new password to update.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="current-password">Current Password</Label>
+              <Input
+                id="current-password"
+                type="password"
+                placeholder="Enter current password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-password">New Password</Label>
+              <Input
+                id="new-password"
+                type="password"
+                placeholder="Enter new password (min 6 chars)"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirm-password">Confirm New Password</Label>
+              <Input
+                id="confirm-password"
+                type="password"
+                placeholder="Confirm new password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setPasswordDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleChangePassword} 
+              disabled={changingPassword}
+              className="bg-[#3d2c1e] hover:bg-[#5a4a3a]"
+            >
+              {changingPassword ? 'Changing...' : 'Change Password'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       
       {/* Main Content */}
       <main 
