@@ -718,9 +718,9 @@ def generate_pdf(order: dict, settings: dict, logo_bytes: bytes = None) -> bytes
             c.setFont("Helvetica-Bold", 8)
             c.drawString(right_x + 2, row_y + 3, label)
             
-            # Value text
+            # Value text - INCREASED FONT SIZE
             c.setFillColor(HexColor('#333333'))
-            c.setFont("Helvetica", 6)
+            c.setFont("Helvetica", 8)
             value_str = str(value)[:20] if value else '-'
             c.drawString(right_x + label_width + 2, row_y + 3, value_str)
         
