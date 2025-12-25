@@ -968,7 +968,7 @@ async def export_order_pdf(order_id: str):
     return StreamingResponse(
         io.BytesIO(pdf_bytes),
         media_type="application/pdf",
-        headers={"Content-Disposition": f"attachment; filename=order_{order.get('sales_order_ref', order_id)}.pdf"}
+        headers={"Content-Disposition": f"inline; filename=order_{order.get('sales_order_ref', order_id)}.pdf"}
     )
 
 @api_router.get("/orders/{order_id}/preview-html")
