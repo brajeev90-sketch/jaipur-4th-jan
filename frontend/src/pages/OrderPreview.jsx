@@ -352,17 +352,22 @@ function PreviewPage({ order, item, pageNum, totalPages }) {
             </div>
           )}
           
-          {/* Additional reference images if any */}
-          {item.reference_images?.length > 0 && (
+          {/* Additional product images if any */}
+          {item.images?.length > 0 && (
             <div className="flex gap-2 mt-2 overflow-x-auto">
-              {item.reference_images.slice(0, 4).map((img, idx) => (
+              {item.images.slice(0, 4).map((img, idx) => (
                 <img 
                   key={idx}
                   src={img} 
-                  alt={`Reference ${idx + 1}`}
-                  className="w-14 h-14 object-cover border border-[#ddd] rounded flex-shrink-0"
+                  alt={`Additional ${idx + 1}`}
+                  className="w-16 h-16 object-cover border border-[#ddd] rounded flex-shrink-0"
                 />
               ))}
+              {item.images.length > 4 && (
+                <div className="w-16 h-16 border border-[#ddd] rounded flex items-center justify-center text-xs text-[#666] flex-shrink-0">
+                  +{item.images.length - 4} more
+                </div>
+              )}
             </div>
           )}
         </div>
