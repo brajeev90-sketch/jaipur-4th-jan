@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ordersApi } from '../lib/api';
+import { ordersApi, productsApi } from '../lib/api';
 import { Button } from '../components/ui/button';
 import { 
   ArrowLeft, 
