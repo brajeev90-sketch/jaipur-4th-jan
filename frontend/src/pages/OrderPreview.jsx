@@ -11,7 +11,8 @@ import {
   Share2,
   Loader2,
   Printer,
-  Mail
+  Mail,
+  Edit
 } from 'lucide-react';
 import { toast } from 'sonner';
 
