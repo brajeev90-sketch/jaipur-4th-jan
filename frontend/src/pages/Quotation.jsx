@@ -301,11 +301,11 @@ export default function Quotation() {
           * { margin: 0; padding: 0; box-sizing: border-box; }
           @page { 
             size: A4 landscape; 
-            margin: 8mm; 
+            margin: 10mm 15mm; 
           }
           body { 
             font-family: Arial, sans-serif; 
-            padding: 10px; 
+            padding: 15px 25px; 
             background: white;
             color: #333;
             font-size: 11px;
@@ -313,7 +313,7 @@ export default function Quotation() {
           .page { 
             page-break-after: always; 
             width: 100%;
-            height: calc(210mm - 20mm);
+            height: calc(210mm - 24mm);
           }
           .page:last-child { page-break-after: auto; }
           
@@ -322,12 +322,12 @@ export default function Quotation() {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 10px;
-            padding-bottom: 8px;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
             border-bottom: 2px solid #3d2c1e;
           }
           .logo {
-            height: 50px;
+            height: 45px;
             object-fit: contain;
           }
           .quote-info {
@@ -349,20 +349,20 @@ export default function Quotation() {
           /* Two column layout */
           .products-row {
             display: flex;
-            gap: 15px;
-            height: calc(100% - 120px);
+            gap: 20px;
+            height: calc(100% - 100px);
           }
           .product-column {
             flex: 1;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 8px 10px;
             display: flex;
             flex-direction: column;
           }
           .product-column.empty {
-            background: #f9f9f9;
-            border: 1px dashed #ddd;
+            background: #fafafa;
+            border: 1px dashed #ccc;
           }
           
           /* Product Image */
@@ -371,17 +371,17 @@ export default function Quotation() {
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 200px;
+            padding: 5px;
+            min-height: 180px;
           }
           .product-image {
             max-width: 100%;
-            max-height: 220px;
+            max-height: 200px;
             object-fit: contain;
-            border-radius: 4px;
           }
           .no-image {
             width: 100%;
-            height: 180px;
+            height: 160px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -389,24 +389,24 @@ export default function Quotation() {
             border: 1px dashed #ccc;
             color: #888;
             font-size: 12px;
-            border-radius: 4px;
           }
           
           /* Product Details */
           .product-details {
-            margin-top: 8px;
+            margin-top: 5px;
           }
           .product-code {
             font-family: monospace;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             color: #3d2c1e;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
           }
           .product-desc {
-            font-size: 11px;
+            font-size: 10px;
             color: #666;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+            line-height: 1.3;
           }
           .details-table {
             width: 100%;
@@ -416,12 +416,12 @@ export default function Quotation() {
           .details-table th {
             background: #3d2c1e;
             color: white;
-            padding: 5px 4px;
+            padding: 4px 6px;
             text-align: center;
             font-weight: 600;
           }
           .details-table td {
-            padding: 5px 4px;
+            padding: 4px 6px;
             border: 1px solid #ddd;
             text-align: center;
           }
@@ -433,8 +433,8 @@ export default function Quotation() {
           
           /* Footer */
           .footer-section {
-            margin-top: 10px;
-            padding-top: 8px;
+            margin-top: 8px;
+            padding-top: 6px;
             border-top: 1px solid #ddd;
             display: flex;
             justify-content: space-between;
@@ -443,40 +443,41 @@ export default function Quotation() {
           .summary-box {
             text-align: right;
             background: #f5f0eb;
-            padding: 8px 12px;
-            border-radius: 6px;
+            padding: 6px 10px;
+            border-radius: 4px;
           }
           .summary-row {
             display: flex;
             justify-content: flex-end;
             gap: 10px;
-            font-size: 11px;
+            font-size: 10px;
             padding: 2px 0;
           }
           .grand-total {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             color: #3d2c1e;
             border-top: 1px solid #3d2c1e;
-            margin-top: 4px;
-            padding-top: 4px;
+            margin-top: 3px;
+            padding-top: 3px;
           }
           .footer-text {
-            font-size: 11px;
+            font-size: 10px;
             color: #333;
             max-width: 60%;
+            line-height: 1.4;
           }
           .footer-options {
             font-weight: bold;
-            font-size: 10px;
+            font-size: 9px;
             color: #3d2c1e;
-            margin-top: 5px;
+            margin-top: 4px;
           }
           .page-number {
             text-align: center;
             font-size: 9px;
             color: #888;
-            margin-top: 5px;
+            margin-top: 4px;
           }
         </style>
       </head>
