@@ -586,25 +586,52 @@ export default function Quotation() {
       return;
     }
 
-    // Save the quotation first
+    // Generate quotation and open print dialog (don't auto-save to prevent duplicates)
     try {
-      await handleSaveQuotation();
+      const quotationHTML = generateQuotationHTML();
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        toast.error('Please allow popups for this site');
+        return;
+      }
+      printWindow.document.write(quotationHTML + `
+        <script>
+          // Wait for images to load before printing
+          window.onload = function() {
+            var images = document.images;
+            var loaded = 0;
+            var total = images.length;
+            
+            if (total === 0) {
+              setTimeout(function() { window.print(); }, 500);
+              return;
+            }
+            
+            for (var i = 0; i < total; i++) {
+              if (images[i].complete) {
+                loaded++;
+              } else {
+                images[i].onload = images[i].onerror = function() {
+                  loaded++;
+                  if (loaded >= total) {
+                    setTimeout(function() { window.print(); }, 500);
+                  }
+                };
+              }
+            }
+            
+            if (loaded >= total) {
+              setTimeout(function() { window.print(); }, 500);
+            }
+          };
+        </script>
+      `);
+      printWindow.document.close();
+      toast.success('Quotation generated - select "Save as PDF" to download');
     } catch (error) {
-      console.error('Error saving quotation:', error);
+      console.error('Error generating quotation:', error);
+      toast.error('Failed to generate quotation');
     }
-
-    // Generate quotation and open print dialog
-    const quotationHTML = generateQuotationHTML();
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(quotationHTML + `
-      <script>
-        window.onload = function() {
-          setTimeout(function() { window.print(); }, 500);
-        };
-      </script>
-    `);
-    printWindow.document.close();
-    toast.success('Quotation generated - select "Save as PDF" to download');
   };
   const addSelectedProducts = () => {
     const newItems = [];
