@@ -132,10 +132,10 @@ export default function OrderPreview() {
               ${additionalImages.length > 0 ? `
                 <div style="display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap;">
                   ${additionalImages.slice(0, 4).map(img => `
-                    <img src="${img}" alt="Additional" style="width: 180px; height: 180px; object-fit: cover; border: 1px solid #ddd; border-radius: 4px; flex-shrink: 0;" />
+                    <img src="${img}" alt="Additional" style="width: 216px; height: 216px; object-fit: cover; border: 1px solid #ddd; border-radius: 4px; flex-shrink: 0;" />
                   `).join('')}
                   ${additionalImages.length > 4 ? `
-                    <div style="width: 180px; height: 180px; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #666;">+${additionalImages.length - 4} more</div>
+                    <div style="width: 216px; height: 216px; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #666;">+${additionalImages.length - 4} more</div>
                   ` : ''}
                 </div>
               ` : ''}
@@ -381,10 +381,10 @@ export default function OrderPreview() {
               ${additionalImages.length > 0 ? `
                 <div style="display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap;">
                   ${additionalImages.slice(0, 4).map(img => `
-                    <img src="${img}" alt="Additional" style="width: 180px; height: 180px; object-fit: cover; border: 1px solid #ddd; border-radius: 4px; flex-shrink: 0;" />
+                    <img src="${img}" alt="Additional" style="width: 216px; height: 216px; object-fit: cover; border: 1px solid #ddd; border-radius: 4px; flex-shrink: 0;" />
                   `).join('')}
                   ${additionalImages.length > 4 ? `
-                    <div style="width: 180px; height: 180px; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #666;">+${additionalImages.length - 4} more</div>
+                    <div style="width: 216px; height: 216px; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #666;">+${additionalImages.length - 4} more</div>
                   ` : ''}
                 </div>
               ` : ''}
