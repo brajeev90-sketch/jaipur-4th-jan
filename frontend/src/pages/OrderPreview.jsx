@@ -263,11 +263,11 @@ JAIPUR - A fine wood furniture company`);
             </Link>
           </div>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-8 print-content">
             {order.items.map((item, index) => (
               <div 
                 key={item.id || index}
-                className="preview-paper mx-auto"
+                className="preview-paper mx-auto preview-page-container"
                 data-testid={`preview-paper-${index}`}
               >
                 <PreviewPage 
