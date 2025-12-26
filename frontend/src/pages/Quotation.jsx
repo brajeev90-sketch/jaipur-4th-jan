@@ -647,10 +647,6 @@ export default function Quotation() {
             <Plus size={18} />
             New Quote
           </Button>
-          <Button variant="outline" className="gap-2" onClick={() => setProductDialogOpen(true)} data-testid="add-products-btn">
-            <Plus size={18} />
-            {t('addProducts')}
-          </Button>
           <Button variant="outline" className="gap-2" onClick={handleSaveQuotation} disabled={quotationItems.length === 0}>
             <Save size={18} />
             Save
@@ -659,7 +655,7 @@ export default function Quotation() {
             variant="outline" 
             className="gap-2" 
             disabled={quotationItems.length === 0} 
-            onClick={handleGenerateQuote}
+            onClick={handleViewQuote}
           >
             <Eye size={18} />
             View / Print
