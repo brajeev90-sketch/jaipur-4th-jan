@@ -261,11 +261,22 @@ export default function Quotation() {
     const currencySymbol = currencyInfo.symbol;
     const priceLabel = currencyInfo.label;
     
+    // Format date as DD-MM-YYYY
+    const formatDateDDMMYYYY = (dateStr) => {
+      if (!dateStr) return '-';
+      const date = new Date(dateStr);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}-${month}-${year}`;
+    };
+    
     return `
       <!DOCTYPE html>
       <html>
       <head>
         <title>Quotation - ${quotationDetails.reference || 'QUOTE'}</title>
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
         <style>
           * { margin: 0; padding: 0; box-sizing: border-box; }
           @page { 
@@ -314,11 +325,12 @@ export default function Quotation() {
             text-align: right;
           }
           .quote-title {
-            font-size: 28px;
-            font-weight: bold;
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 32px;
+            font-weight: 700;
             color: #3d2c1e;
-            text-decoration: underline;
-            margin-bottom: 8px;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
           }
           .customer-info {
             font-size: 11px;
@@ -353,7 +365,7 @@ export default function Quotation() {
             font-size: 14px;
           }
           
-          /* Details Table */
+          /* Details Table - No Image column */
           table {
             width: 100%;
             border-collapse: collapse;
@@ -416,7 +428,7 @@ export default function Quotation() {
             color: #3d2c1e;
           }
           
-          /* Footer */
+          /* Footer - Font size increased by 80% */
           .footer {
             margin-top: 20px;
             padding-top: 15px;
@@ -425,18 +437,18 @@ export default function Quotation() {
           }
           .footer-title {
             font-weight: bold;
-            font-size: 12px;
-            margin-bottom: 8px;
+            font-size: 18px;
+            margin-bottom: 10px;
           }
           .footer-text {
-            font-size: 10px;
-            color: #666;
-            line-height: 1.6;
+            font-size: 16px;
+            color: #333;
+            line-height: 1.8;
           }
           .footer-options {
-            margin-top: 10px;
+            margin-top: 12px;
             font-weight: bold;
-            font-size: 11px;
+            font-size: 14px;
             color: #3d2c1e;
           }
           
@@ -463,7 +475,7 @@ export default function Quotation() {
                 <div class="quote-title">QUOTATION</div>
                 <div class="customer-info">
                   <div><strong>Ref:</strong> ${quotationDetails.reference || '-'}</div>
-                  <div><strong>Date:</strong> ${quotationDetails.date || '-'}</div>
+                  <div><strong>Date:</strong> ${formatDateDDMMYYYY(quotationDetails.date)}</div>
                   <div><strong>Customer:</strong> ${quotationDetails.customer_name || '-'}</div>
                 </div>
               </div>
@@ -477,11 +489,10 @@ export default function Quotation() {
               }
             </div>
             
-            <!-- Details Table below image -->
+            <!-- Details Table below image - NO Image column -->
             <table>
               <thead>
                 <tr>
-                  <th>Image</th>
                   <th>Code</th>
                   <th>Description</th>
                   <th>H</th>
@@ -493,9 +504,6 @@ export default function Quotation() {
               </thead>
               <tbody>
                 <tr>
-                  <td>
-                    ${item.image ? `<img src="${item.image}" alt="${item.product_code}" style="width:50px;height:50px;object-fit:cover;border-radius:4px;" />` : '-'}
-                  </td>
                   <td class="code-cell">${item.product_code}</td>
                   <td class="desc-cell">${item.description || '-'}</td>
                   <td>${item.height_cm || '-'}</td>
@@ -524,7 +532,7 @@ export default function Quotation() {
                 </div>
               </div>
               
-              <!-- Footer -->
+              <!-- Footer with larger font -->
               <div class="footer">
                 <div class="footer-title">Delivery Options:</div>
                 <div class="footer-text">
