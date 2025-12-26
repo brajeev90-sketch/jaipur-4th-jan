@@ -399,26 +399,28 @@ export default function Quotation() {
             color: #3d2c1e;
           }
           
-          /* Summary Section - Left aligned */
+          /* Summary Section - Right aligned */
           .summary-section {
             margin-top: 15px;
             padding: 15px;
             background: #f5f0eb;
             border-radius: 8px;
+            text-align: right;
           }
           .summary-row {
             display: flex;
-            justify-content: flex-start;
+            justify-content: flex-end;
             gap: 15px;
             padding: 6px 0;
             font-size: 13px;
           }
           .summary-label {
             color: #666;
-            min-width: 100px;
           }
           .summary-value {
             font-weight: 600;
+            min-width: 80px;
+            text-align: right;
           }
           .grand-total {
             border-top: 2px solid #3d2c1e;
