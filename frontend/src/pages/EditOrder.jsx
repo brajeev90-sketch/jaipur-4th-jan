@@ -273,10 +273,16 @@ export default function EditOrder() {
       newImages.push(base64);
     }
 
-    setCurrentItem(prev => ({
-      ...prev,
-      images: [...prev.images, ...newImages]
-    }));
+    setCurrentItem(prev => {
+      const updatedImages = [...prev.images, ...newImages];
+      // Auto-set first image as product_image if not already set
+      const productImage = prev.product_image || (updatedImages.length > 0 ? updatedImages[0] : '');
+      return {
+        ...prev,
+        images: updatedImages,
+        product_image: productImage
+      };
+    });
   };
 
   const removeImage = (index) => {
