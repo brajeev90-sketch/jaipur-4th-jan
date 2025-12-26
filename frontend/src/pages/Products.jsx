@@ -177,6 +177,17 @@ export default function Products() {
       return;
     }
 
+    // Check for duplicate product code (only for new products)
+    if (!editingProduct) {
+      const existingProduct = products.find(
+        p => p.product_code.toLowerCase() === formData.product_code.toLowerCase()
+      );
+      if (existingProduct) {
+        toast.error(`Product code "${formData.product_code}" already exists!`);
+        return;
+      }
+    }
+
     try {
       if (editingProduct) {
         await productsApi.update(editingProduct.id, formData);
