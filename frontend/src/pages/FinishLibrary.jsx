@@ -43,8 +43,6 @@ export default function FinishLibrary() {
   const [formData, setFormData] = useState({
     code: '',
     name: '',
-    description: '',
-    color: '',
     image: '',
   });
 
@@ -69,13 +67,11 @@ export default function FinishLibrary() {
       setFormData({
         code: item.code,
         name: item.name,
-        description: item.description || '',
-        color: item.color || '',
         image: item.image || '',
       });
       setEditingItem(item);
     } else {
-      setFormData({ code: '', name: '', description: '', color: '', image: '' });
+      setFormData({ code: '', name: '', image: '' });
       setEditingItem(null);
     }
     setDialogOpen(true);
@@ -200,7 +196,6 @@ export default function FinishLibrary() {
                   <div>
                     <p className="font-mono font-medium">{item.code}</p>
                     <p className="text-sm text-muted-foreground">{item.name}</p>
-                    {item.description && <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{item.description}</p>}
                   </div>
                   <div className="flex gap-1">
                     <Button variant="ghost" size="icon" onClick={() => openDialog(item)}><Edit size={16} /></Button>
@@ -213,28 +208,18 @@ export default function FinishLibrary() {
         </div>
       )}
 
-      {/* Add/Edit Dialog */}
+      {/* Add/Edit Dialog - Simplified (removed color and description) */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader><DialogTitle className="font-serif text-xl">{editingItem ? t('editFinish') : t('addNewFinish')}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>{t('code')} *</Label>
-                <Input value={formData.code} onChange={(e) => handleInputChange('code', e.target.value)} placeholder="FIN-001" className="font-mono" />
-              </div>
-              <div className="space-y-2">
-                <Label>{t('color')}</Label>
-                <Input type="color" value={formData.color || '#d4a574'} onChange={(e) => handleInputChange('color', e.target.value)} className="h-10 p-1" />
-              </div>
+            <div className="space-y-2">
+              <Label>{t('code')} *</Label>
+              <Input value={formData.code} onChange={(e) => handleInputChange('code', e.target.value)} placeholder="FIN-001" className="font-mono" />
             </div>
             <div className="space-y-2">
               <Label>{t('name')} *</Label>
               <Input value={formData.name} onChange={(e) => handleInputChange('name', e.target.value)} placeholder="Antique Brass" />
-            </div>
-            <div className="space-y-2">
-              <Label>{t('description')}</Label>
-              <Textarea value={formData.description} onChange={(e) => handleInputChange('description', e.target.value)} placeholder="Describe..." rows={2} />
             </div>
             <div className="space-y-2">
               <Label>{t('image')}</Label>
