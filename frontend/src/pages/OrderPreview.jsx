@@ -231,7 +231,7 @@ export default function OrderPreview() {
           </table>
           
           <!-- Footer -->
-          <div style="display: flex; justify-content: space-between; margin-top: 12px; padding-top: 8px; border-top: 1px solid #ddd; font-size: 10px; color: #888;">
+          <div style="display: flex; justify-content: space-between; margin-top: 8px; padding-top: 6px; border-top: 1px solid #ddd; font-size: 9px; color: #888;">
             <span>Buyer: ${order.buyer_name || '-'} • PO: ${order.buyer_po_ref || '-'}</span>
             <span>Page ${index + 1} of ${order.items.length}</span>
           </div>
@@ -503,7 +503,7 @@ export default function OrderPreview() {
           </table>
           
           <!-- Footer -->
-          <div style="display: flex; justify-content: space-between; margin-top: 12px; padding-top: 8px; border-top: 1px solid #ddd; font-size: 10px; color: #888;">
+          <div style="display: flex; justify-content: space-between; margin-top: 8px; padding-top: 6px; border-top: 1px solid #ddd; font-size: 9px; color: #888;">
             <span>Buyer: ${order.buyer_name || '-'} • PO: ${order.buyer_po_ref || '-'}</span>
             <span>Page ${index + 1} of ${order.items.length}</span>
           </div>
