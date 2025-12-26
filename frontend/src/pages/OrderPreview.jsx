@@ -138,29 +138,29 @@ export default function OrderPreview() {
           </div>
           
           <!-- Images Section -->
-          <div style="display: flex; gap: 12px; padding: 8px 0;">
+          <div style="display: flex; gap: 10px; padding: 6px 0;">
             <!-- Main Product Image - 75% -->
             <div style="width: 75%;">
               ${mainImage 
-                ? `<div style="border: 1px solid #ddd; border-radius: 4px; padding: 8px; background: white; display: flex; align-items: center; justify-content: center; min-height: 340px;">
-                    <img src="${mainImage}" alt="Product" style="max-width: 100%; max-height: 360px; object-fit: contain;" />
+                ? `<div style="border: 1px solid #ddd; border-radius: 4px; padding: 6px; background: white; display: flex; align-items: center; justify-content: center; height: ${mainImageHeight}px;">
+                    <img src="${mainImage}" alt="Product" style="max-width: 100%; max-height: ${mainImageHeight - 12}px; object-fit: contain;" />
                   </div>`
-                : `<div style="width: 100%; height: 340px; display: flex; align-items: center; justify-content: center; background: #f8f8f8; border: 1px solid #ddd; border-radius: 4px; color: #888;">No Image Available</div>`
+                : `<div style="width: 100%; height: ${mainImageHeight}px; display: flex; align-items: center; justify-content: center; background: #f8f8f8; border: 1px solid #ddd; border-radius: 4px; color: #888;">No Image Available</div>`
               }
               ${additionalImages.length > 0 ? `
-                <div style="display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap;">
+                <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
                   ${additionalImages.slice(0, 4).map(img => `
-                    <img src="${img}" alt="Additional" style="width: 216px; height: 216px; object-fit: cover; border: 1px solid #ddd; border-radius: 4px; flex-shrink: 0;" />
+                    <img src="${img}" alt="Additional" style="width: ${additionalImageSize}px; height: ${additionalImageSize}px; object-fit: cover; border: 1px solid #ddd; border-radius: 4px; flex-shrink: 0;" />
                   `).join('')}
                   ${additionalImages.length > 4 ? `
-                    <div style="width: 216px; height: 216px; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #666;">+${additionalImages.length - 4} more</div>
+                    <div style="width: ${additionalImageSize}px; height: ${additionalImageSize}px; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #666;">+${additionalImages.length - 4} more</div>
                   ` : ''}
                 </div>
               ` : ''}
             </div>
             
             <!-- Material Swatches - 25% -->
-            <div style="width: 25%; display: flex; flex-direction: column; gap: 8px;">
+            <div style="width: 25%; display: flex; flex-direction: column; gap: 6px;">
               ${item.leather_image || item.leather_code ? `
                 <div style="border: 1px solid #ddd; border-radius: 4px; padding: 8px; background: #fafafa;">
                   ${item.leather_image 
@@ -410,29 +410,29 @@ export default function OrderPreview() {
           </div>
           
           <!-- Images Section -->
-          <div style="display: flex; gap: 12px; padding: 8px 0;">
+          <div style="display: flex; gap: 10px; padding: 6px 0;">
             <!-- Main Product Image - 75% -->
             <div style="width: 75%;">
               ${mainImage 
-                ? `<div style="border: 1px solid #ddd; border-radius: 4px; padding: 8px; background: white; display: flex; align-items: center; justify-content: center; min-height: 340px;">
-                    <img src="${mainImage}" alt="Product" style="max-width: 100%; max-height: 360px; object-fit: contain;" />
+                ? `<div style="border: 1px solid #ddd; border-radius: 4px; padding: 6px; background: white; display: flex; align-items: center; justify-content: center; height: ${mainImageHeight}px;">
+                    <img src="${mainImage}" alt="Product" style="max-width: 100%; max-height: ${mainImageHeight - 12}px; object-fit: contain;" />
                   </div>`
-                : `<div style="width: 100%; height: 340px; display: flex; align-items: center; justify-content: center; background: #f8f8f8; border: 1px solid #ddd; border-radius: 4px; color: #888;">No Image Available</div>`
+                : `<div style="width: 100%; height: ${mainImageHeight}px; display: flex; align-items: center; justify-content: center; background: #f8f8f8; border: 1px solid #ddd; border-radius: 4px; color: #888;">No Image Available</div>`
               }
               ${additionalImages.length > 0 ? `
-                <div style="display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap;">
+                <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
                   ${additionalImages.slice(0, 4).map(img => `
-                    <img src="${img}" alt="Additional" style="width: 216px; height: 216px; object-fit: cover; border: 1px solid #ddd; border-radius: 4px; flex-shrink: 0;" />
+                    <img src="${img}" alt="Additional" style="width: ${additionalImageSize}px; height: ${additionalImageSize}px; object-fit: cover; border: 1px solid #ddd; border-radius: 4px; flex-shrink: 0;" />
                   `).join('')}
                   ${additionalImages.length > 4 ? `
-                    <div style="width: 216px; height: 216px; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #666;">+${additionalImages.length - 4} more</div>
+                    <div style="width: ${additionalImageSize}px; height: ${additionalImageSize}px; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #666;">+${additionalImages.length - 4} more</div>
                   ` : ''}
                 </div>
               ` : ''}
             </div>
             
             <!-- Material Swatches - 25% -->
-            <div style="width: 25%; display: flex; flex-direction: column; gap: 8px;">
+            <div style="width: 25%; display: flex; flex-direction: column; gap: 6px;">
               ${item.leather_image || item.leather_code ? `
                 <div style="border: 1px solid #ddd; border-radius: 4px; padding: 8px; background: #fafafa;">
                   ${item.leather_image 
