@@ -162,15 +162,23 @@ export default function EditOrder() {
     // Get category name from categories list (product stores category as ID)
     const categoryName = categories.find(c => c.id === product.category)?.name || product.category || '';
     
+    // Calculate CBM from dimensions
+    const h = product.height_cm || 0;
+    const d = product.depth_cm || 0;
+    const w = product.width_cm || 0;
+    const calculatedCbm = (h * d * w / 1000000).toFixed(4);
+    
     setCurrentItem(prev => ({
       ...prev,
       product_code: product.product_code,
       description: product.description || '',
       category: categoryName,
-      height_cm: product.height_cm || 0,
-      depth_cm: product.depth_cm || 0,
-      width_cm: product.width_cm || 0,
-      cbm: product.cbm || 0,
+      height_cm: h,
+      depth_cm: d,
+      width_cm: w,
+      // Always auto-calculate CBM from dimensions when selecting product
+      cbm: calculatedCbm,
+      cbm_auto: true,
       dimensions: product.size || '',
       // Auto-fill main product image from catalog
       product_image: mainProductImage,
