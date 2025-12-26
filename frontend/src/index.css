@@ -232,6 +232,14 @@ a[href*="emergent.sh"] {
 
 /* Print styles - hide navigation and show only content */
 @media print {
+    /* Explicitly hide elements with print-hidden class */
+    .print-hidden {
+        display: none !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+    
     /* HIDE EVERYTHING that's not the preview content */
     nav, 
     .sidebar,
@@ -244,6 +252,7 @@ a[href*="emergent.sh"] {
     [data-testid="email-btn"],
     [data-testid="share-btn"],
     [data-testid="download-btn"],
+    [data-testid="sidebar"],
     .page-header,
     button,
     a:not(.preview-paper a),
