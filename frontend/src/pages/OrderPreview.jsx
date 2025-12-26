@@ -146,8 +146,178 @@ export default function OrderPreview() {
   };
 
   const handlePrint = () => {
-    // Print the current preview page directly - this matches exactly what user sees
-    window.print();
+    // Generate clean HTML for printing - only the production sheets
+    const printContent = document.querySelector('.print-content');
+    if (!printContent) {
+      toast.error('No content to print');
+      return;
+    }
+
+    // Create a new window with only the production sheet content
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
+    
+    const logoUrl = "https://customer-assets.emergentagent.com/job_furnipdf-maker/artifacts/mdh71t2g_WhatsApp%20Image%202025-12-22%20at%202.24.36%20PM.jpeg";
+    
+    // Generate HTML for each item
+    const itemsHtml = order.items.map((item, index) => {
+      const cbm = item.cbm_auto 
+        ? ((item.height_cm || 0) * (item.depth_cm || 0) * (item.width_cm || 0) / 1000000).toFixed(2)
+        : item.cbm;
+      
+      const mainImage = item.product_image || (item.images && item.images.length > 0 ? item.images[0] : null);
+      const additionalImages = item.product_image ? (item.images || []) : (item.images || []).slice(1);
+      
+      return `
+        <div class="page" style="page-break-after: always; padding: 10mm; box-sizing: border-box;">
+          <!-- Header -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 15px; border-bottom: 2px solid #3d2c1e;">
+            <img src="${logoUrl}" alt="JAIPUR" style="height: 80px; object-fit: contain;" />
+            <table style="border: 1px solid #3d2c1e; border-collapse: collapse; font-size: 11px;">
+              <tr style="border-bottom: 1px solid #3d2c1e;">
+                <td style="padding: 5px 10px; background: #f5f0eb; font-weight: bold; border-right: 1px solid #3d2c1e;">ENTRY DATE</td>
+                <td style="padding: 5px 10px; min-width: 100px;">${formatDateDDMMYYYY(order.entry_date)}</td>
+              </tr>
+              <tr style="border-bottom: 1px solid #3d2c1e;">
+                <td style="padding: 5px 10px; background: #f5f0eb; font-weight: bold; border-right: 1px solid #3d2c1e;">INFORMED TO FACTORY</td>
+                <td style="padding: 5px 10px;">${formatDateDDMMYYYY(order.factory_inform_date || order.entry_date)}</td>
+              </tr>
+              <tr style="border-bottom: 1px solid #3d2c1e;">
+                <td style="padding: 5px 10px; background: #f5f0eb; font-weight: bold; border-right: 1px solid #3d2c1e;">FACTORY</td>
+                <td style="padding: 5px 10px;">${order.factory || '-'}</td>
+              </tr>
+              <tr style="border-bottom: 1px solid #3d2c1e;">
+                <td style="padding: 5px 10px; background: #f5f0eb; font-weight: bold; border-right: 1px solid #3d2c1e;">SALES ORDER REF</td>
+                <td style="padding: 5px 10px; font-family: monospace;">${order.sales_order_ref || '-'}</td>
+              </tr>
+              <tr>
+                <td style="padding: 5px 10px; background: #f5f0eb; font-weight: bold; border-right: 1px solid #3d2c1e;">BUYER PO</td>
+                <td style="padding: 5px 10px; font-family: monospace;">${order.buyer_po_ref || '-'}</td>
+              </tr>
+            </table>
+          </div>
+          
+          <!-- Images Section -->
+          <div style="display: flex; gap: 15px; padding: 15px 0;">
+            <!-- Main Product Image -->
+            <div style="width: 75%;">
+              ${mainImage 
+                ? `<img src="${mainImage}" alt="Product" style="width: 100%; height: 280px; object-fit: contain; border: 1px solid #ddd; border-radius: 4px;" />`
+                : `<div style="width: 100%; height: 280px; display: flex; align-items: center; justify-content: center; background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; color: #888;">No Image</div>`
+              }
+              ${additionalImages.length > 0 ? `
+                <div style="display: flex; gap: 8px; margin-top: 10px;">
+                  ${additionalImages.slice(0, 4).map(img => `
+                    <img src="${img}" alt="Additional" style="width: 100px; height: 100px; object-fit: cover; border: 1px solid #ddd; border-radius: 4px;" />
+                  `).join('')}
+                </div>
+              ` : ''}
+            </div>
+            
+            <!-- Material Swatches -->
+            <div style="width: 25%;">
+              ${item.leather_image || item.leather_code ? `
+                <div style="margin-bottom: 10px;">
+                  <p style="font-size: 10px; color: #666; margin-bottom: 5px;">${item.leather_code || ''}</p>
+                  ${item.leather_image 
+                    ? `<img src="${item.leather_image}" alt="Leather" style="width: 100%; height: 100px; object-fit: cover; border: 1px solid #ddd; border-radius: 4px;" />`
+                    : `<div style="width: 100%; height: 100px; background: #8B4513; border-radius: 4px;"></div>`
+                  }
+                  <p style="font-size: 10px; text-align: center; margin-top: 5px;">LEATHER ${item.leather_code || ''}</p>
+                </div>
+              ` : ''}
+              ${item.finish_image || item.finish_code ? `
+                <div>
+                  <p style="font-size: 10px; color: #666; margin-bottom: 5px;">${item.finish_code || ''}</p>
+                  ${item.finish_image 
+                    ? `<img src="${item.finish_image}" alt="Finish" style="width: 100%; height: 100px; object-fit: cover; border: 1px solid #ddd; border-radius: 4px;" />`
+                    : `<div style="width: 100%; height: 100px; background: #d4a574; border-radius: 4px;"></div>`
+                  }
+                  <p style="font-size: 10px; text-align: center; margin-top: 5px;">FINISH ${item.finish_code || ''}</p>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+          
+          <!-- Notes Section -->
+          <div style="border: 1px solid #3d2c1e; border-radius: 4px; margin-bottom: 10px;">
+            <div style="background: #3d2c1e; color: white; padding: 8px 12px; font-weight: bold; font-size: 12px;">Notes:</div>
+            <div style="padding: 12px; font-size: 14px; min-height: 60px;">
+              ${item.notes ? item.notes.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ') : `
+                ${item.category ? `• Category: ${item.category}<br>` : ''}
+                ${item.leather_code ? `• Leather: ${item.leather_code}<br>` : ''}
+                ${item.finish_code ? `• Finish: ${item.finish_code}<br>` : ''}
+                ${item.color_notes ? `• Color Notes: ${item.color_notes}<br>` : ''}
+              `}
+            </div>
+          </div>
+          
+          <!-- Details Table -->
+          <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+            <thead>
+              <tr style="background: #3d2c1e; color: white;">
+                <th style="padding: 10px; text-align: left; border: 1px solid #3d2c1e;">ITEM CODE</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #3d2c1e;">DESCRIPTION</th>
+                <th style="padding: 10px; text-align: center; border: 1px solid #3d2c1e;" colspan="3">SIZE (cm)</th>
+                <th style="padding: 10px; text-align: center; border: 1px solid #3d2c1e;">CBM</th>
+                <th style="padding: 10px; text-align: center; border: 1px solid #3d2c1e;">Qty</th>
+              </tr>
+              <tr style="background: #3d2c1e; color: white; font-size: 10px;">
+                <th style="border: 1px solid #3d2c1e;"></th>
+                <th style="border: 1px solid #3d2c1e;"></th>
+                <th style="padding: 5px; border: 1px solid #3d2c1e;">H</th>
+                <th style="padding: 5px; border: 1px solid #3d2c1e;">D</th>
+                <th style="padding: 5px; border: 1px solid #3d2c1e;">W</th>
+                <th style="border: 1px solid #3d2c1e;"></th>
+                <th style="border: 1px solid #3d2c1e;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding: 10px; border: 1px solid #3d2c1e; font-family: monospace; font-weight: bold;">${item.product_code || '-'}</td>
+                <td style="padding: 10px; border: 1px solid #3d2c1e;">${item.description || '-'}</td>
+                <td style="padding: 10px; border: 1px solid #3d2c1e; text-align: center;">${item.height_cm || 0}</td>
+                <td style="padding: 10px; border: 1px solid #3d2c1e; text-align: center;">${item.depth_cm || 0}</td>
+                <td style="padding: 10px; border: 1px solid #3d2c1e; text-align: center;">${item.width_cm || 0}</td>
+                <td style="padding: 10px; border: 1px solid #3d2c1e; text-align: center;">${cbm}</td>
+                <td style="padding: 10px; border: 1px solid #3d2c1e; text-align: center; font-weight: bold;">${item.quantity || 1} Pcs</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <!-- Footer -->
+          <div style="display: flex; justify-content: space-between; margin-top: 15px; padding-top: 10px; border-top: 1px solid #ddd; font-size: 11px; color: #666;">
+            <span>Buyer: ${order.buyer_name || '-'} PO: ${order.buyer_po_ref || '-'}</span>
+            <span>Page ${index + 1} of ${order.items.length}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Production Sheet - ${order.sales_order_ref || 'Order'}</title>
+        <style>
+          @page { size: A4; margin: 0; }
+          body { margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+          .page:last-child { page-break-after: auto; }
+          img { max-width: 100%; }
+        </style>
+      </head>
+      <body>
+        ${itemsHtml}
+      </body>
+      </html>
+    `);
+    
+    printWindow.document.close();
+    
+    // Wait for images to load then print
+    setTimeout(() => {
+      printWindow.print();
+    }, 1000);
+    
     toast.success('Opening print dialog...');
   };
 
