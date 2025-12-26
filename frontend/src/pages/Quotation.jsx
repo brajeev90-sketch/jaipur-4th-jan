@@ -782,9 +782,18 @@ export default function Quotation() {
             <Plus size={18} />
             New Quote
           </Button>
-          <Button variant="outline" className="gap-2" onClick={handleSaveQuotation} disabled={quotationItems.length === 0}>
-            <Save size={18} />
-            Save
+          <Button variant="outline" className="gap-2" onClick={handleSaveQuotation} disabled={quotationItems.length === 0 || saving}>
+            {saving ? (
+              <>
+                <span className="animate-spin h-4 w-4 border-2 border-amber-600 border-t-transparent rounded-full"></span>
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save size={18} />
+                Save
+              </>
+            )}
           </Button>
           <Button 
             variant="outline" 
