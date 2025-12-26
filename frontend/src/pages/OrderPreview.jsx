@@ -184,7 +184,7 @@ export default function OrderPreview() {
             </div>
           </div>
           
-          <!-- Notes Section - Compact -->
+          <!-- Notes Section -->
           <div style="border: 1px solid #3d2c1e; border-radius: 4px; margin-bottom: 6px; width: 100%;">
             <div style="background: #3d2c1e; color: white; padding: 6px 10px; font-weight: 600; font-size: 12px;">Notes:</div>
             <div style="padding: 8px 10px; font-size: 15px; line-height: 1.4;">
@@ -456,7 +456,7 @@ export default function OrderPreview() {
             </div>
           </div>
           
-          <!-- Notes Section - Compact -->
+          <!-- Notes Section -->
           <div style="border: 1px solid #3d2c1e; border-radius: 4px; margin-bottom: 6px; width: 100%;">
             <div style="background: #3d2c1e; color: white; padding: 6px 10px; font-weight: 600; font-size: 12px;">Notes:</div>
             <div style="padding: 8px 10px; font-size: 15px; line-height: 1.4;">
