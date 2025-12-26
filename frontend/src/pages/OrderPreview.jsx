@@ -164,8 +164,8 @@ export default function OrderPreview() {
               ${item.leather_image || item.leather_code ? `
                 <div style="border: 1px solid #ddd; border-radius: 4px; padding: 6px; background: #fafafa;">
                   ${item.leather_image 
-                    ? `<img src="${item.leather_image}" alt="Leather" style="width: 100%; height: 90px; object-fit: cover; border-radius: 4px; margin-bottom: 4px;" />`
-                    : `<div style="width: 100%; height: 90px; background: linear-gradient(135deg, #8B4513, #A0522D); border-radius: 4px; margin-bottom: 4px;"></div>`
+                    ? `<img src="${item.leather_image}" alt="Leather" style="width: 100%; height: 100px; object-fit: cover; border-radius: 4px; margin-bottom: 4px;" />`
+                    : `<div style="width: 100%; height: 100px; background: linear-gradient(135deg, #8B4513, #A0522D); border-radius: 4px; margin-bottom: 4px;"></div>`
                   }
                   <p style="font-size: 9px; color: #666; text-align: center; text-transform: uppercase; margin: 0;">Leather</p>
                   <p style="font-size: 10px; font-weight: 600; text-align: center; margin: 0;">${item.leather_code || '-'}</p>
@@ -174,8 +174,8 @@ export default function OrderPreview() {
               ${item.finish_image || item.finish_code ? `
                 <div style="border: 1px solid #ddd; border-radius: 4px; padding: 6px; background: #fafafa;">
                   ${item.finish_image 
-                    ? `<img src="${item.finish_image}" alt="Finish" style="width: 100%; height: 90px; object-fit: cover; border-radius: 4px; margin-bottom: 4px;" />`
-                    : `<div style="width: 100%; height: 90px; background: linear-gradient(135deg, #D4A574, #C4956A); border-radius: 4px; margin-bottom: 4px;"></div>`
+                    ? `<img src="${item.finish_image}" alt="Finish" style="width: 100%; height: 100px; object-fit: cover; border-radius: 4px; margin-bottom: 4px;" />`
+                    : `<div style="width: 100%; height: 100px; background: linear-gradient(135deg, #D4A574, #C4956A); border-radius: 4px; margin-bottom: 4px;"></div>`
                   }
                   <p style="font-size: 9px; color: #666; text-align: center; text-transform: uppercase; margin: 0;">Finish</p>
                   <p style="font-size: 10px; font-weight: 600; text-align: center; margin: 0;">${item.finish_code || '-'}</p>
@@ -436,8 +436,8 @@ export default function OrderPreview() {
               ${item.leather_image || item.leather_code ? `
                 <div style="border: 1px solid #ddd; border-radius: 4px; padding: 6px; background: #fafafa;">
                   ${item.leather_image 
-                    ? `<img src="${item.leather_image}" alt="Leather" style="width: 100%; height: 90px; object-fit: cover; border-radius: 4px; margin-bottom: 4px;" />`
-                    : `<div style="width: 100%; height: 90px; background: linear-gradient(135deg, #8B4513, #A0522D); border-radius: 4px; margin-bottom: 4px;"></div>`
+                    ? `<img src="${item.leather_image}" alt="Leather" style="width: 100%; height: 100px; object-fit: cover; border-radius: 4px; margin-bottom: 4px;" />`
+                    : `<div style="width: 100%; height: 100px; background: linear-gradient(135deg, #8B4513, #A0522D); border-radius: 4px; margin-bottom: 4px;"></div>`
                   }
                   <p style="font-size: 9px; color: #666; text-align: center; text-transform: uppercase; margin: 0;">Leather</p>
                   <p style="font-size: 10px; font-weight: 600; text-align: center; margin: 0;">${item.leather_code || '-'}</p>
@@ -446,8 +446,8 @@ export default function OrderPreview() {
               ${item.finish_image || item.finish_code ? `
                 <div style="border: 1px solid #ddd; border-radius: 4px; padding: 6px; background: #fafafa;">
                   ${item.finish_image 
-                    ? `<img src="${item.finish_image}" alt="Finish" style="width: 100%; height: 90px; object-fit: cover; border-radius: 4px; margin-bottom: 4px;" />`
-                    : `<div style="width: 100%; height: 90px; background: linear-gradient(135deg, #D4A574, #C4956A); border-radius: 4px; margin-bottom: 4px;"></div>`
+                    ? `<img src="${item.finish_image}" alt="Finish" style="width: 100%; height: 100px; object-fit: cover; border-radius: 4px; margin-bottom: 4px;" />`
+                    : `<div style="width: 100%; height: 100px; background: linear-gradient(135deg, #D4A574, #C4956A); border-radius: 4px; margin-bottom: 4px;"></div>`
                   }
                   <p style="font-size: 9px; color: #666; text-align: center; text-transform: uppercase; margin: 0;">Finish</p>
                   <p style="font-size: 10px; font-weight: 600; text-align: center; margin: 0;">${item.finish_code || '-'}</p>
