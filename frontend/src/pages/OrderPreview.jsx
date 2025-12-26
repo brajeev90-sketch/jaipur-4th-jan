@@ -94,18 +94,18 @@ export default function OrderPreview() {
       const hasAdditionalImages = additionalImages.length > 0;
       const hasLongNotes = item.notes && item.notes.length > 200;
       
-      // Adjust main image height based on content
-      let mainImageHeight = 280;
-      let additionalImageSize = 120;
+      // Adjust main image height based on content (310-340px range)
+      let mainImageHeight = 340;
+      let additionalImageSize = 216;
       
       if (hasAdditionalImages && hasLongNotes) {
-        mainImageHeight = 200;
-        additionalImageSize = 100;
+        mainImageHeight = 310;
+        additionalImageSize = 200;
       } else if (hasAdditionalImages) {
-        mainImageHeight = 240;
-        additionalImageSize = 110;
+        mainImageHeight = 320;
+        additionalImageSize = 210;
       } else if (hasLongNotes) {
-        mainImageHeight = 260;
+        mainImageHeight = 330;
       }
       
       return `
