@@ -201,8 +201,8 @@ export default function OrderPreview() {
             </div>
           </div>
           
-          <!-- Details Table -->
-          <table style="width: 100%; border-collapse: collapse; font-size: 12px; border: 2px solid #3d2c1e;">
+          <!-- Details Table - Compact -->
+          <table style="width: 100%; border-collapse: collapse; font-size: 11px; border: 2px solid #3d2c1e;">
             <thead>
               <tr style="background: #3d2c1e; color: white;">
                 <th style="padding: 10px; text-align: left; border-right: 1px solid #5a4a3a;" rowspan="2">ITEM CODE</th>
@@ -473,8 +473,8 @@ export default function OrderPreview() {
             </div>
           </div>
           
-          <!-- Details Table -->
-          <table style="width: 100%; border-collapse: collapse; font-size: 12px; border: 2px solid #3d2c1e;">
+          <!-- Details Table - Compact -->
+          <table style="width: 100%; border-collapse: collapse; font-size: 11px; border: 2px solid #3d2c1e;">
             <thead>
               <tr style="background: #3d2c1e; color: white;">
                 <th style="padding: 10px; text-align: left; border-right: 1px solid #5a4a3a;" rowspan="2">ITEM CODE</th>
