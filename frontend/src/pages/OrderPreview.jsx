@@ -205,11 +205,11 @@ export default function OrderPreview() {
           <table style="width: 100%; border-collapse: collapse; font-size: 11px; border: 2px solid #3d2c1e;">
             <thead>
               <tr style="background: #3d2c1e; color: white;">
-                <th style="padding: 10px; text-align: left; border-right: 1px solid #5a4a3a;" rowspan="2">ITEM CODE</th>
-                <th style="padding: 10px; text-align: left; border-right: 1px solid #5a4a3a;" rowspan="2">DESCRIPTION</th>
-                <th style="padding: 10px; text-align: center; border-right: 1px solid #5a4a3a;" colspan="3">SIZE (cm)</th>
-                <th style="padding: 10px; text-align: center; border-right: 1px solid #5a4a3a;" rowspan="2">CBM</th>
-                <th style="padding: 10px; text-align: center;" rowspan="2">Qty</th>
+                <th style="padding: 6px; text-align: left; border-right: 1px solid #5a4a3a;" rowspan="2">ITEM CODE</th>
+                <th style="padding: 6px; text-align: left; border-right: 1px solid #5a4a3a;" rowspan="2">DESCRIPTION</th>
+                <th style="padding: 6px; text-align: center; border-right: 1px solid #5a4a3a;" colspan="3">SIZE (cm)</th>
+                <th style="padding: 6px; text-align: center; border-right: 1px solid #5a4a3a;" rowspan="2">CBM</th>
+                <th style="padding: 6px; text-align: center;" rowspan="2">Qty</th>
               </tr>
               <tr style="background: #5a4a3a; color: white; font-size: 10px;">
                 <th style="padding: 5px; border-right: 1px solid #6a5a4a;">H</th>
@@ -477,11 +477,11 @@ export default function OrderPreview() {
           <table style="width: 100%; border-collapse: collapse; font-size: 11px; border: 2px solid #3d2c1e;">
             <thead>
               <tr style="background: #3d2c1e; color: white;">
-                <th style="padding: 10px; text-align: left; border-right: 1px solid #5a4a3a;" rowspan="2">ITEM CODE</th>
-                <th style="padding: 10px; text-align: left; border-right: 1px solid #5a4a3a;" rowspan="2">DESCRIPTION</th>
-                <th style="padding: 10px; text-align: center; border-right: 1px solid #5a4a3a;" colspan="3">SIZE (cm)</th>
-                <th style="padding: 10px; text-align: center; border-right: 1px solid #5a4a3a;" rowspan="2">CBM</th>
-                <th style="padding: 10px; text-align: center;" rowspan="2">Qty</th>
+                <th style="padding: 6px; text-align: left; border-right: 1px solid #5a4a3a;" rowspan="2">ITEM CODE</th>
+                <th style="padding: 6px; text-align: left; border-right: 1px solid #5a4a3a;" rowspan="2">DESCRIPTION</th>
+                <th style="padding: 6px; text-align: center; border-right: 1px solid #5a4a3a;" colspan="3">SIZE (cm)</th>
+                <th style="padding: 6px; text-align: center; border-right: 1px solid #5a4a3a;" rowspan="2">CBM</th>
+                <th style="padding: 6px; text-align: center;" rowspan="2">Qty</th>
               </tr>
               <tr style="background: #5a4a3a; color: white; font-size: 10px;">
                 <th style="padding: 5px; border-right: 1px solid #6a5a4a;">H</th>
