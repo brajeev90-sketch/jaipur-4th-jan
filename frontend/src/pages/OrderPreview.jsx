@@ -91,30 +91,30 @@ export default function OrderPreview() {
       const additionalImages = item.product_image ? (item.images || []) : (item.images || []).slice(1);
       
       return `
-        <div class="page" style="page-break-after: always; padding: 10mm; box-sizing: border-box;">
+        <div class="page" style="page-break-after: always; padding: 8mm; box-sizing: border-box; height: 277mm; overflow: hidden;">
           <!-- Header -->
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 15px; border-bottom: 2px solid #3d2c1e;">
-            <img src="${logoUrl}" alt="JAIPUR" style="height: 80px; object-fit: contain;" />
-            <table style="border: 1px solid #3d2c1e; border-collapse: collapse; font-size: 11px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 10px; border-bottom: 2px solid #3d2c1e;">
+            <img src="${logoUrl}" alt="JAIPUR" style="height: 60px; object-fit: contain;" />
+            <table style="border: 1px solid #3d2c1e; border-collapse: collapse; font-size: 10px;">
               <tr style="border-bottom: 1px solid #3d2c1e;">
-                <td style="padding: 5px 10px; background: #f5f0eb; font-weight: bold; border-right: 1px solid #3d2c1e;">ENTRY DATE</td>
-                <td style="padding: 5px 10px; min-width: 100px;">${formatDateDDMMYYYY(order.entry_date)}</td>
+                <td style="padding: 3px 8px; background: #f5f0eb; font-weight: bold; border-right: 1px solid #3d2c1e;">ENTRY DATE</td>
+                <td style="padding: 3px 8px; min-width: 90px;">${formatDateDDMMYYYY(order.entry_date)}</td>
               </tr>
               <tr style="border-bottom: 1px solid #3d2c1e;">
-                <td style="padding: 5px 10px; background: #f5f0eb; font-weight: bold; border-right: 1px solid #3d2c1e;">INFORMED TO FACTORY</td>
-                <td style="padding: 5px 10px;">${formatDateDDMMYYYY(order.factory_inform_date || order.entry_date)}</td>
+                <td style="padding: 3px 8px; background: #f5f0eb; font-weight: bold; border-right: 1px solid #3d2c1e;">INFORMED TO FACTORY</td>
+                <td style="padding: 3px 8px;">${formatDateDDMMYYYY(order.factory_inform_date || order.entry_date)}</td>
               </tr>
               <tr style="border-bottom: 1px solid #3d2c1e;">
-                <td style="padding: 5px 10px; background: #f5f0eb; font-weight: bold; border-right: 1px solid #3d2c1e;">FACTORY</td>
-                <td style="padding: 5px 10px;">${order.factory || '-'}</td>
+                <td style="padding: 3px 8px; background: #f5f0eb; font-weight: bold; border-right: 1px solid #3d2c1e;">FACTORY</td>
+                <td style="padding: 3px 8px;">${order.factory || '-'}</td>
               </tr>
               <tr style="border-bottom: 1px solid #3d2c1e;">
-                <td style="padding: 5px 10px; background: #f5f0eb; font-weight: bold; border-right: 1px solid #3d2c1e;">SALES ORDER REF</td>
-                <td style="padding: 5px 10px; font-family: monospace;">${order.sales_order_ref || '-'}</td>
+                <td style="padding: 3px 8px; background: #f5f0eb; font-weight: bold; border-right: 1px solid #3d2c1e;">SALES ORDER REF</td>
+                <td style="padding: 3px 8px; font-family: monospace;">${order.sales_order_ref || '-'}</td>
               </tr>
               <tr>
-                <td style="padding: 5px 10px; background: #f5f0eb; font-weight: bold; border-right: 1px solid #3d2c1e;">BUYER PO</td>
-                <td style="padding: 5px 10px; font-family: monospace;">${order.buyer_po_ref || '-'}</td>
+                <td style="padding: 3px 8px; background: #f5f0eb; font-weight: bold; border-right: 1px solid #3d2c1e;">BUYER PO</td>
+                <td style="padding: 3px 8px; font-family: monospace;">${order.buyer_po_ref || '-'}</td>
               </tr>
             </table>
           </div>
@@ -345,30 +345,30 @@ export default function OrderPreview() {
       const additionalImages = item.product_image ? (item.images || []) : (item.images || []).slice(1);
       
       return `
-        <div class="page" style="page-break-after: always; padding: 10mm; box-sizing: border-box;">
+        <div class="page" style="page-break-after: always; padding: 8mm; box-sizing: border-box; height: 277mm; overflow: hidden;">
           <!-- Header -->
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 15px; border-bottom: 2px solid #3d2c1e;">
-            <img src="${logoUrl}" alt="JAIPUR" style="height: 80px; object-fit: contain;" />
-            <table style="border: 1px solid #3d2c1e; border-collapse: collapse; font-size: 11px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 10px; border-bottom: 2px solid #3d2c1e;">
+            <img src="${logoUrl}" alt="JAIPUR" style="height: 60px; object-fit: contain;" />
+            <table style="border: 1px solid #3d2c1e; border-collapse: collapse; font-size: 10px;">
               <tr style="border-bottom: 1px solid #3d2c1e;">
-                <td style="padding: 5px 10px; background: #f5f0eb; font-weight: bold; border-right: 1px solid #3d2c1e;">ENTRY DATE</td>
-                <td style="padding: 5px 10px; min-width: 100px;">${formatDateDDMMYYYY(order.entry_date)}</td>
+                <td style="padding: 3px 8px; background: #f5f0eb; font-weight: bold; border-right: 1px solid #3d2c1e;">ENTRY DATE</td>
+                <td style="padding: 3px 8px; min-width: 90px;">${formatDateDDMMYYYY(order.entry_date)}</td>
               </tr>
               <tr style="border-bottom: 1px solid #3d2c1e;">
-                <td style="padding: 5px 10px; background: #f5f0eb; font-weight: bold; border-right: 1px solid #3d2c1e;">INFORMED TO FACTORY</td>
-                <td style="padding: 5px 10px;">${formatDateDDMMYYYY(order.factory_inform_date || order.entry_date)}</td>
+                <td style="padding: 3px 8px; background: #f5f0eb; font-weight: bold; border-right: 1px solid #3d2c1e;">INFORMED TO FACTORY</td>
+                <td style="padding: 3px 8px;">${formatDateDDMMYYYY(order.factory_inform_date || order.entry_date)}</td>
               </tr>
               <tr style="border-bottom: 1px solid #3d2c1e;">
-                <td style="padding: 5px 10px; background: #f5f0eb; font-weight: bold; border-right: 1px solid #3d2c1e;">FACTORY</td>
-                <td style="padding: 5px 10px;">${order.factory || '-'}</td>
+                <td style="padding: 3px 8px; background: #f5f0eb; font-weight: bold; border-right: 1px solid #3d2c1e;">FACTORY</td>
+                <td style="padding: 3px 8px;">${order.factory || '-'}</td>
               </tr>
               <tr style="border-bottom: 1px solid #3d2c1e;">
-                <td style="padding: 5px 10px; background: #f5f0eb; font-weight: bold; border-right: 1px solid #3d2c1e;">SALES ORDER REF</td>
-                <td style="padding: 5px 10px; font-family: monospace;">${order.sales_order_ref || '-'}</td>
+                <td style="padding: 3px 8px; background: #f5f0eb; font-weight: bold; border-right: 1px solid #3d2c1e;">SALES ORDER REF</td>
+                <td style="padding: 3px 8px; font-family: monospace;">${order.sales_order_ref || '-'}</td>
               </tr>
               <tr>
-                <td style="padding: 5px 10px; background: #f5f0eb; font-weight: bold; border-right: 1px solid #3d2c1e;">BUYER PO</td>
-                <td style="padding: 5px 10px; font-family: monospace;">${order.buyer_po_ref || '-'}</td>
+                <td style="padding: 3px 8px; background: #f5f0eb; font-weight: bold; border-right: 1px solid #3d2c1e;">BUYER PO</td>
+                <td style="padding: 3px 8px; font-family: monospace;">${order.buyer_po_ref || '-'}</td>
               </tr>
             </table>
           </div>
