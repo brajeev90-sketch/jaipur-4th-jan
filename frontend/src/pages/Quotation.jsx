@@ -392,20 +392,20 @@ export default function Quotation() {
           
           /* Product Details */
           .product-details {
-            margin-top: 8px;
+            margin-top: 5px;
           }
           .product-code {
             font-family: monospace;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
             color: #000;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
           }
           .product-desc {
             font-size: 10px;
             color: #555;
-            margin-bottom: 8px;
-            line-height: 1.3;
+            margin-bottom: 5px;
+            line-height: 1.2;
           }
           .details-table {
             width: 100%;
@@ -415,68 +415,67 @@ export default function Quotation() {
           .details-table th {
             background: #3d2c1e;
             color: white;
-            padding: 5px 8px;
+            padding: 4px 6px;
             text-align: center;
             font-weight: 600;
           }
           .details-table td {
-            padding: 5px 8px;
+            padding: 4px 6px;
             border: 1px solid #ddd;
             text-align: center;
           }
           .price-cell {
             font-weight: bold;
             color: #000;
-            font-size: 12px;
+            font-size: 11px;
           }
           
-          /* Footer */
+          /* Footer - Only on last page */
           .footer-section {
-            margin-top: 10px;
-            padding-top: 8px;
+            margin-top: 8px;
+            padding-top: 6px;
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-          }
-          .summary-box {
-            text-align: right;
-            background: #f5f0eb;
-            padding: 8px 12px;
-            border-radius: 4px;
-          }
-          .summary-row {
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-            font-size: 10px;
-            padding: 2px 0;
-          }
-          .grand-total {
-            font-size: 13px;
-            font-weight: bold;
-            color: #3d2c1e;
-            border-top: 1px solid #3d2c1e;
-            margin-top: 4px;
-            padding-top: 4px;
           }
           .footer-text {
             font-size: 10px;
             color: #333;
             max-width: 60%;
-            line-height: 1.5;
+            line-height: 1.4;
           }
           .footer-options {
             font-weight: bold;
             font-size: 9px;
             color: #3d2c1e;
-            margin-top: 5px;
-            letter-spacing: 0.5px;
+            margin-top: 4px;
+          }
+          .summary-box {
+            text-align: right;
+            background: #f5f0eb;
+            padding: 6px 10px;
+            border-radius: 3px;
+          }
+          .summary-row {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            font-size: 10px;
+            padding: 2px 0;
+          }
+          .grand-total {
+            font-size: 12px;
+            font-weight: bold;
+            color: #3d2c1e;
+            border-top: 1px solid #3d2c1e;
+            margin-top: 3px;
+            padding-top: 3px;
           }
           .page-number {
             text-align: center;
             font-size: 9px;
             color: #888;
-            margin-top: 8px;
+            margin-top: 6px;
           }
         </style>
       </head>
