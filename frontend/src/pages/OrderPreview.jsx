@@ -90,6 +90,24 @@ export default function OrderPreview() {
       const mainImage = item.product_image || (item.images && item.images.length > 0 ? item.images[0] : null);
       const additionalImages = item.product_image ? (item.images || []) : (item.images || []).slice(1);
       
+      // Calculate dynamic sizes based on content
+      const hasAdditionalImages = additionalImages.length > 0;
+      const hasLongNotes = item.notes && item.notes.length > 200;
+      
+      // Adjust main image height based on content
+      let mainImageHeight = 280;
+      let additionalImageSize = 120;
+      
+      if (hasAdditionalImages && hasLongNotes) {
+        mainImageHeight = 200;
+        additionalImageSize = 100;
+      } else if (hasAdditionalImages) {
+        mainImageHeight = 240;
+        additionalImageSize = 110;
+      } else if (hasLongNotes) {
+        mainImageHeight = 260;
+      }
+      
       return `
         <div class="page" style="page-break-after: always; padding: 8mm; box-sizing: border-box; height: 277mm; overflow: hidden;">
           <!-- Header -->
