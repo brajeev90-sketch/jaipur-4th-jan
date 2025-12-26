@@ -186,7 +186,7 @@ export default function OrderPreview() {
           
           <!-- Notes Section - Styled like preview with HTML support -->
           <div style="border: 1px solid #3d2c1e; border-radius: 4px; margin-bottom: 6px; width: 100%;">
-            <div style="background: #3d2c1e; color: white; padding: 6px 12px; font-weight: 600; font-size: 14px;">Notes:</div>
+            <div style="background: #3d2c1e; color: white; padding: 6px 10px; font-weight: 600; font-size: 12px;">Notes:</div>
             <div style="padding: 12px; font-size: 16px; min-height: 60px; line-height: 1.6;">
               ${item.notes ? `<div>${item.notes}</div>` : `
                 <div style="color: #888;">
@@ -458,7 +458,7 @@ export default function OrderPreview() {
           
           <!-- Notes Section - Styled like preview with HTML support -->
           <div style="border: 1px solid #3d2c1e; border-radius: 4px; margin-bottom: 6px; width: 100%;">
-            <div style="background: #3d2c1e; color: white; padding: 6px 12px; font-weight: 600; font-size: 14px;">Notes:</div>
+            <div style="background: #3d2c1e; color: white; padding: 6px 10px; font-weight: 600; font-size: 12px;">Notes:</div>
             <div style="padding: 12px; font-size: 16px; min-height: 60px; line-height: 1.6;">
               ${item.notes ? `<div>${item.notes}</div>` : `
                 <div style="color: #888;">
