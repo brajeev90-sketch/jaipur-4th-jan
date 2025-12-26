@@ -498,7 +498,7 @@ export default function Quotation() {
             <!-- BIG Product Image -->
             <div class="product-image-section">
               ${item.image 
-                ? `<img src="${item.image}" alt="${item.product_code}" class="product-image" />`
+                ? `<img src="${item.image}" alt="${item.product_code}" class="product-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" /><div class="no-image" style="display:none;">Image Not Available</div>`
                 : `<div class="no-image">No Product Image Available</div>`
               }
             </div>
