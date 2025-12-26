@@ -101,8 +101,8 @@ export const Layout = () => {
 
   return (
     <div className="flex min-h-screen" data-testid="app-layout">
-      {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-card border-b border-border px-4 py-3 flex items-center justify-between">
+      {/* Mobile Header - hidden in print */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-card border-b border-border px-4 py-3 flex items-center justify-between print-hidden">
         <div className="flex items-center gap-3">
           <Button 
             variant="ghost" 
