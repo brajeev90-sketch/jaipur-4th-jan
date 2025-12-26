@@ -90,22 +90,55 @@ export default function OrderPreview() {
       const mainImage = item.product_image || (item.images && item.images.length > 0 ? item.images[0] : null);
       const additionalImages = item.product_image ? (item.images || []) : (item.images || []).slice(1);
       
-      // Calculate dynamic sizes based on content
+      // RESPONSIVE SIZING - Calculate based on actual content
       const hasAdditionalImages = additionalImages.length > 0;
-      const hasLongNotes = item.notes && item.notes.length > 200;
+      const additionalImageCount = Math.min(additionalImages.length, 4);
+      const notesLength = item.notes ? item.notes.length : 0;
+      const hasLeather = item.leather_image || item.leather_code;
+      const hasFinish = item.finish_image || item.finish_code;
       
-      // Adjust main image height based on content (310-340px range)
+      // A4 usable height: ~750px (277mm - header - footer - table)
+      // Base allocations
       let mainImageHeight = 340;
       let additionalImageSize = 216;
+      let swatchHeight = 100;
       
-      if (hasAdditionalImages && hasLongNotes) {
-        mainImageHeight = 310;
-        additionalImageSize = 200;
-      } else if (hasAdditionalImages) {
-        mainImageHeight = 320;
-        additionalImageSize = 210;
-      } else if (hasLongNotes) {
-        mainImageHeight = 330;
+      // Responsive adjustments based on content density
+      if (hasAdditionalImages) {
+        // More additional images = smaller sizes
+        if (additionalImageCount >= 3) {
+          mainImageHeight = 280;
+          additionalImageSize = 160;
+        } else if (additionalImageCount >= 2) {
+          mainImageHeight = 300;
+          additionalImageSize = 180;
+        } else {
+          mainImageHeight = 320;
+          additionalImageSize = 200;
+        }
+        
+        // Long notes further reduce image sizes
+        if (notesLength > 300) {
+          mainImageHeight -= 40;
+          additionalImageSize -= 30;
+        } else if (notesLength > 150) {
+          mainImageHeight -= 20;
+          additionalImageSize -= 15;
+        }
+      } else {
+        // No additional images - more space for main image
+        if (notesLength > 300) {
+          mainImageHeight = 300;
+        } else if (notesLength > 150) {
+          mainImageHeight = 320;
+        }
+      }
+      
+      // Adjust swatch height based on content
+      if (hasLeather && hasFinish && hasAdditionalImages) {
+        swatchHeight = 80;
+      } else if (hasLeather && hasFinish) {
+        swatchHeight = 100;
       }
       
       return `
@@ -362,22 +395,55 @@ export default function OrderPreview() {
       const mainImage = item.product_image || (item.images && item.images.length > 0 ? item.images[0] : null);
       const additionalImages = item.product_image ? (item.images || []) : (item.images || []).slice(1);
       
-      // Calculate dynamic sizes based on content
+      // RESPONSIVE SIZING - Calculate based on actual content
       const hasAdditionalImages = additionalImages.length > 0;
-      const hasLongNotes = item.notes && item.notes.length > 200;
+      const additionalImageCount = Math.min(additionalImages.length, 4);
+      const notesLength = item.notes ? item.notes.length : 0;
+      const hasLeather = item.leather_image || item.leather_code;
+      const hasFinish = item.finish_image || item.finish_code;
       
-      // Adjust main image height based on content (310-340px range)
+      // A4 usable height: ~750px (277mm - header - footer - table)
+      // Base allocations
       let mainImageHeight = 340;
       let additionalImageSize = 216;
+      let swatchHeight = 100;
       
-      if (hasAdditionalImages && hasLongNotes) {
-        mainImageHeight = 310;
-        additionalImageSize = 200;
-      } else if (hasAdditionalImages) {
-        mainImageHeight = 320;
-        additionalImageSize = 210;
-      } else if (hasLongNotes) {
-        mainImageHeight = 330;
+      // Responsive adjustments based on content density
+      if (hasAdditionalImages) {
+        // More additional images = smaller sizes
+        if (additionalImageCount >= 3) {
+          mainImageHeight = 280;
+          additionalImageSize = 160;
+        } else if (additionalImageCount >= 2) {
+          mainImageHeight = 300;
+          additionalImageSize = 180;
+        } else {
+          mainImageHeight = 320;
+          additionalImageSize = 200;
+        }
+        
+        // Long notes further reduce image sizes
+        if (notesLength > 300) {
+          mainImageHeight -= 40;
+          additionalImageSize -= 30;
+        } else if (notesLength > 150) {
+          mainImageHeight -= 20;
+          additionalImageSize -= 15;
+        }
+      } else {
+        // No additional images - more space for main image
+        if (notesLength > 300) {
+          mainImageHeight = 300;
+        } else if (notesLength > 150) {
+          mainImageHeight = 320;
+        }
+      }
+      
+      // Adjust swatch height based on content
+      if (hasLeather && hasFinish && hasAdditionalImages) {
+        swatchHeight = 80;
+      } else if (hasLeather && hasFinish) {
+        swatchHeight = 100;
       }
       
       return `
