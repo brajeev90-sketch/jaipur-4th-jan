@@ -439,7 +439,23 @@ export default function Products() {
                 <Label>{t('category')}</Label>
                 <Select 
                   value={formData.category} 
-                  onValueChange={(value) => setFormData({ ...formData, category: value })}
+                  onValueChange={async (value) => {
+                    if (value === "add-new") {
+                      const newCategory = prompt("Enter new category name:");
+                      if (newCategory && newCategory.trim()) {
+                        try {
+                          const response = await categoriesApi.create({ name: newCategory.trim() });
+                          setCategories(prev => [...prev, response.data]);
+                          setFormData({ ...formData, category: response.data.id });
+                          toast.success(`Category "${newCategory.trim()}" added!`);
+                        } catch (err) {
+                          toast.error("Failed to add category");
+                        }
+                      }
+                    } else {
+                      setFormData({ ...formData, category: value });
+                    }
+                  }}
                 >
                   <SelectTrigger data-testid="product-category-select">
                     <SelectValue placeholder={t('selectCategory')} />
@@ -448,6 +464,9 @@ export default function Products() {
                     {categories.map(cat => (
                       <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
                     ))}
+                    <SelectItem value="add-new" className="text-primary font-medium">
+                      + Add New Category
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
