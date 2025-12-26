@@ -162,7 +162,7 @@ export default function OrderPreview() {
             <!-- Material Swatches - 25% -->
             <div style="width: 25%; display: flex; flex-direction: column; gap: 6px;">
               ${item.leather_image || item.leather_code ? `
-                <div style="border: 1px solid #ddd; border-radius: 4px; padding: 8px; background: #fafafa;">
+                <div style="border: 1px solid #ddd; border-radius: 4px; padding: 6px; background: #fafafa;">
                   ${item.leather_image 
                     ? `<img src="${item.leather_image}" alt="Leather" style="width: 100%; height: 90px; object-fit: cover; border-radius: 4px; margin-bottom: 4px;" />`
                     : `<div style="width: 100%; height: 90px; background: linear-gradient(135deg, #8B4513, #A0522D); border-radius: 4px; margin-bottom: 4px;"></div>`
@@ -172,7 +172,7 @@ export default function OrderPreview() {
                 </div>
               ` : ''}
               ${item.finish_image || item.finish_code ? `
-                <div style="border: 1px solid #ddd; border-radius: 4px; padding: 8px; background: #fafafa;">
+                <div style="border: 1px solid #ddd; border-radius: 4px; padding: 6px; background: #fafafa;">
                   ${item.finish_image 
                     ? `<img src="${item.finish_image}" alt="Finish" style="width: 100%; height: 90px; object-fit: cover; border-radius: 4px; margin-bottom: 4px;" />`
                     : `<div style="width: 100%; height: 90px; background: linear-gradient(135deg, #D4A574, #C4956A); border-radius: 4px; margin-bottom: 4px;"></div>`
@@ -186,7 +186,7 @@ export default function OrderPreview() {
           
           <!-- Notes Section - Styled like preview with HTML support -->
           <div style="border: 1px solid #3d2c1e; border-radius: 4px; margin-bottom: 8px; width: 100%;">
-            <div style="background: #3d2c1e; color: white; padding: 8px 12px; font-weight: 600; font-size: 14px;">Notes:</div>
+            <div style="background: #3d2c1e; color: white; padding: 6px 12px; font-weight: 600; font-size: 14px;">Notes:</div>
             <div style="padding: 12px; font-size: 16px; min-height: 60px; line-height: 1.6;">
               ${item.notes ? `<div>${item.notes}</div>` : `
                 <div style="color: #888;">
@@ -434,7 +434,7 @@ export default function OrderPreview() {
             <!-- Material Swatches - 25% -->
             <div style="width: 25%; display: flex; flex-direction: column; gap: 6px;">
               ${item.leather_image || item.leather_code ? `
-                <div style="border: 1px solid #ddd; border-radius: 4px; padding: 8px; background: #fafafa;">
+                <div style="border: 1px solid #ddd; border-radius: 4px; padding: 6px; background: #fafafa;">
                   ${item.leather_image 
                     ? `<img src="${item.leather_image}" alt="Leather" style="width: 100%; height: 90px; object-fit: cover; border-radius: 4px; margin-bottom: 4px;" />`
                     : `<div style="width: 100%; height: 90px; background: linear-gradient(135deg, #8B4513, #A0522D); border-radius: 4px; margin-bottom: 4px;"></div>`
@@ -444,7 +444,7 @@ export default function OrderPreview() {
                 </div>
               ` : ''}
               ${item.finish_image || item.finish_code ? `
-                <div style="border: 1px solid #ddd; border-radius: 4px; padding: 8px; background: #fafafa;">
+                <div style="border: 1px solid #ddd; border-radius: 4px; padding: 6px; background: #fafafa;">
                   ${item.finish_image 
                     ? `<img src="${item.finish_image}" alt="Finish" style="width: 100%; height: 90px; object-fit: cover; border-radius: 4px; margin-bottom: 4px;" />`
                     : `<div style="width: 100%; height: 90px; background: linear-gradient(135deg, #D4A574, #C4956A); border-radius: 4px; margin-bottom: 4px;"></div>`
@@ -458,7 +458,7 @@ export default function OrderPreview() {
           
           <!-- Notes Section - Styled like preview with HTML support -->
           <div style="border: 1px solid #3d2c1e; border-radius: 4px; margin-bottom: 8px; width: 100%;">
-            <div style="background: #3d2c1e; color: white; padding: 8px 12px; font-weight: 600; font-size: 14px;">Notes:</div>
+            <div style="background: #3d2c1e; color: white; padding: 6px 12px; font-weight: 600; font-size: 14px;">Notes:</div>
             <div style="padding: 12px; font-size: 16px; min-height: 60px; line-height: 1.6;">
               ${item.notes ? `<div>${item.notes}</div>` : `
                 <div style="color: #888;">
