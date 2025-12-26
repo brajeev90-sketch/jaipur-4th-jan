@@ -43,8 +43,6 @@ export default function LeatherLibrary() {
   const [formData, setFormData] = useState({
     code: '',
     name: '',
-    description: '',
-    color: '',
     image: '',
   });
 
@@ -69,13 +67,11 @@ export default function LeatherLibrary() {
       setFormData({
         code: item.code,
         name: item.name,
-        description: item.description || '',
-        color: item.color || '',
         image: item.image || '',
       });
       setEditingItem(item);
     } else {
-      setFormData({ code: '', name: '', description: '', color: '', image: '' });
+      setFormData({ code: '', name: '', image: '' });
       setEditingItem(null);
     }
     setDialogOpen(true);
@@ -213,28 +209,18 @@ export default function LeatherLibrary() {
         </div>
       )}
 
-      {/* Add/Edit Dialog */}
+      {/* Add/Edit Dialog - Simplified (removed colour and description) */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader><DialogTitle className="font-serif text-xl">{editingItem ? t('editLeather') : t('addNewLeather')}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>{t('code')} *</Label>
-                <Input value={formData.code} onChange={(e) => handleInputChange('code', e.target.value)} placeholder="LTH-001" className="font-mono" />
-              </div>
-              <div className="space-y-2">
-                <Label>{t('color')}</Label>
-                <Input type="color" value={formData.color || '#8B4513'} onChange={(e) => handleInputChange('color', e.target.value)} className="h-10 p-1" />
-              </div>
+            <div className="space-y-2">
+              <Label>{t('code')} *</Label>
+              <Input value={formData.code} onChange={(e) => handleInputChange('code', e.target.value)} placeholder="LTH-001" className="font-mono" />
             </div>
             <div className="space-y-2">
               <Label>{t('name')} *</Label>
               <Input value={formData.name} onChange={(e) => handleInputChange('name', e.target.value)} placeholder="Full Grain Tan" />
-            </div>
-            <div className="space-y-2">
-              <Label>{t('description')}</Label>
-              <Textarea value={formData.description} onChange={(e) => handleInputChange('description', e.target.value)} placeholder="Describe..." rows={2} />
             </div>
             <div className="space-y-2">
               <Label>{t('image')}</Label>
