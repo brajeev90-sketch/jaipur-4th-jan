@@ -196,7 +196,6 @@ export default function LeatherLibrary() {
                   <div>
                     <p className="font-mono font-medium">{item.code}</p>
                     <p className="text-sm text-muted-foreground">{item.name}</p>
-                    {item.description && <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{item.description}</p>}
                   </div>
                   <div className="flex gap-1">
                     <Button variant="ghost" size="icon" onClick={() => openDialog(item)}><Edit size={16} /></Button>
