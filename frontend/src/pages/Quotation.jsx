@@ -543,16 +543,16 @@ export default function Quotation() {
               ${renderProduct(pair.right)}
             </div>
             
-            <!-- Footer -->
+            <!-- Footer - validity text only on last page -->
             <div class="footer-section">
-              <div class="footer-text">
-                This quotation is valid for 30 days from the date of issue.<br>
-                Prices are ${priceLabel}. Shipping and import duties not included.
-                <div class="footer-options">
-                  UK WAREHOUSE • FACTORY DIRECT • SHARED CONTAINERS • TAILORED DESIGNS
-                </div>
-              </div>
               ${isLastPage ? `
+                <div class="footer-text">
+                  This quotation is valid for 30 days from the date of issue.<br>
+                  Prices are ${priceLabel}. Shipping and import duties not included.
+                  <div class="footer-options">
+                    UK WAREHOUSE • FACTORY DIRECT • SHARED CONTAINERS • TAILORED DESIGNS
+                  </div>
+                </div>
                 <div class="summary-box">
                   <div class="summary-row">
                     <span>Total Items:</span>
@@ -567,7 +567,11 @@ export default function Quotation() {
                     <strong>${currencySymbol}${totals.totalValue}</strong>
                   </div>
                 </div>
-              ` : ''}
+              ` : `
+                <div class="footer-options" style="width:100%;text-align:center;">
+                  UK WAREHOUSE • FACTORY DIRECT • SHARED CONTAINERS • TAILORED DESIGNS
+                </div>
+              `}
             </div>
             
             <div class="page-number">Page ${pageIndex + 1} of ${itemPairs.length}</div>
