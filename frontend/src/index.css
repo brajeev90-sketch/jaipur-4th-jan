@@ -356,3 +356,19 @@ a[href*="emergent.sh"] {
         background: white !important;
     }
 }
+
+/* Preview Paper A4 Styling */
+.preview-paper {
+    background: white;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    max-width: 210mm;
+    padding: 10mm 15mm;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+/* Print-specific page setup */
+@page {
+    size: A4;
+    margin: 10mm;
+}
