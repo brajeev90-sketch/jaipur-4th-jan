@@ -187,7 +187,7 @@ export default function OrderPreview() {
           <!-- Notes Section - Compact -->
           <div style="border: 1px solid #3d2c1e; border-radius: 4px; margin-bottom: 6px; width: 100%;">
             <div style="background: #3d2c1e; color: white; padding: 6px 10px; font-weight: 600; font-size: 12px;">Notes:</div>
-            <div style="padding: 8px 10px; font-size: 13px; max-height: 80px; overflow: hidden; line-height: 1.4;">
+            <div style="padding: 8px 10px; font-size: 15px; line-height: 1.4;">
               ${item.notes ? `<div>${item.notes}</div>` : `
                 <div style="color: #888;">
                   ${item.category ? `<p style="margin: 2px 0;">• Category: ${item.category}</p>` : ''}
@@ -459,7 +459,7 @@ export default function OrderPreview() {
           <!-- Notes Section - Compact -->
           <div style="border: 1px solid #3d2c1e; border-radius: 4px; margin-bottom: 6px; width: 100%;">
             <div style="background: #3d2c1e; color: white; padding: 6px 10px; font-weight: 600; font-size: 12px;">Notes:</div>
-            <div style="padding: 8px 10px; font-size: 13px; max-height: 80px; overflow: hidden; line-height: 1.4;">
+            <div style="padding: 8px 10px; font-size: 15px; line-height: 1.4;">
               ${item.notes ? `<div>${item.notes}</div>` : `
                 <div style="color: #888;">
                   ${item.category ? `<p style="margin: 2px 0;">• Category: ${item.category}</p>` : ''}
