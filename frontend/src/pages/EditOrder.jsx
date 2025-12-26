@@ -510,9 +510,10 @@ export default function EditOrder() {
                 >
                   <GripVertical className="text-muted-foreground" size={20} />
                   
-                  {item.images?.length > 0 ? (
+                  {/* Show product_image first, then fallback to images[0] */}
+                  {(item.product_image || (item.images?.length > 0)) ? (
                     <img 
-                      src={item.images[0]} 
+                      src={item.product_image || item.images[0]} 
                       alt={item.product_code}
                       className="w-16 h-16 object-cover rounded-sm border"
                     />
