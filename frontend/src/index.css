@@ -229,3 +229,62 @@ a[href*="emergent.sh"] {
 .status-done {
     @apply bg-green-100 text-green-800;
 }
+
+/* Print styles - hide navigation and show only content */
+@media print {
+    /* Hide sidebar, header buttons, and navigation */
+    nav, 
+    .sidebar,
+    aside,
+    [data-testid="back-btn"],
+    [data-testid="edit-btn"],
+    [data-testid="print-btn"],
+    [data-testid="email-btn"],
+    [data-testid="share-btn"],
+    [data-testid="download-btn"],
+    .page-header > div:last-child,
+    button,
+    a[href*="/edit"] {
+        display: none !important;
+    }
+    
+    /* Remove margins and padding for print */
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    /* Full width for print content */
+    main, .main-content, [data-testid="preview-page"] {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    /* Each preview page on separate print page */
+    .preview-page-container {
+        page-break-after: always;
+        page-break-inside: avoid;
+        margin: 0 !important;
+        padding: 10mm !important;
+    }
+    
+    .preview-page-container:last-child {
+        page-break-after: auto;
+    }
+    
+    /* Ensure images print correctly */
+    img {
+        max-width: 100% !important;
+        page-break-inside: avoid;
+    }
+    
+    /* Preserve background colors */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
