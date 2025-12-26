@@ -786,7 +786,7 @@ export default function Quotation() {
           <Button variant="outline" className="gap-2" onClick={handleSaveQuotation} disabled={quotationItems.length === 0 || saving}>
             {saving ? (
               <>
-                <span className="animate-spin h-4 w-4 border-2 border-amber-600 border-t-transparent rounded-full"></span>
+                <Loader2 size={18} className="animate-spin" />
                 Saving...
               </>
             ) : (
