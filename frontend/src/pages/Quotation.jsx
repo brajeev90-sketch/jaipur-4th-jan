@@ -168,11 +168,16 @@ export default function Quotation() {
   };
 
   const handleSaveQuotation = async () => {
+    // Prevent double clicks
+    if (saving) return false;
+    
     if (quotationItems.length === 0) {
       toast.error('Please add products to the quotation');
       return false;
     }
 
+    setSaving(true);
+    
     const totals = calculateTotals();
     const quotationData = {
       ...quotationDetails,
@@ -187,14 +192,14 @@ export default function Quotation() {
       if (editingQuotationId) {
         // Update existing quotation
         await quotationsApi.update(editingQuotationId, quotationData);
-        toast.success('Quotation updated successfully!');
+        toast.success('Quotation updated!');
       } else {
         // Create new quotation and save its ID to prevent duplicates
         const response = await quotationsApi.create(quotationData);
         if (response.data && response.data.id) {
           setEditingQuotationId(response.data.id);
         }
-        toast.success('Quotation saved successfully!');
+        toast.success('Quotation saved!');
       }
       loadSavedQuotations();
       return true;
@@ -202,6 +207,8 @@ export default function Quotation() {
       console.error('Error saving quotation:', error);
       toast.error('Failed to save quotation');
       return false;
+    } finally {
+      setSaving(false);
     }
   };
 
