@@ -349,15 +349,16 @@ export default function Quotation() {
             line-height: 1.6;
           }
           
-          /* BIG Product Image Section */
+          /* BIG Product Image Section - Increased height */
           .product-image-section {
             text-align: center;
-            margin: 15px 0;
-            padding: 10px;
+            margin: 10px 0;
+            padding: 5px;
           }
           .product-image {
             max-width: 100%;
-            max-height: 350px;
+            max-height: 450px;
+            min-height: 350px;
             width: auto;
             height: auto;
             object-fit: contain;
@@ -366,7 +367,7 @@ export default function Quotation() {
           }
           .no-image {
             width: 100%;
-            height: 300px;
+            height: 400px;
             display: flex;
             align-items: center;
             justify-content: center;
