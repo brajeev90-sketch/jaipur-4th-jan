@@ -254,22 +254,14 @@ export default function Quotation() {
     }
   };
 
-  const handleGenerateQuote = async () => {
-    if (quotationItems.length === 0) {
-      toast.error('Please add products to the quotation');
-      return;
-    }
-
-    // Save the quotation first
-    await handleSaveQuotation();
-
-    // Generate quotation PDF - matching the user's reference layout
+  // Generate quotation HTML content (reusable for both view and download)
+  const generateQuotationHTML = () => {
     const totals = calculateTotals();
     const currencyInfo = getCurrencyInfo(quotationDetails.currency);
     const currencySymbol = currencyInfo.symbol;
     const priceLabel = currencyInfo.label;
     
-    const quotationHTML = `
+    return `
       <!DOCTYPE html>
       <html>
       <head>
@@ -280,6 +272,268 @@ export default function Quotation() {
             size: A4; 
             margin: 15mm; 
           }
+          body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            max-width: 210mm; 
+            margin: 0 auto; 
+            background: white;
+            color: #333;
+            font-size: 12px;
+          }
+          .page { 
+            page-break-after: always; 
+            min-height: calc(297mm - 40mm);
+            position: relative;
+          }
+          .page:last-child { page-break-after: auto; }
+          
+          .header { 
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #3d2c1e;
+          }
+          .logo-container {
+            text-align: left;
+          }
+          .logo {
+            height: 80px;
+            object-fit: contain;
+          }
+          .quote-info {
+            text-align: right;
+          }
+          .quote-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3d2c1e;
+            margin-bottom: 5px;
+          }
+          .customer-info {
+            font-size: 11px;
+            color: #666;
+          }
+          
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 11px;
+          }
+          th {
+            background: #3d2c1e;
+            color: white;
+            padding: 10px 8px;
+            text-align: left;
+            font-weight: 600;
+          }
+          td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #e0e0e0;
+            vertical-align: middle;
+          }
+          .code-cell {
+            font-family: monospace;
+            font-weight: 600;
+            color: #3d2c1e;
+          }
+          .dimension-cell {
+            text-align: center;
+            font-size: 10px;
+          }
+          .price-cell {
+            text-align: right;
+            font-weight: 600;
+          }
+          .image-cell img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+          }
+          
+          .summary-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f5f0eb;
+            border-radius: 8px;
+          }
+          .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+          }
+          .summary-label {
+            color: #666;
+          }
+          .summary-value {
+            font-weight: 600;
+          }
+          .grand-total {
+            border-top: 2px solid #3d2c1e;
+            margin-top: 10px;
+            padding-top: 10px;
+            font-size: 16px;
+          }
+          .grand-total .summary-value {
+            color: #3d2c1e;
+          }
+          
+          .notes-section {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 4px;
+            font-size: 11px;
+          }
+          .notes-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+          }
+          
+          .footer {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+            font-size: 10px;
+            color: #666;
+            text-align: center;
+          }
+        </style>
+      </head>
+      <body>
+        ${quotationItems.map((item, index) => {
+          const isLastItem = index === quotationItems.length - 1;
+          return `
+          <div class="page">
+            <div class="header">
+              <div class="logo-container">
+                <img src="https://customer-assets.emergentagent.com/job_furnipdf-maker/artifacts/mdh71t2g_WhatsApp%20Image%202025-12-22%20at%202.24.36%20PM.jpeg" alt="JAIPUR" class="logo" />
+              </div>
+              <div class="quote-info">
+                <div class="quote-title">QUOTATION</div>
+                <div class="customer-info">
+                  <div><strong>Ref:</strong> ${quotationDetails.reference || '-'}</div>
+                  <div><strong>Date:</strong> ${quotationDetails.date || '-'}</div>
+                  <div><strong>Customer:</strong> ${quotationDetails.customer_name || '-'}</div>
+                  ${quotationDetails.customer_email ? `<div><strong>Email:</strong> ${quotationDetails.customer_email}</div>` : ''}
+                </div>
+              </div>
+            </div>
+            
+            <table>
+              <thead>
+                <tr>
+                  <th>Image</th>
+                  <th>Code</th>
+                  <th>Description</th>
+                  <th style="text-align: center;">H</th>
+                  <th style="text-align: center;">W</th>
+                  <th style="text-align: center;">D</th>
+                  <th style="text-align: center;">CBM</th>
+                  <th style="text-align: right;">${priceLabel}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="image-cell">
+                    ${item.image ? `<img src="${item.image}" alt="${item.product_code}" />` : '<div style="width:60px;height:60px;background:#f0f0f0;border-radius:4px;"></div>'}
+                  </td>
+                  <td class="code-cell">${item.product_code}</td>
+                  <td>${item.description || '-'}</td>
+                  <td class="dimension-cell">${item.height_cm || '-'}</td>
+                  <td class="dimension-cell">${item.width_cm || '-'}</td>
+                  <td class="dimension-cell">${item.depth_cm || '-'}</td>
+                  <td class="dimension-cell">${item.cbm || '-'}</td>
+                  <td class="price-cell">${currencySymbol}${item.fob_price.toFixed(2)}</td>
+                </tr>
+              </tbody>
+            </table>
+            
+            ${isLastItem ? `
+              <div class="summary-section">
+                <div class="summary-row">
+                  <span class="summary-label">Total Items:</span>
+                  <span class="summary-value">${totals.totalItems} Pcs</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-label">Total CBM:</span>
+                  <span class="summary-value">${totals.totalCBM} m³</span>
+                </div>
+                <div class="summary-row grand-total">
+                  <span class="summary-label">GRAND TOTAL:</span>
+                  <span class="summary-value">${currencySymbol}${totals.totalValue}</span>
+                </div>
+              </div>
+              
+              ${quotationDetails.notes ? `
+                <div class="notes-section">
+                  <div class="notes-title">Notes:</div>
+                  <div>${quotationDetails.notes}</div>
+                </div>
+              ` : ''}
+              
+              <div class="footer">
+                <div style="margin-bottom: 5px; font-size: 11px;">
+                  <strong>Delivery Options:</strong>
+                </div>
+                <div>This quotation is valid for 30 days from the date of issue.</div>
+                <div>Prices are ${priceLabel}. Shipping and import duties not included.</div>
+                <div style="margin-top: 10px; font-weight: bold; font-size: 11px;">
+                  UK WAREHOUSE • FACTORY DIRECT CONTAINERS • SHARED CONTAINERS • TAILORED DESIGNS
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        `}).join('')}
+      </body>
+      </html>
+    `;
+  };
+
+  // View/Print quote - opens in new window for viewing
+  const handleViewQuote = () => {
+    if (quotationItems.length === 0) {
+      toast.error('Please add products to the quotation');
+      return;
+    }
+
+    const quotationHTML = generateQuotationHTML();
+    const viewWindow = window.open('', '_blank');
+    viewWindow.document.write(quotationHTML);
+    viewWindow.document.close();
+    toast.success('Quotation opened for viewing');
+  };
+
+  const handleGenerateQuote = async () => {
+    if (quotationItems.length === 0) {
+      toast.error('Please add products to the quotation');
+      return;
+    }
+
+    // Save the quotation first
+    try {
+      await handleSaveQuotation();
+    } catch (error) {
+      console.error('Error saving quotation:', error);
+    }
+
+    // Generate quotation and open print dialog
+    const quotationHTML = generateQuotationHTML();
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(quotationHTML + `
+      <script>
+        window.onload = function() {
+          setTimeout(function() { window.print(); }, 500);
+        };
+      </script>
+    `);
+    printWindow.document.close();
+    toast.success('Quotation generated - select "Save as PDF" to download');
+  };
           body { 
             font-family: Arial, sans-serif; 
             padding: 20px; 
