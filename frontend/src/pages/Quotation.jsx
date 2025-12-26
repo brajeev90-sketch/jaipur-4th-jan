@@ -169,7 +169,7 @@ export default function Quotation() {
   const handleSaveQuotation = async () => {
     if (quotationItems.length === 0) {
       toast.error('Please add products to the quotation');
-      return;
+      return false;
     }
 
     const totals = calculateTotals();
@@ -184,16 +184,23 @@ export default function Quotation() {
 
     try {
       if (editingQuotationId) {
+        // Update existing quotation
         await quotationsApi.update(editingQuotationId, quotationData);
         toast.success('Quotation updated successfully!');
       } else {
-        await quotationsApi.create(quotationData);
+        // Create new quotation and save its ID to prevent duplicates
+        const response = await quotationsApi.create(quotationData);
+        if (response.data && response.data.id) {
+          setEditingQuotationId(response.data.id);
+        }
         toast.success('Quotation saved successfully!');
       }
       loadSavedQuotations();
+      return true;
     } catch (error) {
       console.error('Error saving quotation:', error);
       toast.error('Failed to save quotation');
+      return false;
     }
   };
 
