@@ -444,25 +444,20 @@ export default function Quotation() {
             color: #3d2c1e;
           }
           
-          /* Footer - Font size increased by 80% */
+          /* Footer - Font size increased by 80%, compact */
           .footer {
-            margin-top: 20px;
-            padding-top: 15px;
+            margin-top: 15px;
+            padding-top: 10px;
             border-top: 1px solid #ddd;
             text-align: center;
-          }
-          .footer-title {
-            font-weight: bold;
-            font-size: 18px;
-            margin-bottom: 10px;
           }
           .footer-text {
             font-size: 16px;
             color: #333;
-            line-height: 1.8;
+            line-height: 1.6;
           }
           .footer-options {
-            margin-top: 12px;
+            margin-top: 8px;
             font-weight: bold;
             font-size: 14px;
             color: #3d2c1e;
@@ -470,7 +465,7 @@ export default function Quotation() {
           
           .page-number {
             text-align: center;
-            margin-top: 15px;
+            margin-top: 10px;
             font-size: 10px;
             color: #888;
           }
