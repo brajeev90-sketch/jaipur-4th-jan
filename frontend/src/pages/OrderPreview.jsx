@@ -211,10 +211,10 @@ export default function OrderPreview() {
                 <th style="padding: 6px; text-align: center; border-right: 1px solid #5a4a3a;" rowspan="2">CBM</th>
                 <th style="padding: 6px; text-align: center;" rowspan="2">Qty</th>
               </tr>
-              <tr style="background: #5a4a3a; color: white; font-size: 10px;">
-                <th style="padding: 5px; border-right: 1px solid #6a5a4a;">H</th>
-                <th style="padding: 5px; border-right: 1px solid #6a5a4a;">D</th>
-                <th style="padding: 5px; border-right: 1px solid #6a5a4a;">W</th>
+              <tr style="background: #5a4a3a; color: white; font-size: 9px;">
+                <th style="padding: 4px; border-right: 1px solid #6a5a4a;">H</th>
+                <th style="padding: 4px; border-right: 1px solid #6a5a4a;">D</th>
+                <th style="padding: 4px; border-right: 1px solid #6a5a4a;">W</th>
               </tr>
             </thead>
             <tbody>
@@ -483,10 +483,10 @@ export default function OrderPreview() {
                 <th style="padding: 6px; text-align: center; border-right: 1px solid #5a4a3a;" rowspan="2">CBM</th>
                 <th style="padding: 6px; text-align: center;" rowspan="2">Qty</th>
               </tr>
-              <tr style="background: #5a4a3a; color: white; font-size: 10px;">
-                <th style="padding: 5px; border-right: 1px solid #6a5a4a;">H</th>
-                <th style="padding: 5px; border-right: 1px solid #6a5a4a;">D</th>
-                <th style="padding: 5px; border-right: 1px solid #6a5a4a;">W</th>
+              <tr style="background: #5a4a3a; color: white; font-size: 9px;">
+                <th style="padding: 4px; border-right: 1px solid #6a5a4a;">H</th>
+                <th style="padding: 4px; border-right: 1px solid #6a5a4a;">D</th>
+                <th style="padding: 4px; border-right: 1px solid #6a5a4a;">W</th>
               </tr>
             </thead>
             <tbody>
