@@ -485,6 +485,11 @@ export default function OrderPreview() {
           body { margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
           .page:last-child { page-break-after: auto; }
           img { max-width: 100%; }
+          /* Notes styling for bullet points and bold text */
+          ul { margin: 0; padding-left: 20px; }
+          li { margin: 4px 0; }
+          p { margin: 4px 0; }
+          strong { font-weight: 700; }
         </style>
       </head>
       <body>
