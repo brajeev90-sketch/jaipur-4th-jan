@@ -331,7 +331,7 @@ function PreviewPage({ order, item, pageNum, totalPages }) {
                 <td className="px-2 sm:px-3 py-1 min-w-[120px]">{formatDateDDMMYYYY(order.entry_date)}</td>
               </tr>
               <tr className="border-b border-[#3d2c1e]">
-                <td className="px-2 sm:px-3 py-1 bg-[#f5f0eb] font-semibold border-r border-[#3d2c1e]">FACTORY INFORM</td>
+                <td className="px-2 sm:px-3 py-1 bg-[#f5f0eb] font-semibold border-r border-[#3d2c1e]">INFORMED TO FACTORY</td>
                 <td className="px-2 sm:px-3 py-1">{formatDateDDMMYYYY(order.factory_inform_date || order.entry_date)}</td>
               </tr>
               <tr className="border-b border-[#3d2c1e]">
@@ -339,7 +339,7 @@ function PreviewPage({ order, item, pageNum, totalPages }) {
                 <td className="px-2 sm:px-3 py-1">{order.factory || '-'}</td>
               </tr>
               <tr className="border-b border-[#3d2c1e]">
-                <td className="px-2 sm:px-3 py-1 bg-[#f5f0eb] font-semibold border-r border-[#3d2c1e]">SALES REF</td>
+                <td className="px-2 sm:px-3 py-1 bg-[#f5f0eb] font-semibold border-r border-[#3d2c1e]">SALES ORDER REF</td>
                 <td className="px-2 sm:px-3 py-1 font-mono">{order.sales_order_ref || '-'}</td>
               </tr>
               <tr>
@@ -374,7 +374,7 @@ function PreviewPage({ order, item, pageNum, totalPages }) {
             </div>
           )}
           
-          {/* Additional product images if any */}
+          {/* Additional product images if any - Size increased by 90% */}
           {additionalImages.length > 0 && (
             <div className="flex gap-2 mt-2 overflow-x-auto">
               {additionalImages.slice(0, 4).map((img, idx) => (
@@ -382,11 +382,11 @@ function PreviewPage({ order, item, pageNum, totalPages }) {
                   key={idx}
                   src={img} 
                   alt={`Additional ${idx + 1}`}
-                  className="w-16 h-16 object-cover border border-[#ddd] rounded flex-shrink-0"
+                  className="w-[120px] h-[120px] object-cover border border-[#ddd] rounded flex-shrink-0"
                 />
               ))}
               {additionalImages.length > 4 && (
-                <div className="w-16 h-16 border border-[#ddd] rounded flex items-center justify-center text-xs text-[#666] flex-shrink-0">
+                <div className="w-[120px] h-[120px] border border-[#ddd] rounded flex items-center justify-center text-xs text-[#666] flex-shrink-0">
                   +{additionalImages.length - 4} more
                 </div>
               )}

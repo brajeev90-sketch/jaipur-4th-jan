@@ -544,15 +544,16 @@ export default function EditOrder() {
         </CardContent>
       </Card>
 
-      {/* Item Editor Dialog */}
+      {/* Item Editor Dialog - Only closes on X button */}
       <Dialog open={itemDialogOpen} onOpenChange={(open) => {
-        setItemDialogOpen(open);
-        if (!open) {
-          setShowProductSuggestions(false);
-          setProductSearch('');
+        // Only allow closing via the X button (not outside click)
+        if (open === false) {
+          // Don't close on outside click - only through explicit close button
+          return;
         }
+        setItemDialogOpen(open);
       }}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" onClick={() => setShowProductSuggestions(false)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" onClick={() => setShowProductSuggestions(false)} onPointerDownOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
           <DialogHeader>
             <DialogTitle className="font-serif text-xl">
               {editingItemIndex !== null ? 'Edit Item' : 'Add New Item'}

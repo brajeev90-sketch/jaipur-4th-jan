@@ -768,9 +768,9 @@ def generate_pdf(order: dict, settings: dict, logo_bytes: bytes = None) -> bytes
         
         dates = [
             ("ENTRY DATE", format_date_ddmmyyyy(order.get('entry_date', 'N/A'))),
-            ("FACTORY INFORM", format_date_ddmmyyyy(order.get('factory_inform_date', order.get('entry_date', 'N/A')))),
+            ("INFORMED TO FACTORY", format_date_ddmmyyyy(order.get('factory_inform_date', order.get('entry_date', 'N/A')))),
             ("FACTORY", order.get('factory', 'N/A')),
-            ("SALES REF", order.get('sales_order_ref', 'N/A')),
+            ("SALES ORDER REF", order.get('sales_order_ref', 'N/A')),
             ("BUYER PO", order.get('buyer_po_ref', 'N/A')),
         ]
         
@@ -929,9 +929,9 @@ def generate_pdf(order: dict, settings: dict, logo_bytes: bytes = None) -> bytes
         c.setFont("Helvetica-Bold", 10)  # Increased font
         c.drawString(margin + 5, notes_y - 12, "Notes:")
         
-        # Notes content - INCREASED FONT SIZE
+        # Notes content - FONT SIZE 13px
         c.setFillColor(HexColor('#333333'))
-        c.setFont("Helvetica", 10)  # Increased from 8
+        c.setFont("Helvetica", 13)  # Updated to 13px as requested
         notes_text = strip_html(item.get('notes', ''))
         if notes_text:
             words = notes_text.split()
@@ -940,11 +940,11 @@ def generate_pdf(order: dict, settings: dict, logo_bytes: bytes = None) -> bytes
             max_width = content_width - 20
             for word in words:
                 test_line = line + " " + word if line else word
-                if c.stringWidth(test_line, "Helvetica", 10) < max_width:
+                if c.stringWidth(test_line, "Helvetica", 13) < max_width:
                     line = test_line
                 else:
                     c.drawString(margin + 8, line_y, line)
-                    line_y -= 13
+                    line_y -= 16
                     line = word
                     if line_y < notes_y - notes_height + 5:
                         break
