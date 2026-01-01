@@ -877,6 +877,15 @@ export default function Quotation() {
             <Eye size={18} />
             View / Print
           </Button>
+          <Button 
+            variant="outline" 
+            className="gap-2" 
+            disabled={quotationItems.length === 0} 
+            onClick={handleExportExcel}
+          >
+            <FileDown size={18} />
+            Excel
+          </Button>
           <Button className="gap-2" disabled={quotationItems.length === 0} onClick={handleGenerateQuote} data-testid="generate-quote-btn">
             <Download size={18} />
             {t('generateQuote')}
