@@ -1273,7 +1273,22 @@ export default function Quotation() {
               
               {/* Items */}
               <div className="space-y-2">
-                <Label>Items ({editQuoteData.items?.length || 0})</Label>
+                <div className="flex justify-between items-center">
+                  <Label>Items ({editQuoteData.items?.length || 0})</Label>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      // Load this quotation into main editor to add items
+                      handleLoadQuotation(editQuoteData);
+                      setEditQuotePopup(false);
+                      toast.success('Quotation loaded - Add more items below');
+                    }}
+                  >
+                    <Plus size={14} className="mr-1" />
+                    Add Item
+                  </Button>
+                </div>
                 <div className="border rounded-lg max-h-[300px] overflow-y-auto">
                   <Table>
                     <TableHeader>
