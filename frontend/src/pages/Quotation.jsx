@@ -36,10 +36,12 @@ import {
   History,
   Save,
   X,
-  Loader2
+  Loader2,
+  FileDown
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '../contexts/LanguageContext';
+import * as XLSX from 'xlsx';
 
 export default function Quotation() {
   const { t } = useLanguage();
