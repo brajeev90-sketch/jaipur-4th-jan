@@ -1224,34 +1224,15 @@ export default function Quotation() {
       <Dialog open={viewQuotePopup} onOpenChange={setViewQuotePopup}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center justify-between">
-              <span className="flex items-center gap-2">
-                <Eye size={20} />
-                View Quotation - {viewQuoteData?.reference || 'N/A'}
-              </span>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="gap-2"
-                onClick={() => {
-                  if (viewQuoteData) {
-                    // Load the quote data and generate print view
-                    handleLoadQuotation(viewQuoteData);
-                    setShowSavedQuotes(false);
-                    setViewQuotePopup(false);
-                    setTimeout(() => handleGenerateQuote(), 300);
-                  }
-                }}
-              >
-                <Download size={16} />
-                Print / Download
-              </Button>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye size={20} />
+              View Quotation - {viewQuoteData?.reference || 'N/A'}
             </DialogTitle>
           </DialogHeader>
           {viewQuoteData && (
-            <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+            <div className="space-y-4">
               {/* Quote Header Info */}
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-2 gap-4 text-sm p-4 bg-gray-50 rounded-lg">
                 <div><strong>Reference:</strong> {viewQuoteData.reference || '-'}</div>
                 <div><strong>Date:</strong> {viewQuoteData.date || '-'}</div>
                 <div><strong>Customer:</strong> {viewQuoteData.customer_name || '-'}</div>
@@ -1259,38 +1240,42 @@ export default function Quotation() {
               </div>
               
               {/* Items Table */}
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Code</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead className="text-center">H</TableHead>
-                    <TableHead className="text-center">W</TableHead>
-                    <TableHead className="text-center">D</TableHead>
-                    <TableHead className="text-center">CBM</TableHead>
-                    <TableHead className="text-right">Price</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {viewQuoteData.items?.map((item, idx) => (
-                    <TableRow key={idx}>
-                      <TableCell className="font-mono font-semibold">{item.product_code}</TableCell>
-                      <TableCell>{item.description || '-'}</TableCell>
-                      <TableCell className="text-center">{item.height_cm || '-'}</TableCell>
-                      <TableCell className="text-center">{item.width_cm || '-'}</TableCell>
-                      <TableCell className="text-center">{item.depth_cm || '-'}</TableCell>
-                      <TableCell className="text-center">{item.cbm || '-'}</TableCell>
-                      <TableCell className="text-right font-semibold">
-                        {viewQuoteData.currency === 'GBP' ? '£' : '$'}{item.fob_price?.toFixed(2) || '0.00'}
-                      </TableCell>
+              <div className="border rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-[#3d2c1e] hover:bg-[#3d2c1e]">
+                      <TableHead className="text-white">Code</TableHead>
+                      <TableHead className="text-white">Description</TableHead>
+                      <TableHead className="text-white text-center">H</TableHead>
+                      <TableHead className="text-white text-center">W</TableHead>
+                      <TableHead className="text-white text-center">D</TableHead>
+                      <TableHead className="text-white text-center">CBM</TableHead>
+                      <TableHead className="text-white text-center">Qty</TableHead>
+                      <TableHead className="text-white text-right">Price</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {viewQuoteData.items?.map((item, idx) => (
+                      <TableRow key={idx}>
+                        <TableCell className="font-mono font-semibold">{item.product_code}</TableCell>
+                        <TableCell>{item.description || '-'}</TableCell>
+                        <TableCell className="text-center">{item.height_cm || '-'}</TableCell>
+                        <TableCell className="text-center">{item.width_cm || '-'}</TableCell>
+                        <TableCell className="text-center">{item.depth_cm || '-'}</TableCell>
+                        <TableCell className="text-center">{item.cbm || '-'}</TableCell>
+                        <TableCell className="text-center">{item.quantity || 1}</TableCell>
+                        <TableCell className="text-right font-semibold">
+                          {viewQuoteData.currency === 'GBP' ? '£' : '$'}{item.fob_price?.toFixed(2) || '0.00'}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
               
               {/* Summary */}
               <div className="text-right space-y-1 pt-4 border-t">
-                <div><strong>Total Items:</strong> {viewQuoteData.items?.length || 0} Pcs</div>
+                <div><strong>Total Items:</strong> {viewQuoteData.total_items || viewQuoteData.items?.length || 0} Pcs</div>
                 <div><strong>Total CBM:</strong> {viewQuoteData.total_cbm?.toFixed(2) || '0.00'} m³</div>
                 <div className="text-lg font-bold text-primary">
                   <strong>Grand Total:</strong> {viewQuoteData.currency === 'GBP' ? '£' : '$'}{viewQuoteData.total_value?.toFixed(2) || '0.00'}
@@ -1303,6 +1288,84 @@ export default function Quotation() {
                   <p className="text-sm text-muted-foreground mt-1">{viewQuoteData.notes}</p>
                 </div>
               )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-2 pt-4 border-t justify-end">
+                <Button 
+                  variant="outline" 
+                  className="gap-2"
+                  onClick={() => {
+                    // Load quote and switch to edit mode
+                    handleLoadQuotation(viewQuoteData);
+                    setViewQuotePopup(false);
+                    setShowSavedQuotes(false);
+                    toast.success('Quotation loaded for editing');
+                  }}
+                >
+                  <Edit size={16} />
+                  Edit
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="gap-2"
+                  onClick={() => {
+                    // Export to Excel
+                    if (!viewQuoteData.items || viewQuoteData.items.length === 0) {
+                      toast.error('No items to export');
+                      return;
+                    }
+                    const currencySymbol = viewQuoteData.currency === 'GBP' ? '£' : '$';
+                    const excelData = viewQuoteData.items.map((item, idx) => ({
+                      'Sr No': idx + 1,
+                      'Product Code': item.product_code || '',
+                      'Description': item.description || '',
+                      'H': item.height_cm || 0,
+                      'D': item.depth_cm || 0,
+                      'W': item.width_cm || 0,
+                      'CBM': parseFloat(item.cbm) || 0,
+                      'Price': item.fob_price || 0,
+                      'QTY': item.quantity || 1,
+                      'Total CBM': (parseFloat(item.cbm) || 0) * (item.quantity || 1),
+                      'Total Price': (item.fob_price || 0) * (item.quantity || 1)
+                    }));
+                    excelData.push({
+                      'Sr No': '',
+                      'Product Code': '',
+                      'Description': 'TOTALS',
+                      'H': '', 'D': '', 'W': '', 'CBM': '', 'Price': '',
+                      'QTY': viewQuoteData.total_items || viewQuoteData.items.length,
+                      'Total CBM': viewQuoteData.total_cbm || 0,
+                      'Total Price': viewQuoteData.total_value || 0
+                    });
+                    const ws = XLSX.utils.json_to_sheet(excelData);
+                    ws['!cols'] = [
+                      { wch: 6 }, { wch: 20 }, { wch: 40 }, { wch: 6 }, { wch: 6 }, { wch: 6 },
+                      { wch: 8 }, { wch: 12 }, { wch: 6 }, { wch: 12 }, { wch: 12 }
+                    ];
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, 'Quotation');
+                    XLSX.writeFile(wb, `Quotation_${viewQuoteData.reference || 'Export'}.xlsx`);
+                    toast.success('Excel downloaded!');
+                  }}
+                >
+                  <FileDown size={16} />
+                  Excel
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="gap-2"
+                  onClick={() => {
+                    // Load and print
+                    handleLoadQuotation(viewQuoteData);
+                    setViewQuotePopup(false);
+                    setShowSavedQuotes(false);
+                    setTimeout(() => handleGenerateQuote(), 300);
+                  }}
+                >
+                  <Download size={16} />
+                  Print / PDF
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>
