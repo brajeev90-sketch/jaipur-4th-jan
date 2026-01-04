@@ -1184,7 +1184,7 @@ export default function Quotation() {
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            title="View / Print" 
+                            title="View" 
                             onClick={() => {
                               setViewQuoteData(quote);
                               setViewQuotePopup(true);
