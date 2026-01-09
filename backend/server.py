@@ -28,6 +28,7 @@ import pandas as pd
 import httpx
 import jwt
 import hashlib
+from pymongo.errors import DuplicateKeyError
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
