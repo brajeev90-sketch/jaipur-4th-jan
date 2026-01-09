@@ -1491,6 +1491,7 @@ async def upload_products_excel(file: UploadFile = File(...)):
         df = df.rename(columns=column_mapping)
         
         created_products = []
+        updated_products = []
         skipped = 0
         errors = []
         
@@ -1501,6 +1502,15 @@ async def upload_products_excel(file: UploadFile = File(...)):
                 if not product_code or product_code == 'nan' or product_code == '':
                     skipped += 1
                     continue
+                
+                # Normalize product code
+                product_code = product_code.upper()
+                
+                # Check for existing product with same code
+                existing_product = await db.products.find_one(
+                    {"product_code": {"$regex": f"^{product_code}$", "$options": "i"}},
+                    {"_id": 0}
+                )
                 
                 # Parse numeric fields safely
                 def safe_float(val, default=0):
@@ -1513,7 +1523,7 @@ async def upload_products_excel(file: UploadFile = File(...)):
                 
                 # Build product data
                 product_data = {
-                    'product_code': product_code.upper(),
+                    'product_code': product_code,
                     'description': str(row.get('description', '')).strip() if pd.notna(row.get('description')) else '',
                     'size': str(row.get('size', '')).strip() if pd.notna(row.get('size')) else '',
                     'category': str(row.get('category', '')).strip() if pd.notna(row.get('category')) else '',
@@ -1525,15 +1535,16 @@ async def upload_products_excel(file: UploadFile = File(...)):
                     'fob_price_gbp': safe_float(row.get('fob_price_gbp')),
                     'warehouse_price_1': safe_float(row.get('warehouse_price_1')),
                     'warehouse_price_2': safe_float(row.get('warehouse_price_2')),
-                    'image': '',
-                    'images': []
+                    'image': existing_product.get('image', '') if existing_product else '',
+                    'images': existing_product.get('images', []) if existing_product else []
                 }
                 
                 # Handle image URL - try to fetch and convert to base64
                 image_url = str(row.get('image_url', '')).strip() if pd.notna(row.get('image_url')) else ''
                 if image_url and image_url != 'nan' and image_url != '#REF!' and image_url.startswith('http'):
                     try:
-                        async with httpx.AsyncClient(timeout=10.0) as client:
+                        # Increased timeout for Hostinger VPS
+                        async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
                             response = await client.get(image_url)
                             if response.status_code == 200:
                                 content_type = response.headers.get('content-type', 'image/jpeg')
@@ -1541,24 +1552,36 @@ async def upload_products_excel(file: UploadFile = File(...)):
                                     image_base64 = base64.b64encode(response.content).decode('utf-8')
                                     product_data['image'] = f"data:{content_type};base64,{image_base64}"
                     except Exception as img_error:
-                        # Log but continue without image
-                        pass
+                        # Log but continue without image - don't overwrite existing
+                        errors.append(f"Row {idx + 2}: Image fetch failed for {product_code}")
                 
-                # Create product
-                product = Product(**product_data)
-                doc = product.model_dump()
-                await db.products.insert_one(doc)
-                created_products.append({
-                    'product_code': product.product_code,
-                    'description': product.description
-                })
+                if existing_product:
+                    # Update existing product
+                    await db.products.update_one(
+                        {"product_code": {"$regex": f"^{product_code}$", "$options": "i"}},
+                        {"$set": product_data}
+                    )
+                    updated_products.append({
+                        'product_code': product_code,
+                        'description': product_data['description']
+                    })
+                else:
+                    # Create new product
+                    product = Product(**product_data)
+                    doc = product.model_dump()
+                    await db.products.insert_one(doc)
+                    created_products.append({
+                        'product_code': product.product_code,
+                        'description': product.description
+                    })
                 
             except Exception as row_error:
                 errors.append(f"Row {idx + 2}: {str(row_error)}")
         
         return {
-            "message": f"Successfully imported {len(created_products)} products",
+            "message": f"Created {len(created_products)}, Updated {len(updated_products)} products",
             "created": len(created_products),
+            "updated": len(updated_products),
             "skipped": skipped,
             "errors": errors[:10] if errors else [],  # Return first 10 errors only
             "products": created_products[:20]  # Return first 20 products
