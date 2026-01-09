@@ -1436,10 +1436,19 @@ async def upload_products_excel(file: UploadFile = File(...)):
         # Check if first row contains actual headers (e.g., "Product Code", "Description")
         # This handles Excel files with merged header cells or wrong header detection
         first_row_values = df.iloc[0].astype(str).str.lower().tolist()
-        header_keywords = ['product code', 'description', 'cbm', 'photo link', 'h', 'd', 'w']
-        has_header_in_first_row = any(keyword in ' '.join(first_row_values) for keyword in header_keywords)
+        # Use longer, more specific keywords to avoid false matches
+        header_keywords = ['product code', 'description', 'photo link', 'image_url', 'photolink']
         
-        if has_header_in_first_row or any('unnamed' in str(col).lower() for col in df.columns):
+        # Check if any cell in first row EXACTLY matches a header keyword
+        has_header_in_first_row = any(
+            any(keyword == cell.strip() for keyword in header_keywords)
+            for cell in first_row_values
+        )
+        
+        # Also check if columns are unnamed (pandas default when headers not detected)
+        has_unnamed_columns = any('unnamed' in str(col).lower() for col in df.columns)
+        
+        if has_header_in_first_row or has_unnamed_columns:
             # First row contains actual headers - use it and skip
             new_headers = df.iloc[0].astype(str).tolist()
             df = df.iloc[1:].reset_index(drop=True)
