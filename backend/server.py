@@ -1396,13 +1396,31 @@ async def delete_product(product_id: str):
 
 @api_router.post("/products/bulk")
 async def bulk_create_products(products: List[ProductCreate]):
+    """Bulk create products with duplicate check"""
     created = []
+    duplicates = []
+    
     for product_data in products:
+        # Check for duplicate product code
+        existing = await db.products.find_one(
+            {"product_code": {"$regex": f"^{product_data.product_code}$", "$options": "i"}},
+            {"_id": 0, "id": 1}
+        )
+        
+        if existing:
+            duplicates.append(product_data.product_code)
+            continue
+            
         product = Product(**product_data.model_dump())
         doc = product.model_dump()
         await db.products.insert_one(doc)
         created.append(product)
-    return {"message": f"{len(created)} products created", "products": created}
+    
+    result = {"message": f"{len(created)} products created", "products": created}
+    if duplicates:
+        result["duplicates"] = duplicates
+        result["message"] += f", {len(duplicates)} duplicates skipped"
+    return result
 
 @api_router.post("/products/upload-excel")
 async def upload_products_excel(file: UploadFile = File(...)):
