@@ -71,8 +71,8 @@ export default function OrderDetail() {
   };
 
   const handleExportPdf = () => {
-    window.open(ordersApi.exportPdf(id), '_blank');
-    toast.success('PDF download started');
+    // Navigate to preview page for PDF generation (uses browser print which works correctly)
+    navigate(`/orders/${id}/preview?action=pdf`);
   };
 
   const handleWhatsAppShare = async () => {
