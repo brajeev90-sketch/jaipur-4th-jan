@@ -1440,30 +1440,27 @@ async def get_products(lite: bool = True):
             # Include a flag if image exists
         }
         products = await db.products.find({}, projection).to_list(1000)
-        # Add has_image flag for UI without sending actual image data
+        
+        # Get products that have images (only fetch id field for efficiency)
+        products_with_main_image = await db.products.find(
+            {"image": {"$exists": True, "$ne": "", "$type": "string"}},
+            {"_id": 0, "id": 1}
+        ).to_list(1000)
+        main_image_ids = set(p['id'] for p in products_with_main_image)
+        
+        # Get products that have images array
+        products_with_images_array = await db.products.find(
+            {"images.0": {"$exists": True}},
+            {"_id": 0, "id": 1}
+        ).to_list(1000)
+        images_array_ids = set(p['id'] for p in products_with_images_array)
+        
+        # Add has_image flags for UI without sending actual image data
         for product in products:
-            product['has_image'] = False
-            product['has_image_2'] = False
+            product['has_image'] = product['id'] in main_image_ids
+            product['has_image_2'] = product['id'] in images_array_ids
             product['image'] = ''
             product['images'] = []
-        
-        # Now check which products have images (separate query for efficiency)
-        products_with_images = await db.products.find(
-            {"$or": [{"image": {"$ne": ""}}, {"images.0": {"$exists": True}}]},
-            {"_id": 0, "id": 1, "image": {"$substr": ["$image", 0, 50]}, "images": 1}
-        ).to_list(1000)
-        
-        image_map = {}
-        for p in products_with_images:
-            image_map[p['id']] = {
-                'has_image': bool(p.get('image', '')),
-                'has_image_2': len(p.get('images', [])) > 0
-            }
-        
-        for product in products:
-            if product['id'] in image_map:
-                product['has_image'] = image_map[product['id']]['has_image']
-                product['has_image_2'] = image_map[product['id']]['has_image_2']
         
         return products
     else:
