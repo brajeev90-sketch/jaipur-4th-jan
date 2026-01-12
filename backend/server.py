@@ -1441,14 +1441,14 @@ async def get_products(lite: bool = True):
         }
         products = await db.products.find({}, projection).to_list(1000)
         
-        # Get products that have images (only fetch id field for efficiency)
+        # Get products that have main image (simple query)
         products_with_main_image = await db.products.find(
-            {"image": {"$exists": True, "$ne": "", "$type": "string"}},
+            {"image": {"$exists": True, "$ne": ""}},
             {"_id": 0, "id": 1}
         ).to_list(1000)
         main_image_ids = set(p['id'] for p in products_with_main_image)
         
-        # Get products that have images array
+        # Get products that have images array with at least one item
         products_with_images_array = await db.products.find(
             {"images.0": {"$exists": True}},
             {"_id": 0, "id": 1}
