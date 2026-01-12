@@ -148,6 +148,7 @@ class OrderItem(BaseModel):
     leg_color: str = ""
     wood_finish: str = ""
     notes: str = ""
+    product_image: str = ""
     images: List[str] = []
     reference_images: List[str] = []
 
