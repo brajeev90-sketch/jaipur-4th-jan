@@ -227,6 +227,18 @@ class ExportRecord(BaseModel):
     filename: str
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
+class NoteTemplate(BaseModel):
+    """Model for reusable note templates"""
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    content: str  # HTML content of the note
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+class NoteTemplateCreate(BaseModel):
+    name: str
+    content: str
+
 class Product(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
