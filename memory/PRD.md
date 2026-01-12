@@ -57,6 +57,11 @@ Web-based software for "JAIPUR – A fine wood furniture company" to generate A4
 - Product cards show navigation arrows when multiple images exist
 - Image indicator dots show current position
 - **Order creation**: When selecting a product, first image becomes main product image, second image automatically added as additional image (shown below main)
+- **Notes Templates Feature**: 
+  - Users can save current notes as reusable templates (+ Save button)
+  - Templates dropdown loads from database (not hardcoded)
+  - Backend API: `/api/note-templates` (GET, POST, DELETE)
+  - Default templates created on first access
 
 ---
 
