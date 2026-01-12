@@ -1416,9 +1416,59 @@ async def download_factories_sample():
 # --- PRODUCTS ---
 
 @api_router.get("/products", response_model=List[Product])
-async def get_products():
-    products = await db.products.find({}, {"_id": 0}).to_list(1000)
-    return products
+async def get_products(lite: bool = True):
+    """Get all products. Use lite=true (default) for faster loading with thumbnail images only"""
+    if lite:
+        # Exclude large image fields for faster loading - only return essential data
+        projection = {
+            "_id": 0,
+            "id": 1,
+            "product_code": 1,
+            "description": 1,
+            "category": 1,
+            "size": 1,
+            "height_cm": 1,
+            "depth_cm": 1,
+            "width_cm": 1,
+            "cbm": 1,
+            "fob_price_usd": 1,
+            "fob_price_gbp": 1,
+            "warehouse_price_1": 1,
+            "warehouse_price_2": 1,
+            "created_at": 1,
+            "updated_at": 1,
+            # Include a flag if image exists
+        }
+        products = await db.products.find({}, projection).to_list(1000)
+        # Add has_image flag for UI without sending actual image data
+        for product in products:
+            product['has_image'] = False
+            product['has_image_2'] = False
+            product['image'] = ''
+            product['images'] = []
+        
+        # Now check which products have images (separate query for efficiency)
+        products_with_images = await db.products.find(
+            {"$or": [{"image": {"$ne": ""}}, {"images.0": {"$exists": True}}]},
+            {"_id": 0, "id": 1, "image": {"$substr": ["$image", 0, 50]}, "images": 1}
+        ).to_list(1000)
+        
+        image_map = {}
+        for p in products_with_images:
+            image_map[p['id']] = {
+                'has_image': bool(p.get('image', '')),
+                'has_image_2': len(p.get('images', [])) > 0
+            }
+        
+        for product in products:
+            if product['id'] in image_map:
+                product['has_image'] = image_map[product['id']]['has_image']
+                product['has_image_2'] = image_map[product['id']]['has_image_2']
+        
+        return products
+    else:
+        products = await db.products.find({}, {"_id": 0}).to_list(1000)
+        return products
 
 @api_router.get("/products/{product_id}", response_model=Product)
 async def get_product(product_id: str):
