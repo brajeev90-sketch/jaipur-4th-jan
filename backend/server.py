@@ -358,7 +358,7 @@ async def root():
 
 # --- ORDERS ---
 
-@api_router.get("/orders", response_model=List[Order])
+@api_router.get("/orders")
 async def get_orders(lite: bool = True):
     """Get all orders. Use lite=true (default) for faster loading without item images"""
     if lite:
