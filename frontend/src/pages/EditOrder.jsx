@@ -1000,7 +1000,7 @@ export default function EditOrder() {
                 <div className="flex items-center gap-2">
                   <Select 
                     onValueChange={(value) => {
-                      if (value && value !== "none") {
+                      if (value && value !== "none" && value !== "manage") {
                         // Append selected template to existing notes
                         const currentNotes = currentItem.notes || '';
                         const separator = currentNotes ? '<br/>' : '';
@@ -1037,7 +1037,18 @@ export default function EditOrder() {
                     data-testid="save-note-template-btn"
                   >
                     <Plus size={14} className="mr-1" />
-                    Save
+                    Add
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-8 px-2"
+                    onClick={() => setManageTemplatesOpen(true)}
+                    title="Manage templates"
+                    data-testid="manage-templates-btn"
+                  >
+                    <Settings size={14} />
                   </Button>
                 </div>
               </div>
