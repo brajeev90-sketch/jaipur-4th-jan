@@ -557,7 +557,7 @@ export default function EditOrder() {
                     <img 
                       src={item.product_image || item.images[0]} 
                       alt={item.product_code}
-                      className="w-16 h-16 object-cover rounded-sm border"
+                      className="w-16 h-16 object-contain rounded-sm border bg-white"
                     />
                   ) : (
                     <div className="w-16 h-16 bg-muted rounded-sm flex items-center justify-center text-xs text-muted-foreground">
