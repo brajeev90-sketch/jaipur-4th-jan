@@ -678,37 +678,75 @@ export default function Products() {
               </div>
             </div>
 
-            {/* Image Upload */}
+            {/* Image Upload - Two Images */}
             <div className="space-y-2">
-              <Label>{t('productImage')}</Label>
-              <div className="flex gap-4">
-                {formData.image ? (
-                  <div className="relative w-32 h-32 border rounded-sm overflow-hidden">
-                    <img src={formData.image} alt="Product" className="w-full h-full object-cover" />
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      className="absolute top-1 right-1 h-6 w-6"
-                      onClick={() => setFormData({ ...formData, image: '' })}
+              <Label>{t('productImage')} (Max 2 images)</Label>
+              <div className="flex gap-4 flex-wrap">
+                {/* Image 1 - Main Image */}
+                <div className="space-y-1">
+                  <span className="text-xs text-muted-foreground">Image 1 (Main)</span>
+                  {formData.image ? (
+                    <div className="relative w-32 h-32 border rounded-sm overflow-hidden">
+                      <img src={formData.image} alt="Product" className="w-full h-full object-cover" />
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-1 right-1 h-6 w-6"
+                        onClick={() => setFormData({ ...formData, image: '' })}
+                      >
+                        <X size={12} />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div 
+                      className="w-32 h-32 border-2 border-dashed rounded-sm flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors"
+                      onClick={() => fileInputRef.current?.click()}
                     >
-                      <X size={12} />
-                    </Button>
-                  </div>
-                ) : (
-                  <div 
-                    className="w-32 h-32 border-2 border-dashed rounded-sm flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <Upload size={24} className="text-muted-foreground mb-2" />
-                    <span className="text-xs text-muted-foreground">{t('upload')}</span>
-                  </div>
-                )}
+                      <Upload size={24} className="text-muted-foreground mb-2" />
+                      <span className="text-xs text-muted-foreground">{t('upload')}</span>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Image 2 - Second Image */}
+                <div className="space-y-1">
+                  <span className="text-xs text-muted-foreground">Image 2</span>
+                  {formData.images && formData.images[0] ? (
+                    <div className="relative w-32 h-32 border rounded-sm overflow-hidden">
+                      <img src={formData.images[0]} alt="Product 2" className="w-full h-full object-cover" />
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-1 right-1 h-6 w-6"
+                        onClick={() => setFormData({ ...formData, images: [] })}
+                      >
+                        <X size={12} />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div 
+                      className="w-32 h-32 border-2 border-dashed rounded-sm flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors"
+                      onClick={() => fileInputRef2.current?.click()}
+                    >
+                      <Upload size={24} className="text-muted-foreground mb-2" />
+                      <span className="text-xs text-muted-foreground">{t('upload')}</span>
+                    </div>
+                  )}
+                </div>
+                
                 <input
                   ref={fileInputRef}
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  onChange={handleImageUpload}
+                  onChange={(e) => handleImageUpload(e, 1)}
+                />
+                <input
+                  ref={fileInputRef2}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => handleImageUpload(e, 2)}
                 />
               </div>
             </div>
