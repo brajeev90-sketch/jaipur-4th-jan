@@ -446,7 +446,7 @@ export default function Products() {
                         <img 
                           src={currentImage} 
                           alt={product.description}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-contain"
                         />
                       ) : hasImageFlag ? (
                         <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-muted to-muted/50">
@@ -750,7 +750,7 @@ export default function Products() {
                   <span className="text-xs text-muted-foreground">Image 1 (Main)</span>
                   {formData.image ? (
                     <div className="relative w-32 h-32 border rounded-sm overflow-hidden">
-                      <img src={formData.image} alt="Product" className="w-full h-full object-cover" />
+                      <img src={formData.image} alt="Product" className="w-full h-full object-contain" />
                       <Button
                         variant="destructive"
                         size="icon"
@@ -776,7 +776,7 @@ export default function Products() {
                   <span className="text-xs text-muted-foreground">Image 2</span>
                   {formData.images && formData.images[0] ? (
                     <div className="relative w-32 h-32 border rounded-sm overflow-hidden">
-                      <img src={formData.images[0]} alt="Product 2" className="w-full h-full object-cover" />
+                      <img src={formData.images[0]} alt="Product 2" className="w-full h-full object-contain" />
                       <Button
                         variant="destructive"
                         size="icon"
