@@ -426,6 +426,12 @@ export default function Products() {
               key={product.id} 
               className="card-hover overflow-hidden"
               data-testid={`product-card-${product.id}`}
+              onMouseEnter={() => {
+                // Lazy load images on hover
+                if (productHasImages(product) && !loadedImages[product.id] && !product.image) {
+                  loadProductImages(product.id);
+                }
+              }}
             >
               {/* Product Image with Navigation */}
               <div className="aspect-square bg-muted relative group">
@@ -433,6 +439,7 @@ export default function Products() {
                   const images = getProductImages(product);
                   const currentIndex = imageIndices[product.id] || 0;
                   const currentImage = images[currentIndex];
+                  const hasImageFlag = productHasImages(product);
                   
                   return (
                     <>
@@ -442,13 +449,18 @@ export default function Products() {
                           alt={product.description}
                           className="w-full h-full object-cover"
                         />
+                      ) : hasImageFlag ? (
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+                          <ImageIcon className="text-primary/60" size={48} />
+                          <span className="text-xs text-muted-foreground mt-2">Hover to load</span>
+                        </div>
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
                           <ImageIcon className="text-muted-foreground" size={48} />
                         </div>
                       )}
                       
-                      {/* Navigation Arrows - Show only if multiple images */}
+                      {/* Navigation Arrows - Show only if multiple images loaded */}
                       {images.length > 1 && (
                         <>
                           <button
