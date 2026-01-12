@@ -62,6 +62,9 @@ export default function EditOrder() {
   const [noteTemplates, setNoteTemplates] = useState([]);
   const [saveTemplateDialogOpen, setSaveTemplateDialogOpen] = useState(false);
   const [newTemplateName, setNewTemplateName] = useState('');
+  const [editTemplateDialogOpen, setEditTemplateDialogOpen] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState(null);
+  const [manageTemplatesOpen, setManageTemplatesOpen] = useState(false);
   
   const [order, setOrder] = useState({
     sales_order_ref: '',
