@@ -1150,6 +1150,62 @@ export default function EditOrder() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Save Note Template Dialog */}
+      <Dialog open={saveTemplateDialogOpen} onOpenChange={setSaveTemplateDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Save Notes as Template</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Template Name</Label>
+              <Input
+                value={newTemplateName}
+                onChange={(e) => setNewTemplateName(e.target.value)}
+                placeholder="e.g., Special Packaging Instructions"
+                data-testid="template-name-input"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm text-muted-foreground">Preview:</Label>
+              <div 
+                className="p-3 bg-muted rounded-md text-sm max-h-32 overflow-y-auto"
+                dangerouslySetInnerHTML={{ __html: currentItem.notes || 'No content' }}
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setSaveTemplateDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={async () => {
+                  if (!newTemplateName.trim()) {
+                    toast.error('Please enter a template name');
+                    return;
+                  }
+                  try {
+                    const response = await noteTemplatesApi.create({
+                      name: newTemplateName.trim(),
+                      content: currentItem.notes
+                    });
+                    setNoteTemplates(prev => [response.data, ...prev]);
+                    toast.success(`Template "${newTemplateName}" saved!`);
+                    setSaveTemplateDialogOpen(false);
+                    setNewTemplateName('');
+                  } catch (error) {
+                    console.error('Error saving template:', error);
+                    toast.error('Failed to save template');
+                  }
+                }}
+                data-testid="confirm-save-template-btn"
+              >
+                Save Template
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
