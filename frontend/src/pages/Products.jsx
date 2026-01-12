@@ -134,8 +134,9 @@ export default function Products() {
     }
   };
 
-  const openDialog = (product = null) => {
+  const openDialog = async (product = null) => {
     if (product) {
+      // Start with basic data immediately
       setFormData({
         product_code: product.product_code || '',
         description: product.description || '',
@@ -153,6 +154,21 @@ export default function Products() {
         images: product.images || []
       });
       setEditingProduct(product);
+      setDialogOpen(true);
+      
+      // Lazy load images if not already loaded (lite mode)
+      if ((product.has_image || product.has_image_2) && !product.image) {
+        try {
+          const imagesRes = await productsApi.getImages(product.id);
+          setFormData(prev => ({
+            ...prev,
+            image: imagesRes.data.image || '',
+            images: imagesRes.data.images || []
+          }));
+        } catch (error) {
+          console.error('Error loading product images:', error);
+        }
+      }
     } else {
       setFormData({
         product_code: '',
@@ -171,8 +187,8 @@ export default function Products() {
         images: []
       });
       setEditingProduct(null);
+      setDialogOpen(true);
     }
-    setDialogOpen(true);
   };
 
   const handleSubmit = async () => {
