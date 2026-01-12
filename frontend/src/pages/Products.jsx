@@ -76,7 +76,9 @@ export default function Products() {
     images: []
   });
   const fileInputRef = useRef(null);
+  const fileInputRef2 = useRef(null);
   const excelInputRef = useRef(null);
+  const [imageIndices, setImageIndices] = useState({}); // Track current image index for each product
 
   useEffect(() => {
     loadData();
