@@ -104,8 +104,10 @@ export const factoriesApi = {
 
 // Products API
 export const productsApi = {
-  getAll: () => api.get('/products'),
+  getAll: (lite = true) => api.get(`/products?lite=${lite}`),
+  getAllFull: () => api.get('/products?lite=false'),
   getById: (id) => api.get(`/products/${id}`),
+  getImages: (id) => api.get(`/products/${id}/images`),
   create: (data) => api.post('/products', data),
   update: (id, data) => api.put(`/products/${id}`, data),
   delete: (id) => api.delete(`/products/${id}`),
