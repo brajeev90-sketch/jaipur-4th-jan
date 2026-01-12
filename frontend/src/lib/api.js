@@ -137,6 +137,13 @@ export const categoriesApi = {
   delete: (id) => api.delete(`/categories/${id}`),
 };
 
+// Note Templates API
+export const noteTemplatesApi = {
+  getAll: () => api.get('/note-templates'),
+  create: (data) => api.post('/note-templates', data),
+  delete: (id) => api.delete(`/note-templates/${id}`),
+};
+
 // Quotations API
 export const quotationsApi = {
   getAll: () => api.get('/quotations'),
