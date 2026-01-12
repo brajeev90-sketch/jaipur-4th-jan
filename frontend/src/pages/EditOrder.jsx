@@ -1142,7 +1142,7 @@ export default function EditOrder() {
                           <img 
                             src={img} 
                             alt={`Product ${idx + 1}`}
-                            className="w-24 h-24 object-cover rounded-sm border"
+                            className="w-24 h-24 object-contain rounded-sm border bg-white"
                           />
                           <button
                             type="button"
