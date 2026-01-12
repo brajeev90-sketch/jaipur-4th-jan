@@ -1075,11 +1075,11 @@ export default function EditOrder() {
                 <Label className="text-sm mb-2 block">Main Product Image {currentItem.product_image && <span className="text-green-600 text-xs">(Auto-filled from catalog)</span>}</Label>
                 <div className="flex gap-4">
                   {currentItem.product_image ? (
-                    <div className="relative group w-40 h-40">
+                    <div className="relative group w-40 h-40 bg-white">
                       <img 
                         src={currentItem.product_image} 
                         alt="Product"
-                        className="w-full h-full object-cover rounded-sm border-2 border-primary/50"
+                        className="w-full h-full object-contain rounded-sm border-2 border-primary/50"
                       />
                       <button
                         type="button"
