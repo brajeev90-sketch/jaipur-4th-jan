@@ -38,7 +38,9 @@ import {
   Upload,
   X,
   GripVertical,
-  Search
+  Search,
+  Pencil,
+  Settings
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '../lib/utils';
