@@ -702,6 +702,46 @@ async def delete_category(category_id: str):
         raise HTTPException(status_code=404, detail="Category not found")
     return {"message": "Category deleted"}
 
+# --- NOTE TEMPLATES ---
+
+@api_router.get("/note-templates")
+async def get_note_templates():
+    """Get all saved note templates"""
+    templates = await db.note_templates.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    
+    # If no templates exist, create some defaults
+    if not templates:
+        default_templates = [
+            {"id": str(uuid.uuid4()), "name": "Make as Last Time", "content": "<ul><li>Make as Last Time</li></ul>", "created_at": datetime.now(timezone.utc).isoformat()},
+            {"id": str(uuid.uuid4()), "name": "No Yellow Woods", "content": "<ul><li>No Yellow Woods</li></ul>", "created_at": datetime.now(timezone.utc).isoformat()},
+            {"id": str(uuid.uuid4()), "name": "Cancellation 45 Days", "content": "<ul><li>Cancellation not done 45 Days</li></ul>", "created_at": datetime.now(timezone.utc).isoformat()},
+            {"id": str(uuid.uuid4()), "name": "Handle with Care", "content": "<ul><li>Handle with Care - Fragile</li></ul>", "created_at": datetime.now(timezone.utc).isoformat()},
+            {"id": str(uuid.uuid4()), "name": "Rush Order Priority", "content": "<ul><li>Rush Order - Priority</li></ul>", "created_at": datetime.now(timezone.utc).isoformat()},
+            {"id": str(uuid.uuid4()), "name": "Check Quality", "content": "<ul><li>Check Quality Before Packing</li></ul>", "created_at": datetime.now(timezone.utc).isoformat()},
+            {"id": str(uuid.uuid4()), "name": "Same as Sample", "content": "<ul><li>Same as Sample Approved</li></ul>", "created_at": datetime.now(timezone.utc).isoformat()},
+        ]
+        for t in default_templates:
+            await db.note_templates.insert_one(t)
+        return default_templates
+    
+    return templates
+
+@api_router.post("/note-templates")
+async def create_note_template(template: NoteTemplateCreate):
+    """Create a new note template"""
+    note_template = NoteTemplate(name=template.name, content=template.content)
+    doc = note_template.model_dump()
+    await db.note_templates.insert_one(doc)
+    return {"id": doc["id"], "name": doc["name"], "content": doc["content"], "created_at": doc["created_at"]}
+
+@api_router.delete("/note-templates/{template_id}")
+async def delete_note_template(template_id: str):
+    """Delete a note template"""
+    result = await db.note_templates.delete_one({"id": template_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Note template not found")
+    return {"message": "Note template deleted"}
+
 # --- PDF EXPORT ---
 
 def strip_html(text):
