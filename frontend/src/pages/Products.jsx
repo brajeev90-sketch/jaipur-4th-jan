@@ -375,19 +375,65 @@ export default function Products() {
               className="card-hover overflow-hidden"
               data-testid={`product-card-${product.id}`}
             >
-              {/* Product Image */}
-              <div className="aspect-square bg-muted relative">
-                {product.image ? (
-                  <img 
-                    src={product.image} 
-                    alt={product.description}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <ImageIcon className="text-muted-foreground" size={48} />
-                  </div>
-                )}
+              {/* Product Image with Navigation */}
+              <div className="aspect-square bg-muted relative group">
+                {(() => {
+                  const images = getProductImages(product);
+                  const currentIndex = imageIndices[product.id] || 0;
+                  const currentImage = images[currentIndex];
+                  
+                  return (
+                    <>
+                      {currentImage ? (
+                        <img 
+                          src={currentImage} 
+                          alt={product.description}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <ImageIcon className="text-muted-foreground" size={48} />
+                        </div>
+                      )}
+                      
+                      {/* Navigation Arrows - Show only if multiple images */}
+                      {images.length > 1 && (
+                        <>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigateProductImage(product.id, 'prev');
+                            }}
+                            className="absolute left-1 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            data-testid={`product-prev-image-${product.id}`}
+                          >
+                            <ChevronLeft size={18} />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigateProductImage(product.id, 'next');
+                            }}
+                            className="absolute right-1 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            data-testid={`product-next-image-${product.id}`}
+                          >
+                            <ChevronRight size={18} />
+                          </button>
+                          
+                          {/* Image indicator dots */}
+                          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+                            {images.map((_, idx) => (
+                              <div 
+                                key={idx}
+                                className={`w-2 h-2 rounded-full transition-colors ${idx === currentIndex ? 'bg-white' : 'bg-white/50'}`}
+                              />
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </>
+                  );
+                })()}
                 {product.category && (
                   <Badge className="absolute top-2 left-2 text-xs">
                     {categories.find(c => c.id === product.category)?.name || product.category}
