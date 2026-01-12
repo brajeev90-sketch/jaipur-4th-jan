@@ -37,7 +37,8 @@ api.interceptors.response.use(
 
 // Orders API
 export const ordersApi = {
-  getAll: () => api.get('/orders'),
+  getAll: (lite = true) => api.get(`/orders?lite=${lite}`),
+  getAllFull: () => api.get('/orders?lite=false'),
   getById: (id) => api.get(`/orders/${id}`),
   create: (data) => api.post('/orders', data),
   update: (id, data) => api.put(`/orders/${id}`, data),
