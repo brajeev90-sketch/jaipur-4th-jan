@@ -158,17 +158,11 @@ export default function EditOrder() {
   );
 
   // Handle product selection from suggestions
-  const handleProductSelect = (product) => {
-    // Get product image from catalog
-    const mainProductImage = product.image || '';
-    // Second image from catalog goes as additional image
-    const secondImage = product.images && product.images.length > 0 ? product.images[0] : '';
-    // Combine second image with any other additional images
-    const additionalImages = secondImage ? [secondImage] : [];
-    
+  const handleProductSelect = async (product) => {
     // Get category name from categories list (product stores category as ID)
     const categoryName = categories.find(c => c.id === product.category)?.name || product.category || '';
     
+    // Start with basic data immediately
     setCurrentItem(prev => ({
       ...prev,
       product_code: product.product_code,
@@ -177,17 +171,32 @@ export default function EditOrder() {
       height_cm: product.height_cm || 0,
       depth_cm: product.depth_cm || 0,
       width_cm: product.width_cm || 0,
-      // Take CBM directly from product catalog
       cbm: product.cbm || 0,
-      cbm_auto: false,  // Don't auto-calculate, use product value
+      cbm_auto: false,
       dimensions: product.size || '',
-      // Auto-fill main product image from catalog
-      product_image: mainProductImage,
-      // Second image from product goes as additional image (shown below main)
-      images: additionalImages,
+      product_image: product.image || '',
+      images: product.images || [],
     }));
     setProductSearch(product.product_code);
     setShowProductSuggestions(false);
+    
+    // Lazy load images if needed (lite mode - has_image flag but no actual image)
+    if ((product.has_image || product.has_image_2) && !product.image) {
+      try {
+        const imagesRes = await productsApi.getImages(product.id);
+        const mainProductImage = imagesRes.data.image || '';
+        const secondImage = imagesRes.data.images && imagesRes.data.images.length > 0 ? imagesRes.data.images[0] : '';
+        const additionalImages = secondImage ? [secondImage] : [];
+        
+        setCurrentItem(prev => ({
+          ...prev,
+          product_image: mainProductImage,
+          images: additionalImages,
+        }));
+      } catch (error) {
+        console.error('Error loading product images:', error);
+      }
+    }
   };
 
   const handleOrderChange = (field, value) => {
