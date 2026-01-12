@@ -156,8 +156,10 @@ export default function EditOrder() {
   const handleProductSelect = (product) => {
     // Get product image from catalog
     const mainProductImage = product.image || '';
-    // Additional images from catalog (if any) - NOT including main image
-    const additionalImages = product.images || [];
+    // Second image from catalog goes as additional image
+    const secondImage = product.images && product.images.length > 0 ? product.images[0] : '';
+    // Combine second image with any other additional images
+    const additionalImages = secondImage ? [secondImage] : [];
     
     // Get category name from categories list (product stores category as ID)
     const categoryName = categories.find(c => c.id === product.category)?.name || product.category || '';
@@ -176,7 +178,7 @@ export default function EditOrder() {
       dimensions: product.size || '',
       // Auto-fill main product image from catalog
       product_image: mainProductImage,
-      // Additional images are separate from main image
+      // Second image from product goes as additional image (shown below main)
       images: additionalImages,
     }));
     setProductSearch(product.product_code);
