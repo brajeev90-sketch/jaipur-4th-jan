@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { ordersApi, productsApi } from '../lib/api';
 import { Button } from '../components/ui/button';
 import { 
@@ -34,14 +34,27 @@ const formatDateDDMMYYYY = (dateStr) => {
 export default function OrderPreview() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [sharing, setSharing] = useState(false);
+  const [pdfTriggered, setPdfTriggered] = useState(false);
 
   useEffect(() => {
     loadOrder();
   }, [id]);
+  
+  // Auto-trigger PDF when action=pdf is in URL
+  useEffect(() => {
+    if (!loading && order && searchParams.get('action') === 'pdf' && !pdfTriggered) {
+      setPdfTriggered(true);
+      // Small delay to ensure page is rendered
+      setTimeout(() => {
+        handleExportPdf();
+      }, 500);
+    }
+  }, [loading, order, searchParams, pdfTriggered]);
 
   const loadOrder = async () => {
     try {
