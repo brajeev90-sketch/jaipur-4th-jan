@@ -1501,6 +1501,11 @@ async def create_product(product_data: ProductCreate):
     
     product = Product(**product_data.model_dump())
     doc = product.model_dump()
+    
+    # Debug logging for image issues
+    print(f"[DEBUG] Create product {product.product_code}")
+    print(f"[DEBUG] Image received: {bool(product_data.image)}, length: {len(product_data.image) if product_data.image else 0}")
+    
     await db.products.insert_one(doc)
     return product
 
