@@ -104,13 +104,14 @@ export default function EditOrder() {
 
   const loadData = async () => {
     try {
-      const [orderRes, factoriesRes, categoriesRes, leatherRes, finishRes, productsRes] = await Promise.all([
+      const [orderRes, factoriesRes, categoriesRes, leatherRes, finishRes, productsRes, noteTemplatesRes] = await Promise.all([
         ordersApi.getById(id),
         factoriesApi.getAll(),
         categoriesApi.getAll(),
         leatherApi.getAll(),
         finishApi.getAll(),
         productsApi.getAll(),
+        noteTemplatesApi.getAll(),
       ]);
       
       // Auto-fill missing product_image from catalog for existing items
@@ -136,6 +137,7 @@ export default function EditOrder() {
       setLeatherLibrary(leatherRes.data);
       setFinishLibrary(finishRes.data);
       setProducts(productsList);
+      setNoteTemplates(noteTemplatesRes.data || []);
       
       if (orderData.entry_date) {
         setDate(new Date(orderData.entry_date));
