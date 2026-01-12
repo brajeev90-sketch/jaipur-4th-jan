@@ -1415,7 +1415,7 @@ async def download_factories_sample():
 
 # --- PRODUCTS ---
 
-@api_router.get("/products", response_model=List[Product])
+@api_router.get("/products")
 async def get_products(lite: bool = True):
     """Get all products. Use lite=true (default) for faster loading with thumbnail images only"""
     if lite:
