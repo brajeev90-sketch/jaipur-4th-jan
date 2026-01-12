@@ -247,11 +247,10 @@ export default function Products() {
       const reader = new FileReader();
       reader.onload = () => {
         if (imageNumber === 1) {
-          setFormData({ ...formData, image: reader.result });
+          setFormData(prev => ({ ...prev, image: reader.result }));
         } else {
           // Second image goes into images array
-          const newImages = [reader.result];
-          setFormData({ ...formData, images: newImages });
+          setFormData(prev => ({ ...prev, images: [reader.result] }));
         }
       };
       reader.readAsDataURL(file);
