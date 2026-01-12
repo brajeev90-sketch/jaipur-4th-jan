@@ -59,6 +59,9 @@ export default function EditOrder() {
   const [date, setDate] = useState(new Date());
   const [editingItemIndex, setEditingItemIndex] = useState(null);
   const [itemDialogOpen, setItemDialogOpen] = useState(false);
+  const [noteTemplates, setNoteTemplates] = useState([]);
+  const [saveTemplateDialogOpen, setSaveTemplateDialogOpen] = useState(false);
+  const [newTemplateName, setNewTemplateName] = useState('');
   
   const [order, setOrder] = useState({
     sales_order_ref: '',
