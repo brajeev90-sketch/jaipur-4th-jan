@@ -71,6 +71,9 @@ Web-based software for "JAIPUR – A fine wood furniture company" to generate A4
 1. **Change Password functionality** - Backend API endpoint missing
 2. **Duplicate Factory/Unit field** - Shows redundantly in Add Item dialog
 
+### P2 - Lower Priority
+1. **Email functionality** - Email button is placeholder
+
 ---
 
 ## Future Tasks (Backlog)
