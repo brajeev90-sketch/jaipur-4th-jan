@@ -224,15 +224,50 @@ export default function Products() {
     }
   };
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = (e, imageNumber = 1) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
-        setFormData({ ...formData, image: reader.result });
+        if (imageNumber === 1) {
+          setFormData({ ...formData, image: reader.result });
+        } else {
+          // Second image goes into images array
+          const newImages = [reader.result];
+          setFormData({ ...formData, images: newImages });
+        }
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  // Get all images for a product (combine image + images array)
+  const getProductImages = (product) => {
+    const allImages = [];
+    if (product.image) allImages.push(product.image);
+    if (product.images && product.images.length > 0) {
+      allImages.push(...product.images);
+    }
+    return allImages;
+  };
+
+  // Navigate product images
+  const navigateProductImage = (productId, direction) => {
+    setImageIndices(prev => {
+      const currentIndex = prev[productId] || 0;
+      const product = products.find(p => p.id === productId);
+      const images = getProductImages(product);
+      const maxIndex = images.length - 1;
+      
+      let newIndex;
+      if (direction === 'next') {
+        newIndex = currentIndex >= maxIndex ? 0 : currentIndex + 1;
+      } else {
+        newIndex = currentIndex <= 0 ? maxIndex : currentIndex - 1;
+      }
+      
+      return { ...prev, [productId]: newIndex };
+    });
   };
 
   const calculateCBM = () => {
