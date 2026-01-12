@@ -258,14 +258,49 @@ export default function Products() {
     }
   };
 
-  // Get all images for a product (combine image + images array)
+  // Get all images for a product (combine image + images array, with lazy loading support)
   const getProductImages = (product) => {
+    // Check if we have cached images for this product
+    const cached = loadedImages[product.id];
+    if (cached) {
+      const allImages = [];
+      if (cached.image) allImages.push(cached.image);
+      if (cached.images && cached.images.length > 0) {
+        allImages.push(...cached.images);
+      }
+      return allImages;
+    }
+    
+    // Use direct product images if available
     const allImages = [];
     if (product.image) allImages.push(product.image);
     if (product.images && product.images.length > 0) {
       allImages.push(...product.images);
     }
     return allImages;
+  };
+
+  // Check if product has images (works in lite mode)
+  const productHasImages = (product) => {
+    return product.has_image || product.has_image_2 || product.image || (product.images && product.images.length > 0);
+  };
+
+  // Lazy load images for a product
+  const loadProductImages = async (productId) => {
+    if (loadedImages[productId]) return; // Already loaded
+    
+    try {
+      const res = await productsApi.getImages(productId);
+      setLoadedImages(prev => ({
+        ...prev,
+        [productId]: {
+          image: res.data.image || '',
+          images: res.data.images || []
+        }
+      }));
+    } catch (error) {
+      console.error('Error loading product images:', error);
+    }
   };
 
   // Navigate product images
