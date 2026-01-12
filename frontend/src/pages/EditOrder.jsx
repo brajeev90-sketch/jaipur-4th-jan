@@ -1241,6 +1241,134 @@ export default function EditOrder() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Manage Templates Dialog */}
+      <Dialog open={manageTemplatesOpen} onOpenChange={setManageTemplatesOpen}>
+        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Manage Note Templates</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-4">
+            {noteTemplates.length === 0 ? (
+              <p className="text-center text-muted-foreground py-4">No templates yet. Add one using the "+ Add" button.</p>
+            ) : (
+              noteTemplates.map((template) => (
+                <div key={template.id} className="flex items-center justify-between p-3 border rounded-md hover:bg-muted/50">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate">{template.name}</p>
+                    <div 
+                      className="text-xs text-muted-foreground mt-1 line-clamp-2"
+                      dangerouslySetInnerHTML={{ __html: template.content }}
+                    />
+                  </div>
+                  <div className="flex items-center gap-1 ml-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      onClick={() => {
+                        setEditingTemplate({ ...template });
+                        setEditTemplateDialogOpen(true);
+                      }}
+                      title="Edit template"
+                    >
+                      <Pencil size={14} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                      onClick={async () => {
+                        if (window.confirm(`Delete template "${template.name}"?`)) {
+                          try {
+                            await noteTemplatesApi.delete(template.id);
+                            setNoteTemplates(prev => prev.filter(t => t.id !== template.id));
+                            toast.success(`Template "${template.name}" deleted`);
+                          } catch (error) {
+                            console.error('Error deleting template:', error);
+                            toast.error('Failed to delete template');
+                          }
+                        }
+                      }}
+                      title="Delete template"
+                    >
+                      <Trash2 size={14} />
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          <div className="flex justify-end">
+            <Button variant="outline" onClick={() => setManageTemplatesOpen(false)}>
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Template Dialog */}
+      <Dialog open={editTemplateDialogOpen} onOpenChange={setEditTemplateDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Template</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Template Name</Label>
+              <Input
+                value={editingTemplate?.name || ''}
+                onChange={(e) => setEditingTemplate(prev => prev ? { ...prev, name: e.target.value } : null)}
+                placeholder="Template name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Content</Label>
+              <RichTextEditor
+                value={editingTemplate?.content || ''}
+                onChange={(value) => setEditingTemplate(prev => prev ? { ...prev, content: value } : null)}
+                placeholder="Template content..."
+                minHeight="100px"
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => {
+                setEditTemplateDialogOpen(false);
+                setEditingTemplate(null);
+              }}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={async () => {
+                  if (!editingTemplate?.name?.trim()) {
+                    toast.error('Please enter a template name');
+                    return;
+                  }
+                  try {
+                    // Delete old and create new (since we don't have PUT endpoint)
+                    await noteTemplatesApi.delete(editingTemplate.id);
+                    const response = await noteTemplatesApi.create({
+                      name: editingTemplate.name.trim(),
+                      content: editingTemplate.content
+                    });
+                    setNoteTemplates(prev => prev.map(t => 
+                      t.id === editingTemplate.id ? response.data : t
+                    ));
+                    toast.success('Template updated!');
+                    setEditTemplateDialogOpen(false);
+                    setEditingTemplate(null);
+                  } catch (error) {
+                    console.error('Error updating template:', error);
+                    toast.error('Failed to update template');
+                  }
+                }}
+              >
+                Save Changes
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
