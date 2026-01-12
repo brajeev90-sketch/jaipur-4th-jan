@@ -1513,8 +1513,17 @@ async def update_product(product_id: str, product_data: ProductUpdate):
     update_data = {k: v for k, v in product_data.model_dump().items() if v is not None}
     update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
     
+    # Debug logging for image issues
+    image_received = product_data.image
+    print(f"[DEBUG] Update product {product_id}")
+    print(f"[DEBUG] Image received: {bool(image_received)}, length: {len(image_received) if image_received else 0}")
+    print(f"[DEBUG] Image in update_data: {'image' in update_data}")
+    
     await db.products.update_one({"id": product_id}, {"$set": update_data})
     updated = await db.products.find_one({"id": product_id}, {"_id": 0})
+    
+    print(f"[DEBUG] Image saved: {bool(updated.get('image'))}, length: {len(updated.get('image', ''))}")
+    
     return updated
 
 @api_router.delete("/products/{product_id}")
