@@ -359,9 +359,24 @@ async def root():
 # --- ORDERS ---
 
 @api_router.get("/orders", response_model=List[Order])
-async def get_orders():
-    orders = await db.orders.find({}, {"_id": 0}).to_list(1000)
-    return orders
+async def get_orders(lite: bool = True):
+    """Get all orders. Use lite=true (default) for faster loading without item images"""
+    if lite:
+        # Exclude large image fields from items for faster loading
+        orders = await db.orders.find({}, {"_id": 0}).to_list(1000)
+        # Strip images from items for list view
+        for order in orders:
+            if order.get('items'):
+                for item in order['items']:
+                    item['product_image'] = ''  # Clear large base64 images
+                    item['images'] = []
+                    item['reference_images'] = []
+                    item['leather_image'] = ''
+                    item['finish_image'] = ''
+        return orders
+    else:
+        orders = await db.orders.find({}, {"_id": 0}).to_list(1000)
+        return orders
 
 @api_router.get("/orders/{order_id}", response_model=Order)
 async def get_order(order_id: str):
