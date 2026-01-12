@@ -1250,7 +1250,7 @@ export default function EditOrder() {
           </DialogHeader>
           <div className="space-y-3 py-4">
             {noteTemplates.length === 0 ? (
-              <p className="text-center text-muted-foreground py-4">No templates yet. Add one using the "+ Add" button.</p>
+              <p className="text-center text-muted-foreground py-4">No templates yet. Add one using the &quot;+ Add&quot; button.</p>
             ) : (
               noteTemplates.map((template) => (
                 <div key={template.id} className="flex items-center justify-between p-3 border rounded-md hover:bg-muted/50">
