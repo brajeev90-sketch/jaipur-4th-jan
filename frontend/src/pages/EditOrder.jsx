@@ -162,7 +162,7 @@ export default function EditOrder() {
     // Get category name from categories list (product stores category as ID)
     const categoryName = categories.find(c => c.id === product.category)?.name || product.category || '';
     
-    // Start with basic data immediately
+    // Start with basic data immediately (without images for lite mode)
     setCurrentItem(prev => ({
       ...prev,
       product_code: product.product_code,
@@ -174,24 +174,33 @@ export default function EditOrder() {
       cbm: product.cbm || 0,
       cbm_auto: false,
       dimensions: product.size || '',
-      product_image: product.image || '',
-      images: product.images || [],
+      product_image: '',  // Will be loaded below
+      images: [],  // Will be loaded below
     }));
     setProductSearch(product.product_code);
     setShowProductSuggestions(false);
     
-    // Lazy load images if needed (lite mode - has_image flag but no actual image)
-    if ((product.has_image || product.has_image_2) && !product.image) {
+    // Load images - either from product (full mode) or via API (lite mode)
+    if (product.image) {
+      // Full mode - images already available
+      const mainImage = product.image || '';
+      const secondImage = product.images && product.images.length > 0 ? product.images[0] : '';
+      setCurrentItem(prev => ({
+        ...prev,
+        product_image: mainImage,
+        images: secondImage ? [secondImage] : [],
+      }));
+    } else if (product.has_image || product.has_image_2) {
+      // Lite mode - need to fetch images from API
       try {
         const imagesRes = await productsApi.getImages(product.id);
-        const mainProductImage = imagesRes.data.image || '';
+        const mainImage = imagesRes.data.image || '';
         const secondImage = imagesRes.data.images && imagesRes.data.images.length > 0 ? imagesRes.data.images[0] : '';
-        const additionalImages = secondImage ? [secondImage] : [];
         
         setCurrentItem(prev => ({
           ...prev,
-          product_image: mainProductImage,
-          images: additionalImages,
+          product_image: mainImage,
+          images: secondImage ? [secondImage] : [],
         }));
       } catch (error) {
         console.error('Error loading product images:', error);
