@@ -94,6 +94,7 @@ export default function EditOrder() {
     leg_color: '',
     wood_finish: '',
     notes: '',
+    product_image: '',
     images: [],
     reference_images: [],
   });
