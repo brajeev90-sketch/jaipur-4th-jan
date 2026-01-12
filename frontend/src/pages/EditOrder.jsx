@@ -971,33 +971,51 @@ export default function EditOrder() {
 
             {/* Notes with Auto-text Options */}
             <div className="space-y-2">
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center gap-2">
                 <Label>Notes</Label>
-                <Select 
-                  onValueChange={(value) => {
-                    if (value && value !== "none") {
-                      // Append selected template to existing notes
-                      const currentNotes = currentItem.notes || '';
-                      const separator = currentNotes ? '<br/>' : '';
-                      handleItemChange('notes', currentNotes + separator + value);
-                    }
-                  }}
-                >
-                  <SelectTrigger className="w-[200px] h-8 text-xs">
-                    <SelectValue placeholder="+ Add auto text" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Select template...</SelectItem>
-                    <SelectItem value="<ul><li>Make as Last Time</li></ul>">Make as Last Time</SelectItem>
-                    <SelectItem value="<ul><li>No Yellow Woods</li></ul>">No Yellow Woods</SelectItem>
-                    <SelectItem value="<ul><li>Cancellation not done 45 Days</li></ul>">Cancellation 45 Days</SelectItem>
-                    <SelectItem value="<ul><li>Handle with Care - Fragile</li></ul>">Handle with Care</SelectItem>
-                    <SelectItem value="<ul><li>Rush Order - Priority</li></ul>">Rush Order Priority</SelectItem>
-                    <SelectItem value="<ul><li>Check Quality Before Packing</li></ul>">Check Quality</SelectItem>
-                    <SelectItem value="<ul><li>Customer Special Request</li></ul>">Customer Special Request</SelectItem>
-                    <SelectItem value="<ul><li>Same as Sample Approved</li></ul>">Same as Sample</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="flex items-center gap-2">
+                  <Select 
+                    onValueChange={(value) => {
+                      if (value && value !== "none") {
+                        // Append selected template to existing notes
+                        const currentNotes = currentItem.notes || '';
+                        const separator = currentNotes ? '<br/>' : '';
+                        handleItemChange('notes', currentNotes + separator + value);
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="w-[200px] h-8 text-xs">
+                      <SelectValue placeholder="Select template..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Select template...</SelectItem>
+                      {noteTemplates.map((template) => (
+                        <SelectItem key={template.id} value={template.content}>
+                          {template.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-8 px-2"
+                    onClick={() => {
+                      if (!currentItem.notes || currentItem.notes.trim() === '' || currentItem.notes === '<p></p>') {
+                        toast.error('Please write some notes first to save as template');
+                        return;
+                      }
+                      setNewTemplateName('');
+                      setSaveTemplateDialogOpen(true);
+                    }}
+                    title="Save current notes as template"
+                    data-testid="save-note-template-btn"
+                  >
+                    <Plus size={14} className="mr-1" />
+                    Save
+                  </Button>
+                </div>
               </div>
               <RichTextEditor
                 value={currentItem.notes}
@@ -1007,7 +1025,7 @@ export default function EditOrder() {
                 data-testid="item-notes"
               />
               <p className="text-xs text-muted-foreground">
-                Select auto-text templates above or type custom notes. Use toolbar to format.
+                Select saved templates or type custom notes. Click &quot;+ Save&quot; to save current notes as a new template.
               </p>
             </div>
 
