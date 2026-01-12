@@ -770,7 +770,7 @@ export default function Products() {
           <AlertDialogHeader>
             <AlertDialogTitle>{t('deleteProduct')}</AlertDialogTitle>
             <AlertDialogDescription>
-              {t('deleteProductConfirm')} "{productToDelete?.product_code}"? {t('cannotUndo')}
+              {t('deleteProductConfirm')} &quot;{productToDelete?.product_code}&quot;? {t('cannotUndo')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
