@@ -846,7 +846,7 @@ function PreviewPage({ order, item, pageNum, totalPages }) {
                   key={idx}
                   src={img} 
                   alt={`Additional ${idx + 1}`}
-                  className="w-[216px] h-[216px] object-cover border border-[#ddd] rounded flex-shrink-0"
+                  className="w-[216px] h-[216px] object-contain border border-[#ddd] rounded flex-shrink-0 bg-white"
                 />
               ))}
               {additionalImages.length > 4 && (
