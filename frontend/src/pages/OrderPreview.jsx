@@ -196,7 +196,7 @@ export default function OrderPreview() {
               ${additionalImages.length > 0 ? `
                 <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
                   ${additionalImages.slice(0, 4).map(img => `
-                    <img src="${img}" alt="Additional" style="width: ${additionalImageSize}px; height: ${additionalImageSize}px; object-fit: cover; border: 1px solid #ddd; border-radius: 4px; flex-shrink: 0;" />
+                    <img src="${img}" alt="Additional" style="width: ${additionalImageSize}px; height: ${additionalImageSize}px; object-fit: contain; border: 1px solid #ddd; border-radius: 4px; flex-shrink: 0; background: white;" />
                   `).join('')}
                   ${additionalImages.length > 4 ? `
                     <div style="width: ${additionalImageSize}px; height: ${additionalImageSize}px; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #666;">+${additionalImages.length - 4} more</div>
@@ -501,7 +501,7 @@ export default function OrderPreview() {
               ${additionalImages.length > 0 ? `
                 <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
                   ${additionalImages.slice(0, 4).map(img => `
-                    <img src="${img}" alt="Additional" style="width: ${additionalImageSize}px; height: ${additionalImageSize}px; object-fit: cover; border: 1px solid #ddd; border-radius: 4px; flex-shrink: 0;" />
+                    <img src="${img}" alt="Additional" style="width: ${additionalImageSize}px; height: ${additionalImageSize}px; object-fit: contain; border: 1px solid #ddd; border-radius: 4px; flex-shrink: 0; background: white;" />
                   `).join('')}
                   ${additionalImages.length > 4 ? `
                     <div style="width: ${additionalImageSize}px; height: ${additionalImageSize}px; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #666;">+${additionalImages.length - 4} more</div>
