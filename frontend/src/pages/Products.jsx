@@ -81,10 +81,36 @@ export default function Products() {
   const excelInputRef = useRef(null);
   const [imageIndices, setImageIndices] = useState({}); // Track current image index for each product
   const [loadedImages, setLoadedImages] = useState({}); // Cache for lazy-loaded images
+  const [loadingImages, setLoadingImages] = useState({}); // Track which products are loading images
+  const observerRef = useRef(null);
 
   useEffect(() => {
     loadData();
   }, []);
+
+  // Setup Intersection Observer for lazy loading images
+  useEffect(() => {
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const productId = entry.target.dataset.productId;
+            const hasImage = entry.target.dataset.hasImage === 'true';
+            if (productId && hasImage && !loadedImages[productId] && !loadingImages[productId]) {
+              loadProductImagesAuto(productId);
+            }
+          }
+        });
+      },
+      { rootMargin: '100px', threshold: 0.1 }
+    );
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [loadedImages, loadingImages]);
 
   const loadData = async () => {
     try {
