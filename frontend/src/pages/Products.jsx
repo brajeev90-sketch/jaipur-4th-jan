@@ -93,7 +93,7 @@ export default function Products() {
   // Reset to page 1 when search or category filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, categoryFilter]);
+  }, [searchTerm, categoryFilter]);
 
   // Setup Intersection Observer for lazy loading images
   useEffect(() => {
