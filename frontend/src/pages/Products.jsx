@@ -94,6 +94,21 @@ export default function Products() {
     setCurrentPage(1);
   }, [searchTerm, categoryFilter]);
 
+  // Filter products (needed before useEffect)
+  const filteredProducts = products.filter(product => {
+    const matchesSearch = !searchTerm || 
+      product.product_code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = categoryFilter === 'all' || product.category === categoryFilter;
+    return matchesSearch && matchesCategory;
+  });
+
+  // Pagination
+  const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
+  const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
+  const endIndex = startIndex + PRODUCTS_PER_PAGE;
+  const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+
   // Load all images for current page products at once
   useEffect(() => {
     const loadPageImages = async () => {
@@ -141,8 +156,10 @@ export default function Products() {
       setLoadingImages(prev => ({ ...prev, ...loadingClear }));
     };
     
-    loadPageImages();
-  }, [currentPage, paginatedProducts.length]); // Re-run when page changes or products load
+    if (paginatedProducts.length > 0) {
+      loadPageImages();
+    }
+  }, [currentPage, products.length, searchTerm, categoryFilter]); // Re-run when page or filters change
 
   const loadData = async () => {
     try {
