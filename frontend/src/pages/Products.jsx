@@ -476,10 +476,12 @@ export default function Products() {
               key={product.id} 
               className="card-hover overflow-hidden"
               data-testid={`product-card-${product.id}`}
-              onMouseEnter={() => {
-                // Lazy load images on hover
-                if (productHasImages(product) && !loadedImages[product.id] && !product.image) {
-                  loadProductImages(product.id);
+              data-product-id={product.id}
+              data-has-image={productHasImages(product) && !loadedImages[product.id] && !product.image}
+              ref={(el) => {
+                // Register with Intersection Observer for auto lazy loading
+                if (el && observerRef.current) {
+                  observerRef.current.observe(el);
                 }
               }}
             >
@@ -490,6 +492,7 @@ export default function Products() {
                   const currentIndex = imageIndices[product.id] || 0;
                   const currentImage = images[currentIndex];
                   const hasImageFlag = productHasImages(product);
+                  const isLoading = loadingImages[product.id];
                   
                   return (
                     <>
@@ -497,12 +500,17 @@ export default function Products() {
                         <img 
                           src={currentImage} 
                           alt={product.description}
-                          className="w-full h-full object-contain"
+                          className="w-full h-full object-contain bg-white"
                         />
+                      ) : isLoading ? (
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+                          <Loader2 className="text-primary/60 animate-spin" size={32} />
+                          <span className="text-xs text-muted-foreground mt-2">Loading...</span>
+                        </div>
                       ) : hasImageFlag ? (
                         <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-                          <ImageIcon className="text-primary/60" size={48} />
-                          <span className="text-xs text-muted-foreground mt-2">Hover to load</span>
+                          <Loader2 className="text-primary/40" size={32} />
+                          <span className="text-xs text-muted-foreground mt-2">Loading image...</span>
                         </div>
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
