@@ -494,14 +494,6 @@ export default function Products() {
               key={product.id} 
               className="card-hover overflow-hidden"
               data-testid={`product-card-${product.id}`}
-              data-product-id={product.id}
-              data-has-image={productHasImages(product) && !loadedImages[product.id] && !product.image}
-              ref={(el) => {
-                // Register with Intersection Observer for auto lazy loading
-                if (el && observerRef.current) {
-                  observerRef.current.observe(el);
-                }
-              }}
             >
               {/* Product Image with Navigation */}
               <div className="aspect-square bg-muted relative group">
