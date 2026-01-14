@@ -638,11 +638,57 @@ export default function Products() {
             </Card>
           ))}
         </div>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-4 mt-6">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              data-testid="prev-page-btn"
+            >
+              <ChevronLeft size={16} className="mr-1" />
+              Previous
+            </Button>
+            
+            <div className="flex items-center gap-2">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? "default" : "outline"}
+                  size="sm"
+                  className="w-8 h-8 p-0"
+                  onClick={() => setCurrentPage(page)}
+                  data-testid={`page-${page}-btn`}
+                >
+                  {page}
+                </Button>
+              ))}
+            </div>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              data-testid="next-page-btn"
+            >
+              Next
+              <ChevronRight size={16} className="ml-1" />
+            </Button>
+          </div>
+        )}
+        </>
       )}
 
       {/* Stats */}
       <div className="mt-6 text-sm text-muted-foreground text-center">
-        {t('showing')} {filteredProducts.length} {t('of')} {products.length} {t('productsLabel')}
+        {t('showing')} {paginatedProducts.length} {t('of')} {filteredProducts.length} {t('productsLabel')}
+        {filteredProducts.length !== products.length && (
+          <span> (filtered from {products.length} total)</span>
+        )}
       </div>
 
       {/* Add/Edit Product Dialog */}
