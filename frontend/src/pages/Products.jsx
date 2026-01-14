@@ -408,21 +408,6 @@ export default function Products() {
     }
   };
 
-  // Filter products
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = !searchTerm || 
-      product.product_code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = categoryFilter === 'all' || product.category === categoryFilter;
-    return matchesSearch && matchesCategory;
-  });
-
-  // Pagination
-  const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
-  const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
-  const endIndex = startIndex + PRODUCTS_PER_PAGE;
-  const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64" data-testid="products-loading">
