@@ -82,11 +82,18 @@ export default function Products() {
   const [imageIndices, setImageIndices] = useState({}); // Track current image index for each product
   const [loadedImages, setLoadedImages] = useState({}); // Cache for lazy-loaded images
   const [loadingImages, setLoadingImages] = useState({}); // Track which products are loading images
+  const [currentPage, setCurrentPage] = useState(1);
+  const PRODUCTS_PER_PAGE = 12;
   const observerRef = useRef(null);
 
   useEffect(() => {
     loadData();
   }, []);
+
+  // Reset to page 1 when search or category filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, categoryFilter]);
 
   // Setup Intersection Observer for lazy loading images
   useEffect(() => {
