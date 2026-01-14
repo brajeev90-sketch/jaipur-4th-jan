@@ -95,29 +95,55 @@ export default function Products() {
     setCurrentPage(1);
   }, [searchTerm, categoryFilter]);
 
-  // Setup Intersection Observer for lazy loading images
+  // Load all images for current page products at once
   useEffect(() => {
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const productId = entry.target.dataset.productId;
-            const hasImage = entry.target.dataset.hasImage === 'true';
-            if (productId && hasImage && !loadedImages[productId] && !loadingImages[productId]) {
-              loadProductImagesAuto(productId);
-            }
+    const loadPageImages = async () => {
+      // Get products for current page that need images loaded
+      const productsToLoad = paginatedProducts.filter(
+        p => productHasImages(p) && !loadedImages[p.id] && !loadingImages[p.id] && !p.image
+      );
+      
+      if (productsToLoad.length === 0) return;
+      
+      // Mark all as loading
+      const loadingUpdate = {};
+      productsToLoad.forEach(p => { loadingUpdate[p.id] = true; });
+      setLoadingImages(prev => ({ ...prev, ...loadingUpdate }));
+      
+      // Load all images in parallel
+      const results = await Promise.allSettled(
+        productsToLoad.map(async (product) => {
+          try {
+            const res = await productsApi.getImages(product.id);
+            return {
+              id: product.id,
+              image: res.data.image || '',
+              images: res.data.images || []
+            };
+          } catch (error) {
+            console.error(`Error loading images for ${product.id}:`, error);
+            return { id: product.id, image: '', images: [] };
           }
-        });
-      },
-      { rootMargin: '100px', threshold: 0.1 }
-    );
-
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
+        })
+      );
+      
+      // Update loaded images
+      const imagesUpdate = {};
+      const loadingClear = {};
+      results.forEach((result) => {
+        if (result.status === 'fulfilled' && result.value) {
+          const { id, image, images } = result.value;
+          imagesUpdate[id] = { image, images };
+          loadingClear[id] = false;
+        }
+      });
+      
+      setLoadedImages(prev => ({ ...prev, ...imagesUpdate }));
+      setLoadingImages(prev => ({ ...prev, ...loadingClear }));
     };
-  }, [loadedImages, loadingImages]);
+    
+    loadPageImages();
+  }, [currentPage, paginatedProducts.length]); // Re-run when page changes or products load
 
   const loadData = async () => {
     try {
