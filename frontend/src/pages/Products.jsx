@@ -311,10 +311,11 @@ export default function Products() {
     return product.has_image || product.has_image_2 || product.image || (product.images && product.images.length > 0);
   };
 
-  // Lazy load images for a product
+  // Lazy load images for a product (manual - on hover/click)
   const loadProductImages = async (productId) => {
-    if (loadedImages[productId]) return; // Already loaded
+    if (loadedImages[productId] || loadingImages[productId]) return;
     
+    setLoadingImages(prev => ({ ...prev, [productId]: true }));
     try {
       const res = await productsApi.getImages(productId);
       setLoadedImages(prev => ({
@@ -326,6 +327,29 @@ export default function Products() {
       }));
     } catch (error) {
       console.error('Error loading product images:', error);
+    } finally {
+      setLoadingImages(prev => ({ ...prev, [productId]: false }));
+    }
+  };
+
+  // Auto lazy load images when product scrolls into view
+  const loadProductImagesAuto = async (productId) => {
+    if (loadedImages[productId] || loadingImages[productId]) return;
+    
+    setLoadingImages(prev => ({ ...prev, [productId]: true }));
+    try {
+      const res = await productsApi.getImages(productId);
+      setLoadedImages(prev => ({
+        ...prev,
+        [productId]: {
+          image: res.data.image || '',
+          images: res.data.images || []
+        }
+      }));
+    } catch (error) {
+      console.error('Error loading product images:', error);
+    } finally {
+      setLoadingImages(prev => ({ ...prev, [productId]: false }));
     }
   };
 
