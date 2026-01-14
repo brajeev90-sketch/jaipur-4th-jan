@@ -84,7 +84,6 @@ export default function Products() {
   const [loadingImages, setLoadingImages] = useState({}); // Track which products are loading images
   const [currentPage, setCurrentPage] = useState(1);
   const PRODUCTS_PER_PAGE = 12;
-  const observerRef = useRef(null);
 
   useEffect(() => {
     loadData();
