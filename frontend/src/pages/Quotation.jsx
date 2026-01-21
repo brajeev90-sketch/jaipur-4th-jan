@@ -184,7 +184,7 @@ export default function Quotation() {
     }
   };
 
-  const addProductToQuotation = (product) => {
+  const addProductToQuotation = async (product) => {
     const existingItem = quotationItems.find(item => item.product_code === product.product_code);
     if (existingItem) {
       toast.info('Product already added to quotation');
@@ -210,6 +210,17 @@ export default function Quotation() {
         fobPrice = product.fob_price_usd || 0;
     }
 
+    // Fetch product images if not already loaded (products loaded in lite mode)
+    let productImage = product.image || '';
+    if (!productImage && product.id) {
+      try {
+        const imgResponse = await productsApi.getImages(product.id);
+        productImage = imgResponse.data?.image || '';
+      } catch (err) {
+        console.log('Could not load product image:', err);
+      }
+    }
+
     const newItem = {
       id: product.id,
       product_code: product.product_code,
@@ -221,7 +232,7 @@ export default function Quotation() {
       quantity: 1,
       fob_price: fobPrice,
       total: fobPrice,
-      image: product.image || ''
+      image: productImage
     };
 
     setQuotationItems([...quotationItems, newItem]);
