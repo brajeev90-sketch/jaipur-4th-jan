@@ -1054,9 +1054,11 @@ export default function Quotation() {
     printWindow.document.close();
     toast.success('Quotation generated - select "Save as PDF" to download');
   };
-  const addSelectedProducts = () => {
+  const addSelectedProducts = async () => {
     const newItems = [];
-    selectedProducts.forEach(productId => {
+    
+    // Process each selected product
+    for (const productId of selectedProducts) {
       const product = products.find(p => p.id === productId);
       if (product) {
         // Check if already exists
@@ -1081,6 +1083,17 @@ export default function Quotation() {
               fobPrice = product.fob_price_usd || 0;
           }
 
+          // Fetch product image if not already loaded
+          let productImage = product.image || '';
+          if (!productImage && product.id) {
+            try {
+              const imgResponse = await productsApi.getImages(product.id);
+              productImage = imgResponse.data?.image || '';
+            } catch (err) {
+              console.log('Could not load product image:', err);
+            }
+          }
+
           newItems.push({
             id: product.id,
             product_code: product.product_code,
@@ -1092,11 +1105,11 @@ export default function Quotation() {
             quantity: 1,
             fob_price: fobPrice,
             total: fobPrice,
-            image: product.image || ''
+            image: productImage
           });
         }
       }
-    });
+    }
     
     if (newItems.length > 0) {
       setQuotationItems([...quotationItems, ...newItems]);
