@@ -1633,11 +1633,8 @@ export default function Quotation() {
                   variant="outline" 
                   className="gap-2"
                   onClick={() => {
-                    // Load and print
-                    handleLoadQuotation(viewQuoteData);
-                    setViewQuotePopup(false);
-                    setShowSavedQuotes(false);
-                    setTimeout(() => handleGenerateQuote(), 300);
+                    // Print directly from viewQuoteData
+                    handlePrintQuotationDirect(viewQuoteData);
                   }}
                 >
                   <Download size={16} />
