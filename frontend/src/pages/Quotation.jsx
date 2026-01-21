@@ -115,6 +115,7 @@ export default function Quotation() {
   const [viewQuoteData, setViewQuoteData] = useState(null);
   const [editQuotePopup, setEditQuotePopup] = useState(false);
   const [editQuoteData, setEditQuoteData] = useState(null);
+  const [loadingQuoteId, setLoadingQuoteId] = useState(null); // Track which quote is being loaded
   const [quotationDetails, setQuotationDetails] = useState({
     customer_name: '',
     customer_email: '',
@@ -123,6 +124,39 @@ export default function Quotation() {
     notes: '',
     currency: 'FOB_USD'
   });
+
+  // Fetch full quotation data by ID (with items)
+  const fetchFullQuotation = async (quoteId) => {
+    try {
+      setLoadingQuoteId(quoteId);
+      const response = await quotationsApi.getById(quoteId);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching quotation:', error);
+      toast.error('Failed to load quotation data');
+      return null;
+    } finally {
+      setLoadingQuoteId(null);
+    }
+  };
+
+  // Handle View button - fetch full data first
+  const handleViewQuotation = async (quote) => {
+    const fullQuote = await fetchFullQuotation(quote.id);
+    if (fullQuote) {
+      setViewQuoteData(fullQuote);
+      setViewQuotePopup(true);
+    }
+  };
+
+  // Handle Edit button - fetch full data first
+  const handleEditQuotation = async (quote) => {
+    const fullQuote = await fetchFullQuotation(quote.id);
+    if (fullQuote) {
+      setEditQuoteData(fullQuote);
+      setEditQuotePopup(true);
+    }
+  };
 
   useEffect(() => {
     loadProducts();
