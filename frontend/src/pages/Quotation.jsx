@@ -1117,7 +1117,7 @@ export default function Quotation() {
                 <p className="text-2xl font-bold text-amber-700">{totals.totalCBM} m³</p>
               </div>
               <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-                <p className="text-sm text-muted-foreground">40' HQ Container</p>
+                <p className="text-sm text-muted-foreground">40&apos; HQ Container</p>
                 <p className="text-2xl font-bold text-amber-700">{(parseFloat(totals.totalCBM) / 76 * 100).toFixed(0)}%</p>
               </div>
               <div className="text-center p-4 bg-amber-600 text-white rounded-lg shadow-sm">
