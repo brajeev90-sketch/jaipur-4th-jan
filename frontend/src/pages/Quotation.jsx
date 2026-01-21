@@ -232,17 +232,21 @@ export default function Quotation() {
 
     setSaving(true);
     
-    const totals = calculateTotals();
-    const quotationData = {
-      ...quotationDetails,
-      items: quotationItems,
-      total_items: totals.totalItems,
-      total_cbm: parseFloat(totals.totalCBM),
-      total_value: parseFloat(totals.totalValue),
-      status: 'draft'
-    };
-
     try {
+      // Convert images to WebP format for faster loading
+      toast.info('Optimizing images...');
+      const optimizedItems = await convertQuotationImagesToWebP(quotationItems);
+      
+      const totals = calculateTotals();
+      const quotationData = {
+        ...quotationDetails,
+        items: optimizedItems,
+        total_items: totals.totalItems,
+        total_cbm: parseFloat(totals.totalCBM),
+        total_value: parseFloat(totals.totalValue),
+        status: 'draft'
+      };
+
       if (editingQuotationId) {
         // Update existing quotation
         await quotationsApi.update(editingQuotationId, quotationData);
