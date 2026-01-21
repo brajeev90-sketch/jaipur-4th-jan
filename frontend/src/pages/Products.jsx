@@ -354,12 +354,14 @@ export default function Products() {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = () => {
+      reader.onload = async () => {
+        // Convert to WebP for smaller file size
+        const webpImage = await convertToWebP(reader.result);
         if (imageNumber === 1) {
-          setFormData(prev => ({ ...prev, image: reader.result }));
+          setFormData(prev => ({ ...prev, image: webpImage }));
         } else {
           // Second image goes into images array
-          setFormData(prev => ({ ...prev, images: [reader.result] }));
+          setFormData(prev => ({ ...prev, images: [webpImage] }));
         }
       };
       reader.readAsDataURL(file);
