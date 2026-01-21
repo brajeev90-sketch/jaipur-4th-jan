@@ -347,14 +347,13 @@ export default function EditOrder() {
         reader.onload = (e) => resolve(e.target.result);
         reader.readAsDataURL(file);
       });
-      // Convert to WebP for smaller size
-      const webpImage = await convertToWebP(base64);
-      newImages.push(webpImage);
+      // Resize and compress
+      const optimized = await optimizeImage(base64);
+      newImages.push(optimized);
     }
 
     setCurrentItem(prev => {
       const updatedImages = [...prev.images, ...newImages];
-      // Auto-set first image as product_image if not already set
       const productImage = prev.product_image || (updatedImages.length > 0 ? updatedImages[0] : '');
       return {
         ...prev,
