@@ -43,16 +43,16 @@ import { toast } from 'sonner';
 import { useLanguage } from '../contexts/LanguageContext';
 import * as XLSX from 'xlsx';
 
-// Convert base64 image to WebP format for faster loading
-const convertToWebP = (base64Image, quality = 0.7) => {
+// Resize and convert image to WebP - FAST version
+const optimizeImage = (base64Image, maxSize = 600, quality = 0.6) => {
   return new Promise((resolve) => {
     if (!base64Image || !base64Image.startsWith('data:image')) {
       resolve(base64Image);
       return;
     }
     
-    // Already WebP, skip conversion
-    if (base64Image.includes('data:image/webp')) {
+    // Skip if already small (less than 50KB)
+    if (base64Image.length < 50000) {
       resolve(base64Image);
       return;
     }
@@ -60,38 +60,43 @@ const convertToWebP = (base64Image, quality = 0.7) => {
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0);
       
-      // Convert to WebP with compression
-      const webpBase64 = canvas.toDataURL('image/webp', quality);
-      resolve(webpBase64);
+      // Calculate new dimensions (max 600px for quotations)
+      let width = img.width;
+      let height = img.height;
+      
+      if (width > maxSize || height > maxSize) {
+        if (width > height) {
+          height = Math.round((height * maxSize) / width);
+          width = maxSize;
+        } else {
+          width = Math.round((width * maxSize) / height);
+          height = maxSize;
+        }
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      // Convert to WebP with aggressive compression
+      const optimized = canvas.toDataURL('image/webp', quality);
+      resolve(optimized);
     };
-    img.onerror = () => {
-      // If conversion fails, return original
-      resolve(base64Image);
-    };
+    img.onerror = () => resolve(base64Image);
     img.src = base64Image;
   });
 };
 
-// Convert all images in quotation items to WebP
-const convertQuotationImagesToWebP = async (items) => {
-  const convertedItems = await Promise.all(
-    items.map(async (item) => {
-      const convertedItem = { ...item };
-      
-      // Convert main image
-      if (item.image) {
-        convertedItem.image = await convertToWebP(item.image);
-      }
-      
-      return convertedItem;
-    })
+// Batch optimize all images in quotation - runs in parallel
+const optimizeQuotationImages = async (items) => {
+  return Promise.all(
+    items.map(async (item) => ({
+      ...item,
+      image: item.image ? await optimizeImage(item.image) : ''
+    }))
   );
-  return convertedItems;
 };
 
 export default function Quotation() {
