@@ -1124,11 +1124,14 @@ export default function EditOrder() {
                       <input
                         type="file"
                         accept="image/*"
-                        onChange={(e) => {
+                        onChange={async (e) => {
                           const file = e.target.files?.[0];
                           if (file) {
                             const reader = new FileReader();
-                            reader.onload = (ev) => handleItemChange('product_image', ev.target.result);
+                            reader.onload = async (ev) => {
+                              const webpImage = await convertToWebP(ev.target.result);
+                              handleItemChange('product_image', webpImage);
+                            };
                             reader.readAsDataURL(file);
                           }
                         }}
