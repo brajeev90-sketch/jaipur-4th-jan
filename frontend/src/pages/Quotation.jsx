@@ -43,6 +43,57 @@ import { toast } from 'sonner';
 import { useLanguage } from '../contexts/LanguageContext';
 import * as XLSX from 'xlsx';
 
+// Convert base64 image to WebP format for faster loading
+const convertToWebP = (base64Image, quality = 0.7) => {
+  return new Promise((resolve) => {
+    if (!base64Image || !base64Image.startsWith('data:image')) {
+      resolve(base64Image);
+      return;
+    }
+    
+    // Already WebP, skip conversion
+    if (base64Image.includes('data:image/webp')) {
+      resolve(base64Image);
+      return;
+    }
+
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      
+      // Convert to WebP with compression
+      const webpBase64 = canvas.toDataURL('image/webp', quality);
+      resolve(webpBase64);
+    };
+    img.onerror = () => {
+      // If conversion fails, return original
+      resolve(base64Image);
+    };
+    img.src = base64Image;
+  });
+};
+
+// Convert all images in quotation items to WebP
+const convertQuotationImagesToWebP = async (items) => {
+  const convertedItems = await Promise.all(
+    items.map(async (item) => {
+      const convertedItem = { ...item };
+      
+      // Convert main image
+      if (item.image) {
+        convertedItem.image = await convertToWebP(item.image);
+      }
+      
+      return convertedItem;
+    })
+  );
+  return convertedItems;
+};
+
 export default function Quotation() {
   const { t } = useLanguage();
   const [products, setProducts] = useState([]);
