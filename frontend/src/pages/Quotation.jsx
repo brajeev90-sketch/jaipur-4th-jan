@@ -1275,21 +1275,21 @@ export default function Quotation() {
                             variant="ghost" 
                             size="icon" 
                             title="View" 
-                            onClick={() => {
-                              setViewQuoteData(quote);
-                              setViewQuotePopup(true);
-                            }}
+                            disabled={loadingQuoteId === quote.id}
+                            onClick={() => handleViewQuotation(quote)}
                           >
-                            <Eye size={16} />
+                            {loadingQuoteId === quote.id ? (
+                              <Loader2 size={16} className="animate-spin" />
+                            ) : (
+                              <Eye size={16} />
+                            )}
                           </Button>
                           <Button 
                             variant="ghost" 
                             size="icon" 
                             title="Edit" 
-                            onClick={() => {
-                              setEditQuoteData(quote);
-                              setEditQuotePopup(true);
-                            }}
+                            disabled={loadingQuoteId === quote.id}
+                            onClick={() => handleEditQuotation(quote)}
                           >
                             <Edit size={16} />
                           </Button>
