@@ -1226,7 +1226,7 @@ export default function Quotation() {
                       <TableCell className="font-mono font-semibold">{quote.reference || 'N/A'}</TableCell>
                       <TableCell>{quote.customer_name || '-'}</TableCell>
                       <TableCell>{quote.date || '-'}</TableCell>
-                      <TableCell>{quote.items?.length || 0} items</TableCell>
+                      <TableCell>{quote.item_count || quote.items?.length || quote.total_items || 0} items</TableCell>
                       <TableCell className="text-right font-semibold">
                         {quote.currency === 'GBP' ? '£' : '$'}{quote.total_value?.toFixed(2) || '0.00'}
                       </TableCell>
