@@ -1138,8 +1138,8 @@ export default function EditOrder() {
                           if (file) {
                             const reader = new FileReader();
                             reader.onload = async (ev) => {
-                              const webpImage = await convertToWebP(ev.target.result);
-                              handleItemChange('product_image', webpImage);
+                              const optimized = await optimizeImage(ev.target.result);
+                              handleItemChange('product_image', optimized);
                             };
                             reader.readAsDataURL(file);
                           }
