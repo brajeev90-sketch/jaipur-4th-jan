@@ -46,6 +46,39 @@ import {
 import { toast } from 'sonner';
 import { useLanguage } from '../contexts/LanguageContext';
 
+// Convert base64 image to WebP format for smaller size and faster loading
+const convertToWebP = (base64Image, quality = 0.8) => {
+  return new Promise((resolve) => {
+    if (!base64Image || !base64Image.startsWith('data:image')) {
+      resolve(base64Image);
+      return;
+    }
+    
+    // Already WebP, skip conversion
+    if (base64Image.includes('data:image/webp')) {
+      resolve(base64Image);
+      return;
+    }
+
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      
+      // Convert to WebP with compression
+      const webpBase64 = canvas.toDataURL('image/webp', quality);
+      resolve(webpBase64);
+    };
+    img.onerror = () => {
+      resolve(base64Image);
+    };
+    img.src = base64Image;
+  });
+};
+
 export default function Products() {
   const { t } = useLanguage();
   const [products, setProducts] = useState([]);
