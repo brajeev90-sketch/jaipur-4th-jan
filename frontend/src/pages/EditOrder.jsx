@@ -337,7 +337,9 @@ export default function EditOrder() {
         reader.onload = (e) => resolve(e.target.result);
         reader.readAsDataURL(file);
       });
-      newImages.push(base64);
+      // Convert to WebP for smaller size
+      const webpImage = await convertToWebP(base64);
+      newImages.push(webpImage);
     }
 
     setCurrentItem(prev => {
