@@ -69,6 +69,18 @@ Web-based software for "JAIPUR – A fine wood furniture company" to generate A4
   - Images lazy-load on hover or when editing
   - New endpoint: `/api/products/{id}/images` for lazy loading
 
+**January 21, 2026:**
+- **BUGFIX: Quotation View/Print not loading items**
+  - Issue: Clicking View or Print/PDF on saved quotations showed "0 items" and failed to print
+  - Root cause: Quotations list API used "lite" mode (no items for performance) but View/Print tried to use that incomplete data
+  - Fix: 
+    - Updated `api.js` to support `getAll(lite)` and `getById(id)` for quotations
+    - Added `fetchFullQuotation()` function to load complete data before viewing
+    - Added `handlePrintQuotationDirect()` to generate PDF directly from quotation object
+    - View/Edit buttons now fetch full data before opening popup
+    - Print/PDF button works correctly from View popup
+  - Files modified: `/app/frontend/src/lib/api.js`, `/app/frontend/src/pages/Quotation.jsx`
+
 ---
 
 ## Pending Issues
