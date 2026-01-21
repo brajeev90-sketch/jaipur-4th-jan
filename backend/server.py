@@ -1831,13 +1831,20 @@ async def get_dashboard_stats():
 async def get_quotations(lite: bool = True):
     """Get all quotations. Use lite=true (default) for fast loading without images"""
     if lite:
-        # Return only essential fields - no images
-        quotations = await db.quotations.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
-        # Strip image data from items for list view
+        # Use MongoDB projection to EXCLUDE items field entirely (contains large images)
+        # This is much faster than fetching all data and stripping in Python
+        projection = {
+            "_id": 0,
+            "items": 0  # Exclude items array completely - it has images
+        }
+        quotations = await db.quotations.find({}, projection).sort("created_at", -1).to_list(1000)
+        
+        # We need item count, so let's get that separately with aggregation
+        # Or simpler: store item_count when saving quotation
+        # For now, add item_count from total_items field
         for q in quotations:
-            item_count = len(q.get('items', []))
-            q['items'] = []  # Clear items with images
-            q['item_count'] = item_count  # Just keep count
+            q['item_count'] = q.get('total_items', 0)
+        
         return quotations
     else:
         quotations = await db.quotations.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
