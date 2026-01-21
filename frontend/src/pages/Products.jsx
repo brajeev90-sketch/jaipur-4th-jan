@@ -46,16 +46,10 @@ import {
 import { toast } from 'sonner';
 import { useLanguage } from '../contexts/LanguageContext';
 
-// Convert base64 image to WebP format for smaller size and faster loading
-const convertToWebP = (base64Image, quality = 0.8) => {
+// Resize and convert image to WebP - FAST version
+const optimizeImage = (base64Image, maxSize = 800, quality = 0.7) => {
   return new Promise((resolve) => {
     if (!base64Image || !base64Image.startsWith('data:image')) {
-      resolve(base64Image);
-      return;
-    }
-    
-    // Already WebP, skip conversion
-    if (base64Image.includes('data:image/webp')) {
       resolve(base64Image);
       return;
     }
@@ -63,18 +57,29 @@ const convertToWebP = (base64Image, quality = 0.8) => {
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0);
       
-      // Convert to WebP with compression
-      const webpBase64 = canvas.toDataURL('image/webp', quality);
-      resolve(webpBase64);
+      // Calculate new dimensions
+      let width = img.width;
+      let height = img.height;
+      
+      if (width > maxSize || height > maxSize) {
+        if (width > height) {
+          height = Math.round((height * maxSize) / width);
+          width = maxSize;
+        } else {
+          width = Math.round((width * maxSize) / height);
+          height = maxSize;
+        }
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      resolve(canvas.toDataURL('image/webp', quality));
     };
-    img.onerror = () => {
-      resolve(base64Image);
-    };
+    img.onerror = () => resolve(base64Image);
     img.src = base64Image;
   });
 };
