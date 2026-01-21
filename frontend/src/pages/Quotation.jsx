@@ -227,7 +227,6 @@ export default function Quotation() {
   };
 
   const handleSaveQuotation = async () => {
-    // Prevent double clicks
     if (saving) return false;
     
     if (quotationItems.length === 0) {
@@ -238,9 +237,8 @@ export default function Quotation() {
     setSaving(true);
     
     try {
-      // Convert images to WebP format for faster loading
-      toast.info('Optimizing images...');
-      const optimizedItems = await convertQuotationImagesToWebP(quotationItems);
+      // Optimize images (resize + compress) - very fast
+      const optimizedItems = await optimizeQuotationImages(quotationItems);
       
       const totals = calculateTotals();
       const quotationData = {
@@ -253,11 +251,9 @@ export default function Quotation() {
       };
 
       if (editingQuotationId) {
-        // Update existing quotation
         await quotationsApi.update(editingQuotationId, quotationData);
         toast.success('Quotation updated!');
       } else {
-        // Create new quotation and save its ID to prevent duplicates
         const response = await quotationsApi.create(quotationData);
         if (response.data && response.data.id) {
           setEditingQuotationId(response.data.id);
