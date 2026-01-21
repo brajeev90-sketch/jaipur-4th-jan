@@ -855,6 +855,194 @@ export default function Quotation() {
       toast.error('Failed to generate quotation');
     }
   };
+
+  // Print/PDF directly from a quotation object (used in View popup)
+  const handlePrintQuotationDirect = (quotationData) => {
+    if (!quotationData?.items || quotationData.items.length === 0) {
+      toast.error('No items in this quotation');
+      return;
+    }
+
+    // Generate HTML using the quotation data directly
+    const currencyInfo = getCurrencyInfo(quotationData.currency || 'FOB_USD');
+    const currencySymbol = currencyInfo.symbol;
+    const priceLabel = currencyInfo.label;
+    
+    const formatDateDDMMYYYY = (dateStr) => {
+      if (!dateStr) return '-';
+      const date = new Date(dateStr);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}-${month}-${year}`;
+    };
+
+    const items = quotationData.items;
+    const totalItems = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+    const totalCBM = items.reduce((sum, item) => sum + ((item.cbm || 0) * (item.quantity || 1)), 0).toFixed(2);
+    const totalValue = items.reduce((sum, item) => sum + (item.total || (item.fob_price * item.quantity) || 0), 0).toFixed(2);
+
+    const itemPairs = [];
+    for (let i = 0; i < items.length; i += 2) {
+      itemPairs.push({
+        left: items[i],
+        right: items[i + 1] || null
+      });
+    }
+
+    const renderProduct = (item) => {
+      if (!item) return '<div class="product-column empty"><div style="display:flex;align-items:center;justify-content:center;height:100%;color:#aaa;">No Product</div></div>';
+      
+      return `
+        <div class="product-column">
+          <div class="product-image-section">
+            ${item.image 
+              ? `<img src="${item.image}" alt="${item.product_code}" class="product-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" /><div class="no-image" style="display:none;">Image Not Available</div>`
+              : `<div class="no-image">No Product Image</div>`
+            }
+          </div>
+          <div class="product-details">
+            <table class="details-table">
+              <thead>
+                <tr class="header-row">
+                  <th class="item-code-col">ITEM CODE</th>
+                  <th class="desc-col">DESCRIPTION</th>
+                  <th class="size-col" colspan="3">SIZE (cm)</th>
+                  <th class="cbm-col">CBM</th>
+                  <th class="price-col">${priceLabel}</th>
+                </tr>
+                <tr class="sub-header-row">
+                  <th></th>
+                  <th></th>
+                  <th class="size-sub">H</th>
+                  <th class="size-sub">D</th>
+                  <th class="size-sub">W</th>
+                  <th></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="item-code-cell">${item.product_code}</td>
+                  <td class="desc-cell">${item.description || '-'}</td>
+                  <td class="size-cell">${item.height_cm || '-'}</td>
+                  <td class="size-cell">${item.depth_cm || '-'}</td>
+                  <td class="size-cell">${item.width_cm || '-'}</td>
+                  <td class="cbm-cell">${item.cbm || '-'}</td>
+                  <td class="price-cell">${currencySymbol}${item.fob_price?.toFixed(2) || '0.00'}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    };
+
+    const quotationHTML = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Quotation - ${quotationData.reference || 'QUOTE'}</title>
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          @page { size: A4 landscape; margin: 10mm 15mm; }
+          body { font-family: Arial, sans-serif; padding: 10px 20px; background: white; color: #333; font-size: 11px; }
+          .page { page-break-after: always; width: 100%; }
+          .page:last-child { page-break-after: auto; }
+          .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 2px solid #3d2c1e; }
+          .logo { height: 40px; object-fit: contain; }
+          .quote-info { text-align: right; }
+          .quote-title { font-family: 'Playfair Display', Georgia, serif; font-size: 24px; font-weight: 700; color: #3d2c1e; letter-spacing: 3px; }
+          .customer-info { font-size: 10px; color: #333; line-height: 1.4; margin-top: 2px; }
+          .products-row { display: flex; gap: 15px; }
+          .product-column { flex: 1; border: 1px solid #c0c0c0; padding: 6px 8px; display: flex; flex-direction: column; }
+          .product-column.empty { background: #fafafa; border: 1px dashed #ccc; }
+          .product-image-section { display: flex; align-items: center; justify-content: center; padding: 0; height: 320px; }
+          .product-image { max-width: 100%; max-height: 320px; width: auto; height: auto; object-fit: contain; }
+          .no-image { width: 100%; height: 250px; display: flex; align-items: center; justify-content: center; background: #f5f5f5; border: 1px dashed #ccc; color: #888; font-size: 12px; }
+          .product-details { margin-top: 5px; }
+          .details-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+          .details-table .header-row th { background: #3d2c1e; color: white; padding: 6px 8px; text-align: center; font-weight: 600; font-size: 10px; letter-spacing: 0.5px; border: 1px solid #2d1e12; }
+          .details-table .sub-header-row th { background: #5a4636; color: white; padding: 4px 6px; text-align: center; font-weight: 500; font-size: 9px; border: 1px solid #3d2c1e; }
+          .details-table .sub-header-row th:empty { background: #3d2c1e; }
+          .details-table td { padding: 6px 8px; border: 1px solid #ddd; text-align: center; background: white; }
+          .details-table .item-code-cell { font-family: monospace; font-weight: bold; font-size: 11px; text-align: left; }
+          .details-table .desc-cell { text-align: left; font-size: 10px; color: #333; }
+          .details-table .price-cell { font-weight: bold; color: #000; font-size: 11px; }
+          .footer-section { margin-top: 8px; padding-top: 6px; display: flex; justify-content: space-between; align-items: flex-start; }
+          .footer-text { font-size: 10px; color: #333; max-width: 60%; line-height: 1.4; }
+          .footer-options { font-weight: bold; font-size: 9px; color: #3d2c1e; margin-top: 4px; }
+          .summary-box { text-align: right; background: #f5f0eb; padding: 6px 10px; border-radius: 3px; }
+          .summary-row { display: flex; justify-content: flex-end; gap: 10px; font-size: 10px; padding: 2px 0; }
+          .grand-total { font-size: 12px; font-weight: bold; color: #3d2c1e; border-top: 1px solid #3d2c1e; margin-top: 3px; padding-top: 3px; }
+          .page-number { text-align: center; font-size: 9px; color: #888; margin-top: 6px; }
+        </style>
+      </head>
+      <body>
+        ${itemPairs.map((pair, pageIndex) => {
+          const isLastPage = pageIndex === itemPairs.length - 1;
+          return `
+          <div class="page">
+            <div class="header">
+              <img src="https://customer-assets.emergentagent.com/job_furnipdf-maker/artifacts/mdh71t2g_WhatsApp%20Image%202025-12-22%20at%202.24.36%20PM.jpeg" alt="JAIPUR" class="logo" />
+              <div class="quote-info">
+                <div class="quote-title">QUOTATION</div>
+                <div class="customer-info">
+                  <strong>Ref:</strong> ${quotationData.reference || '-'} &nbsp;|&nbsp;
+                  <strong>Date:</strong> ${formatDateDDMMYYYY(quotationData.date)} &nbsp;|&nbsp;
+                  <strong>Customer:</strong> ${quotationData.customer_name || '-'}
+                </div>
+              </div>
+            </div>
+            <div class="products-row">
+              ${renderProduct(pair.left)}
+              ${renderProduct(pair.right)}
+            </div>
+            <div class="footer-section">
+              ${isLastPage ? `
+                <div class="footer-text">
+                  This quotation is valid for 30 days from the date of issue.<br>
+                  Prices are ${priceLabel}. Shipping and import duties not included.
+                  <div class="footer-options">UK WAREHOUSE • FACTORY DIRECT • SHARED CONTAINERS • TAILORED DESIGNS</div>
+                </div>
+                <div class="summary-box">
+                  <div class="summary-row"><span>Total Items:</span><strong>${totalItems} Pcs</strong></div>
+                  <div class="summary-row"><span>Total CBM:</span><strong>${totalCBM} m³</strong></div>
+                  <div class="summary-row grand-total"><span>GRAND TOTAL:</span><strong>${currencySymbol}${totalValue}</strong></div>
+                </div>
+              ` : `<div class="footer-options" style="width:100%;text-align:center;">UK WAREHOUSE • FACTORY DIRECT • SHARED CONTAINERS • TAILORED DESIGNS</div>`}
+            </div>
+            <div class="page-number">Page ${pageIndex + 1} of ${itemPairs.length}</div>
+          </div>
+        `}).join('')}
+      </body>
+      </html>
+    `;
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      toast.error('Please allow popups for this site');
+      return;
+    }
+    printWindow.document.write(quotationHTML + `
+      <script>
+        window.onload = function() {
+          var images = document.images;
+          var loaded = 0;
+          var total = images.length;
+          if (total === 0) { setTimeout(function() { window.print(); }, 500); return; }
+          for (var i = 0; i < total; i++) {
+            if (images[i].complete) { loaded++; }
+            else { images[i].onload = images[i].onerror = function() { loaded++; if (loaded >= total) { setTimeout(function() { window.print(); }, 500); } }; }
+          }
+          if (loaded >= total) { setTimeout(function() { window.print(); }, 500); }
+        };
+      </script>
+    `);
+    printWindow.document.close();
+    toast.success('Quotation generated - select "Save as PDF" to download');
+  };
   const addSelectedProducts = () => {
     const newItems = [];
     selectedProducts.forEach(productId => {
