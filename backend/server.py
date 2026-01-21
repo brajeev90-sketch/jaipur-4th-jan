@@ -1827,13 +1827,25 @@ async def get_dashboard_stats():
 
 # --- QUOTATIONS ---
 
-@api_router.get("/quotations", response_model=List[Quotation])
-async def get_quotations():
-    quotations = await db.quotations.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
-    return quotations
+@api_router.get("/quotations")
+async def get_quotations(lite: bool = True):
+    """Get all quotations. Use lite=true (default) for fast loading without images"""
+    if lite:
+        # Return only essential fields - no images
+        quotations = await db.quotations.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+        # Strip image data from items for list view
+        for q in quotations:
+            item_count = len(q.get('items', []))
+            q['items'] = []  # Clear items with images
+            q['item_count'] = item_count  # Just keep count
+        return quotations
+    else:
+        quotations = await db.quotations.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+        return quotations
 
-@api_router.get("/quotations/{quotation_id}", response_model=Quotation)
+@api_router.get("/quotations/{quotation_id}")
 async def get_quotation(quotation_id: str):
+    """Get single quotation with full data including images"""
     quotation = await db.quotations.find_one({"id": quotation_id}, {"_id": 0})
     if not quotation:
         raise HTTPException(status_code=404, detail="Quotation not found")
