@@ -360,13 +360,12 @@ export default function Products() {
     if (file) {
       const reader = new FileReader();
       reader.onload = async () => {
-        // Convert to WebP for smaller file size
-        const webpImage = await convertToWebP(reader.result);
+        // Resize and convert to WebP for faster loading
+        const optimized = await optimizeImage(reader.result);
         if (imageNumber === 1) {
-          setFormData(prev => ({ ...prev, image: webpImage }));
+          setFormData(prev => ({ ...prev, image: optimized }));
         } else {
-          // Second image goes into images array
-          setFormData(prev => ({ ...prev, images: [webpImage] }));
+          setFormData(prev => ({ ...prev, images: [optimized] }));
         }
       };
       reader.readAsDataURL(file);
