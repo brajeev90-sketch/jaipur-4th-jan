@@ -149,7 +149,8 @@ export const noteTemplatesApi = {
 
 // Quotations API
 export const quotationsApi = {
-  getAll: () => api.get('/quotations'),
+  getAll: (lite = true) => api.get(`/quotations?lite=${lite}`),
+  getAllFull: () => api.get('/quotations?lite=false'),
   getById: (id) => api.get(`/quotations/${id}`),
   create: (data) => api.post('/quotations', data),
   update: (id, data) => api.put(`/quotations/${id}`, data),
