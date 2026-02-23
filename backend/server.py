@@ -1915,7 +1915,7 @@ async def duplicate_quotation(quotation_id: str):
     return new_quotation
 
 # Include the router in the main app
-app.include_router(api_router)
+app.include_router(api_router, prefix="/api")
 
 app.add_middleware(
     CORSMiddleware,
