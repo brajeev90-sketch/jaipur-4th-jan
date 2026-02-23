@@ -393,9 +393,8 @@ async def create_order(order_data: OrderCreate):
     await db.orders.insert_one(doc)
     return order
 
-@api_router.patch("/orders/{order_id}", response_model=Order)
+@api_router.put("/orders/{order_id}", response_model=Order)
 async def update_order(order_id: str, order_data: OrderUpdate):
-
     existing = await db.orders.find_one({"id": order_id}, {"_id": 0})
     if not existing:
         raise HTTPException(status_code=404, detail="Order not found")
@@ -403,21 +402,12 @@ async def update_order(order_id: str, order_data: OrderUpdate):
     update_data = {k: v for k, v in order_data.model_dump().items() if v is not None}
     update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
 
-    # Convert items if present
     if "items" in update_data:
-        update_data["items"] = [
-            item.model_dump() if hasattr(item, "model_dump") else item
-            for item in update_data["items"]
-        ]
+        update_data["items"] = [item.model_dump() if hasattr(item, 'model_dump') else item for item in update_data["items"]]
 
-    await db.orders.update_one(
-        {"id": order_id},
-        {"$set": update_data}
-    )
-
+    await db.orders.update_one({"id": order_id}, {"$set": update_data})
     updated = await db.orders.find_one({"id": order_id}, {"_id": 0})
     return updated
-
 @api_router.delete("/orders/{order_id}")
 async def delete_order(order_id: str):
     result = await db.orders.delete_one({"id": order_id})
@@ -1915,7 +1905,7 @@ async def duplicate_quotation(quotation_id: str):
     return new_quotation
 
 # Include the router in the main app
-app.include_router(api_router, prefix="/api")
+app.include_router(api_router)
 
 app.add_middleware(
     CORSMiddleware,
