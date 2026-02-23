@@ -41,7 +41,7 @@ export const ordersApi = {
   getAllFull: () => api.get("/orders?lite=false"),
   getById: (id) => api.get(`/orders/${id}`),
   create: (data) => api.post("/orders", data),
-  update: (id, data) => api.put(`/orders/${id}`, data),
+  update: (id, data) => api.patch(`/orders/${id}`, data),
   delete: (id) => api.delete(`/orders/${id}`),
   exportPdf: (id) => `${API}/orders/${id}/export/pdf`,
   exportPpt: (id) => `${API}/orders/${id}/export/ppt`,
