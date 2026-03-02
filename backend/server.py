@@ -242,7 +242,6 @@ class NoteTemplateCreate(BaseModel):
 
 class Product(BaseModel):
     model_config = ConfigDict(extra="ignore")
-
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     product_code: str
     description: str = ""
@@ -257,15 +256,9 @@ class Product(BaseModel):
     warehouse_price_1: float = 0
     warehouse_price_2: float = 0
     image: str = ""
-
-    images: List[str] = Field(default_factory=list)
-
-    created_at: str = Field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
-    )
-    updated_at: str = Field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
-    )
+    images: List[str] = []
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    updated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 class ProductCreate(BaseModel):
     product_code: str
@@ -281,11 +274,9 @@ class ProductCreate(BaseModel):
     warehouse_price_1: float = 0
     warehouse_price_2: float = 0
     image: str = ""
-    images: List[str] = Field(default_factory=list)
-    
-class ProductUpdate(BaseModel):
-    model_config = ConfigDict(extra="ignore")
+    images: List[str] = []
 
+class ProductUpdate(BaseModel):
     product_code: Optional[str] = None
     description: Optional[str] = None
     category: Optional[str] = None
@@ -402,32 +393,19 @@ async def create_order(order_data: OrderCreate):
     await db.orders.insert_one(doc)
     return order
 
-@api_router.patch("/orders/{order_id}", response_model=Order)
+@api_router.put("/orders/{order_id}", response_model=Order)
 async def update_order(order_id: str, order_data: OrderUpdate):
-
     existing = await db.orders.find_one({"id": order_id}, {"_id": 0})
     if not existing:
         raise HTTPException(status_code=404, detail="Order not found")
 
-    # Only update provided fields (PATCH behavior)
-    update_data = {
-        k: v for k, v in order_data.model_dump().items()
-        if v is not None
-    }
-
+    update_data = {k: v for k, v in order_data.model_dump().items() if v is not None}
     update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
 
     if "items" in update_data:
-        update_data["items"] = [
-            item.model_dump() if hasattr(item, "model_dump") else item
-            for item in update_data["items"]
-        ]
+        update_data["items"] = [item.model_dump() if hasattr(item, 'model_dump') else item for item in update_data["items"]]
 
-    await db.orders.update_one(
-        {"id": order_id},
-        {"$set": update_data}
-    )
-
+    await db.orders.update_one({"id": order_id}, {"$set": update_data})
     updated = await db.orders.find_one({"id": order_id}, {"_id": 0})
     return updated
 
@@ -1928,7 +1906,7 @@ async def duplicate_quotation(quotation_id: str):
     return new_quotation
 
 # Include the router in the main app
-app.include_router(api_router, prefix="/api")
+app.include_router(api_router)
 
 app.add_middleware(
     CORSMiddleware,
