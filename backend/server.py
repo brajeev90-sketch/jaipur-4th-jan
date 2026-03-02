@@ -242,6 +242,7 @@ class NoteTemplateCreate(BaseModel):
 
 class Product(BaseModel):
     model_config = ConfigDict(extra="ignore")
+
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     product_code: str
     description: str = ""
@@ -256,9 +257,15 @@ class Product(BaseModel):
     warehouse_price_1: float = 0
     warehouse_price_2: float = 0
     image: str = ""
-    images: List[str] = []
-    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
-    updated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+    images: List[str] = Field(default_factory=list)
+
+    created_at: str = Field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+    )
+    updated_at: str = Field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+    )
 
 class ProductCreate(BaseModel):
     product_code: str
@@ -274,9 +281,11 @@ class ProductCreate(BaseModel):
     warehouse_price_1: float = 0
     warehouse_price_2: float = 0
     image: str = ""
-    images: List[str] = []
-
+    images: List[str] = Field(default_factory=list)
+    
 class ProductUpdate(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     product_code: Optional[str] = None
     description: Optional[str] = None
     category: Optional[str] = None
