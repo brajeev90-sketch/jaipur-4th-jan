@@ -211,10 +211,12 @@ export default function EditOrder() {
     if (index !== null) {
       // Ensure images and product_image are properly initialized when editing
       const existingItem = order.items[index];
+      // Use product_image if available, otherwise fallback to first image in images array
+      const mainImage = existingItem.product_image || (existingItem.images?.length > 0 ? existingItem.images[0] : '');
       setCurrentItem({ 
         ...existingItem,
         images: existingItem.images || [],
-        product_image: existingItem.product_image || ''
+        product_image: mainImage
       });
       setProductSearch(existingItem.product_code || '');
       setEditingItemIndex(index);

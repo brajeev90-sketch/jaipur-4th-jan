@@ -66,11 +66,9 @@ export const Layout = () => {
 
     setChangingPassword(true);
     try {
-      await api.post('/auth/change-password', null, {
-        params: {
-          current_password: currentPassword,
-          new_password: newPassword
-        }
+      await api.post('/auth/change-password', {
+        current_password: currentPassword,
+        new_password: newPassword
       });
       toast.success('Password changed successfully!');
       setPasswordDialogOpen(false);

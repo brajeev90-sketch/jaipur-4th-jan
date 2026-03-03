@@ -77,6 +77,10 @@ class LoginResponse(BaseModel):
     username: str
     message: str
 
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
 # ============ AUTH ENDPOINTS ============
 
 @api_router.post("/auth/login", response_model=LoginResponse)
@@ -109,18 +113,17 @@ async def verify_auth(user: dict = Depends(verify_token)):
 
 @api_router.post("/auth/change-password")
 async def change_password(
-    current_password: str,
-    new_password: str,
+    request: ChangePasswordRequest,
     user: dict = Depends(verify_token)
 ):
     """Change admin password"""
     global ADMIN_PASSWORD_HASH
-    current_hash = hashlib.sha256(current_password.encode()).hexdigest()
+    current_hash = hashlib.sha256(request.current_password.encode()).hexdigest()
     
     if current_hash != ADMIN_PASSWORD_HASH:
         raise HTTPException(status_code=401, detail="Current password is incorrect")
     
-    ADMIN_PASSWORD_HASH = hashlib.sha256(new_password.encode()).hexdigest()
+    ADMIN_PASSWORD_HASH = hashlib.sha256(request.new_password.encode()).hexdigest()
     return {"message": "Password changed successfully"}
 
 # ============ MODELS ============
@@ -292,6 +295,7 @@ class QuotationItem(BaseModel):
     quantity: int = 1
     fob_price: float = 0
     total: float = 0
+    image: str = ""  # Product image for quotation display
 
 class Quotation(BaseModel):
     model_config = ConfigDict(extra="ignore")
